@@ -25,7 +25,7 @@ export async function handleActivityRoutes(req:IncomingMessage,res:ServerRespons
   try {
     const activityMatch=pathname.match(/^\/api\/v1\/activities\/([^/]+)(?:\/(.+))?$/);
     if(activityMatch) {
-      const id=activityMatch[1], action=activityMatch[2];
+      const id=activityMatch[1]!, action=activityMatch[2]!;
       if(req.method==="GET" && !action) return send(res,200,await getActivity(user.learner_id,id));
       if(req.method==="POST" && action==="start") {
         const input=await readBody(req);
@@ -35,7 +35,7 @@ export async function handleActivityRoutes(req:IncomingMessage,res:ServerRespons
 
     const attemptMatch=pathname.match(/^\/api\/v1\/attempts\/([^/]+)(?:\/(.+))?$/);
     if(attemptMatch) {
-      const id=attemptMatch[1],action=attemptMatch[2];
+      const id=attemptMatch[1]!,action=attemptMatch[2]!;
       if(req.method==="PATCH" && !action) {
         const input=await readBody(req);
         return send(res,200,await updateAttempt(user.learner_id,id,input.input ?? {},input.progress ?? 0));
