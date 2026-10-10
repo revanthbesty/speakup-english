@@ -60,7 +60,7 @@ export function evaluateSentence(input: unknown): SentenceEvaluation {
     };
   }
 
-  if (score >= .6) {
+  if (score >= .4 && words.every(word => expected.includes(word))) {
     const missing = expected.filter((x,i)=>words[i]!==x);
     return {
       outcome:"PARTIAL",score,confidence:.95,
