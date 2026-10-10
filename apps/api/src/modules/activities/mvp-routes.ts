@@ -36,7 +36,7 @@ export async function handleMvpActivityRoutes(
       return send(res,200,getMvpActivityDefinition(match[1]!));
     }
 
-    if(req.method==="POST" && match[1]!==="SENTENCE_BUILDER"){
+    if(req.method==="POST" && match[1] !=="SENTENCE_BUILDER"){
       const input=await body(req);
       const evaluation=evaluateSentence(input.tokens ?? input.sentence);
       if(input.attemptId){
