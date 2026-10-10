@@ -11,3 +11,22 @@
 .topbar>.profile{padding:8px 12px;border:1px solid var(--line);border-radius:12px;background:#fff}
 @media(max-width:760px){.topbar{position:relative;flex-wrap:wrap;gap:12px;padding:14px 18px}.topbar nav{order:3;flex-basis:100%;gap:14px;flex-wrap:wrap}.topbar select,.topbar button{max-width:150px}.topbar label{font-size:11px}}
 
+/* Journey lesson layout */
+.shell{width:min(1120px,calc(100% - 48px));margin:0 auto;padding:40px 0 76px}
+.shell>h1{max-width:900px}
+.shell>.lead{font-size:18px;line-height:1.65;color:var(--muted);margin:16px 0 30px}
+.shell .grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(240px,1fr);gap:20px;align-items:start}
+.shell .card{min-width:0;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:0 10px 35px rgba(60,48,120,.045)}
+.shell .card h2,.shell .card h3{margin:0 0 12px;line-height:1.25}
+.shell .card .muted{margin:8px 0 22px}
+.activity-list{display:grid;gap:12px}
+.activity{display:flex;align-items:flex-start;gap:16px;padding:17px;border:1px solid var(--line);border-radius:16px;background:#fff;transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+.activity:hover{transform:translateY(-1px);border-color:#c9bfff;box-shadow:0 8px 24px rgba(60,48,120,.07)}
+.activity .num{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:var(--accent2);color:var(--accent);font-weight:900}
+.activity strong{display:block;font-size:15px;line-height:1.4}
+.activity small{display:block;margin-top:5px;color:var(--muted);font-size:13px;line-height:1.5}
+.shell .metric{font-size:34px;font-weight:900;letter-spacing:-1px;margin:18px 0 8px}
+.shell .bar{height:10px;background:#eeeaf9;border-radius:99px;overflow:hidden;margin:14px 0}
+.shell .bar i{display:block;height:100%;background:var(--accent);border-radius:inherit}
+@media(max-width:760px){.shell{width:calc(100% - 32px);padding:28px 0 56px}.shell .grid{grid-template-columns:1fr;gap:14px}.shell .card{padding:22px}.shell>h1{font-size:clamp(38px,11vw,54px);letter-spacing:-1.8px}.shell>.lead{font-size:16px}.activity{padding:15px;gap:12px}}
+
