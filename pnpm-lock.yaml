@@ -73,6 +73,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@speakup/accessibility':
+        specifier: workspace:*
+        version: link:../../packages/accessibility
+      '@speakup/localization':
+        specifier: workspace:*
+        version: link:../../packages/localization
       next:
         specifier: ^15.1.3
         version: 15.5.27(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
