@@ -5,6 +5,7 @@ import {applyEvidenceToMastery,getMastery} from "../mastery/mastery-service.js";
 import {awardXpFromEvidence} from "../gamification/gamification-service.js";
 import {syncLessonProgressFromEvidence} from "../progress/progress-service.js";
 import {recordLearningOutcome} from "../recommendation/recommendation-service.js";
+import {refreshToday} from "../daily/daily-service.js";
 
 function token(req:IncomingMessage){
   const value=req.headers.authorization;
