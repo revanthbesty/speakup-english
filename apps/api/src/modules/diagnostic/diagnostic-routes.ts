@@ -45,8 +45,8 @@ export async function handleDiagnosticRoutes(
     const match = pathname.match(/^\/api\/v1\/diagnostics\/([^/]+)(?:\/(.+))?$/);
     if (!match) return fail(res,404,"NOT_FOUND","Diagnostic route not found.");
 
-    const diagnosticId = match[1];
-    const action = match[2];
+    const diagnosticId = match[1]!;
+    const action = match[2]!;
 
     if (req.method==="GET" && !action) return send(res,200,await getDiagnostic(user.learner_id,diagnosticId));
     if (req.method==="POST" && action==="start") return send(res,200,await startDiagnostic(user.learner_id,diagnosticId));
