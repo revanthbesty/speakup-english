@@ -8,7 +8,7 @@ await pool.query(`create table if not exists schema_migrations (
   version varchar(100) primary key,
   applied_at timestamptz not null default now()
 )`);
-const dir = path.resolve("database/migrations");
+const dir = path.resolve("../../database/migrations");
 const files = (await fs.readdir(dir)).filter(f => f.endsWith(".sql")).sort();
 
 for (const file of files) {
