@@ -18,5 +18,5 @@ test("wrong order receives actionable retry feedback", () => {
 test("empty input gets a supportive starting hint", () => {
   const result=evaluateSentence([]);
   assert.equal(result.outcome,"INCORRECT");
-  assert.match(result.feedback.retryHint,"I");
+  assert.match(result.feedback.retryHint,/I/);
 });
