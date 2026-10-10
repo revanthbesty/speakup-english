@@ -1,0 +1,16 @@
+node_modules/
+.pnpm-store/
+.next/
+dist/
+build/
+coverage/
+.env
+.env.local
+.env.*.local
+!.env.example
+.gradle/
+.idea/
+*.iml
+.DS_Store
+reports/
+*.log

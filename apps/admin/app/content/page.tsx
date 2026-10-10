@@ -1,0 +1,1 @@
+export default function Content(){return <main style={{padding:40,fontFamily:'system-ui'}}><h1>Content Operations</h1><p>Content lifecycle: Draft → Review → Validated → Published → Archived.</p><p>All published activities retain version, objective, audience, difficulty, evaluation and evidence metadata.</p></main>}

@@ -1,0 +1,1 @@
+Integrated browser MVP uses local demo state for the learner flow. Production API remains in apps/api and can be connected through the existing AI Gateway contracts.

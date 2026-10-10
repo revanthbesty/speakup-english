@@ -1,0 +1,1 @@
+export default function Safety(){return <main style={{padding:40,fontFamily:'system-ui'}}><h1>AI & Safety Operations</h1><p>Provider routing, circuit breakers, safety events, schema validation and golden evaluation runs are controlled server-side.</p></main>}

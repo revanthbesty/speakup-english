@@ -1,0 +1,25 @@
+{
+  "name": "speakup",
+  "private": true,
+  "version": "0.5.2",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @speakup/api --filter @speakup/web --filter @speakup/admin dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter @speakup/api db:migrate",
+    "db:seed": "pnpm --filter @speakup/api db:seed",
+    "db:reset": "pnpm --filter @speakup/api db:reset",
+    "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "verify:release": "node scripts/verify-release.mjs",
+    "staging:preflight": "node scripts/staging-preflight.mjs",
+    "staging:smoke": "node scripts/staging-smoke.mjs",
+    "release:config": "node scripts/release-configuration-check.mjs",
+    "staging:ci": "node scripts/staging-ci-check.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.8.3"
+  }
+}

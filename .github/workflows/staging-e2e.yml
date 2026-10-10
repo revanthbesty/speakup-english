@@ -1,0 +1,77 @@
+name: SpeakUp Staging E2E
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'staging-*'
+
+permissions:
+  contents: read
+
+jobs:
+  staging-e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      POSTGRES_PASSWORD: speakup-ci-${{ github.run_id }}-${{ github.run_attempt }}
+      AI_MODE: mock
+      COMPOSE_FILE: infrastructure/staging/docker-compose.staging.yml
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@10.0.0 --activate && pnpm --version
+
+      - name: Release configuration gate
+        run: pnpm release:config
+
+      - name: Staging preflight
+        run: pnpm staging:preflight
+
+      - name: Build and start staging
+        run: docker compose -f "$COMPOSE_FILE" up -d --build
+
+      - name: Wait for services
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:4000/ready >/dev/null 2>&1 && \
+               curl -fsS http://localhost:3000/ >/dev/null 2>&1 && \
+               curl -fsS http://localhost:3001/ >/dev/null 2>&1; then
+              echo "Staging services are ready"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Staging services did not become ready"
+          docker compose -f "$COMPOSE_FILE" ps
+          exit 1
+
+      - name: Staging smoke gate
+        run: pnpm staging:smoke
+
+      - name: Upload Compose diagnostics
+        if: always()
+        run: |
+          mkdir -p artifacts
+          docker compose -f "$COMPOSE_FILE" ps > artifacts/compose-ps.txt || true
+          docker compose -f "$COMPOSE_FILE" logs --no-color --tail=500 > artifacts/compose-logs.txt || true
+
+      - name: Publish diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: speakup-staging-diagnostics-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: ignore
+
+      - name: Tear down staging
+        if: always()
+        run: docker compose -f "$COMPOSE_FILE" down -v --remove-orphans

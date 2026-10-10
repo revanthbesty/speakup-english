@@ -1,0 +1,4 @@
+"use client";
+import {useState} from "react";
+import Link from "next/link";
+export default function Landing(){const [started,setStarted]=useState(false);return <main className="landing"><div className="hero-card"><div className="brand">SpeakUp <span>English</span></div><div className="pill">AI speaking coach • MVP</div><h1>Learn English by <em>using</em> English.</h1><p className="hero-copy">Speak, build sentences, get gentle feedback, retry, and watch your confidence grow.</p><div className="hero-actions"><Link className="button" href="/home" onClick={()=>setStarted(true)}>Start my lesson →</Link><Link className="button secondary" href="/journey">Explore journey</Link></div><div className="trust-row"><span>✓ Speaking-first</span><span>✓ AI-guided</span><span>✓ Progress that matters</span></div></div></main>}

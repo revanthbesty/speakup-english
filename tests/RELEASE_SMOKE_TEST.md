@@ -1,0 +1,11 @@
+# Release Smoke Test
+- Landing page loads.
+- Home loads.
+- Journey → lesson → activity works.
+- Sentence Builder submits and evaluates.
+- Speaking permission/recording/recovery states render.
+- Feedback → retry works.
+- Progress reflects meaningful evidence.
+- API health and readiness return expected status.
+- Offline shell loads previously cached entry points.
+- Admin dashboard/content/safety pages load.

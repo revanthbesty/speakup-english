@@ -1,0 +1,87 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: speakup
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: speakup
+    ports:
+      - "5432:5432"
+    volumes:
+      - speakup_staging_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U speakup -d speakup"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: infrastructure/staging/docker/Dockerfile.api
+    environment:
+      DATABASE_URL: postgresql://speakup:${POSTGRES_PASSWORD}@postgres:5432/speakup
+      NODE_ENV: staging
+      AI_MODE: ${AI_MODE:-mock}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-lc", "pnpm --filter @speakup/api db:migrate && pnpm --filter @speakup/api db:seed"]
+    restart: "no"
+
+  api:
+    build:
+      context: ../..
+      dockerfile: infrastructure/staging/docker/Dockerfile.api
+    environment:
+      NODE_ENV: staging
+      PORT: 4000
+      DATABASE_URL: postgresql://speakup:${POSTGRES_PASSWORD}@postgres:5432/speakup
+      AI_MODE: ${AI_MODE:-mock}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      AI_PROVIDER_KEY: ${AI_PROVIDER_KEY:-external}
+      AI_PROVIDER_ENDPOINT: ${AI_PROVIDER_ENDPOINT:-}
+      AI_PROVIDER_API_KEY: ${AI_PROVIDER_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-staging-default}
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-8000}
+      AI_FAILURE_THRESHOLD: ${AI_FAILURE_THRESHOLD:-3}
+      AI_CIRCUIT_COOLDOWN_MS: ${AI_CIRCUIT_COOLDOWN_MS:-30000}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "4000:4000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build:
+      context: ../..
+      dockerfile: infrastructure/staging/docker/Dockerfile.web
+    environment:
+      NODE_ENV: staging
+      PORT: 3000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+  admin:
+    build:
+      context: ../..
+      dockerfile: infrastructure/staging/docker/Dockerfile.admin
+    environment:
+      NODE_ENV: staging
+      PORT: 3001
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+
+volumes:
+  speakup_staging_pgdata:

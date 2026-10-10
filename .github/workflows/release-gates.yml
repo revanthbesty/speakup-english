@@ -1,0 +1,17 @@
+name: release-gates
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  release-gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify release artifacts
+        run: |
+          test -f docs/RELEASE_CANDIDATE_v4.1.0.md
+          test -f tests/release/smoke-checklist.md
+          test -f infrastructure/backup/restore-runbook.md
+          test -f infrastructure/observability/README.md
+          echo 'Release gate documents present'

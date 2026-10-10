@@ -1,0 +1,1 @@
+export default function Dashboard(){return <main style={{padding:40,fontFamily:'system-ui'}}><h1>Operations Dashboard</h1><ul><li>Active learners: monitored through analytics service</li><li>Meaningful sessions: monitored through learning evidence</li><li>AI reliability: monitored through gateway health</li><li>Safety events: monitored through safety audit trail</li></ul></main>}
