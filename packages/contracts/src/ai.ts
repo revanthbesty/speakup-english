@@ -39,3 +39,5 @@ export interface EvaluationResult {
   feedback: string;
   provenance: { mode: "AI" | "MOCK" | "DETERMINISTIC"; provider: string; model: string };
 }
+
+export type MockAIScenario = "CORRECT" | "INCORRECT" | "PROVIDER_ERROR" | "TIMEOUT" | "SAFETY_BLOCK" | "INVALID_RESPONSE" | "LOW_CONFIDENCE";
