@@ -16,7 +16,7 @@ export async function runLearningAI(input:{useCase:LearningAIUseCase; learnerInp
     purpose: input.useCase,
     learnerInput: input.learnerInput,
     systemContext: input.systemContext ?? "You are a supportive English learning coach. Be concise, age-appropriate, specific, encouraging, and never shame the learner.",
-    outputSchema: { type:"object", schemaVersion, fields:["outcome","message","correction","followUp","priority","retryHint"] },
+    outputSchema: JSON.stringify({ type:"object", schemaVersion, fields:["outcome","message","correction","followUp","priority","retryHint"] }),
     maxTokens: input.maxTokens ?? 450,
     temperature: 0.2
   });
