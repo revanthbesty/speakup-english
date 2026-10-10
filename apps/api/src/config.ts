@@ -10,7 +10,7 @@ export const config = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   port: Number(process.env.PORT ?? 4000),
   databaseUrl: required("DATABASE_URL"),
-  aiMode: required("AI_MODE", "mock"),
+  aiMode: process.env.AI_MODE ?? "mock",
   aiProviderKey: process.env.AI_PROVIDER_KEY ?? "external",
   aiProviderEndpoint: process.env.AI_PROVIDER_ENDPOINT ?? "",
   aiProviderApiKey: process.env.AI_PROVIDER_API_KEY ?? "",
