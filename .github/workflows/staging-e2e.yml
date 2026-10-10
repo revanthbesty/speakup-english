@@ -38,7 +38,17 @@ jobs:
         run: pnpm staging:preflight
 
       - name: Build and start staging
-        run: docker compose -f "$COMPOSE_FILE" up -d --build
+        run: |
+          docker compose -f "$COMPOSE_FILE" build
+          docker compose -f "$COMPOSE_FILE" up -d postgres
+          for i in $(seq 1 30); do
+            if docker compose -f "$COMPOSE_FILE" exec -T postgres pg_isready -U speakup -d speakup >/dev/null 2>&1; then
+              break
+            fi
+            sleep 2
+          done
+          docker compose -f "$COMPOSE_FILE" run --rm migrate
+          docker compose -f "$COMPOSE_FILE" up -d api web admin
 
       - name: Wait for services
         run: |
