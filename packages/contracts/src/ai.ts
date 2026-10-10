@@ -29,7 +29,7 @@ export interface EvaluationRequest {
   attemptId: string;
   learnerInput: string;
   expectedPattern?: string;
-  scenario?: string;
+  scenario?: MockAIScenario;
 }
 
 export interface EvaluationResult {
