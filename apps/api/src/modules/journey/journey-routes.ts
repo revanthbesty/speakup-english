@@ -32,7 +32,7 @@ export async function handleJourneyRoutes(req:IncomingMessage,res:ServerResponse
 
     const match=pathname.match(/^\/api\/v1\/journey\/lessons\/([^/]+)\/start$/);
     if(req.method==="POST" && match)
-      return send(res,200,await startLesson(user.learner_id,match[1]));
+      return send(res,200,await startLesson(user.learner_id,match[1]!));
 
     return fail(res,404,"NOT_FOUND","Journey route not found.");
   } catch(e) {
