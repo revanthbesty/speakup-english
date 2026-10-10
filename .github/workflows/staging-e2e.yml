@@ -3,6 +3,7 @@ name: SpeakUp Staging E2E
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     tags:
       - 'staging-*'
 
