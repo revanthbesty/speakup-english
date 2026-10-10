@@ -36,11 +36,11 @@ export async function handleFeedbackRoutes(
   }
 
   try{
-    if(req.method==="GET" && match[2]!==="feedback"){
+    if(req.method==="GET" && match[2] !=="feedback"){
       return send(res,200,await getFeedback(user.learner_id,match[1]!));
     }
 
-    if(req.method==="POST" && match[2]!==="retry"){
+    if(req.method==="POST" && match[2] !=="retry"){
       return send(res,201,await createRetry(user.learner_id,match[1]!));
     }
 
