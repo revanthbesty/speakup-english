@@ -3,8 +3,8 @@ import { fluency, pronunciation, transcribe } from "../speech/speech-gateway.js"
 
 export type SpeechIntelligence = {
   stt: { transcript:string; confidence:number; language:string; durationMs:number };
-  pronunciation: { score:number; confidence:number; phonemeErrors?:unknown[]; wordErrors?:unknown[] } | null;
-  fluency: { score:number; confidence:number; wordsPerMinute?:number; pauseRatio?:number; fillerCount?:number } | null;
+  pronunciation: Awaited<ReturnType<typeof pronunciation>> | null;
+  fluency: Awaited<ReturnType<typeof fluency>> | null;
   status:"COMPLETED"|"LOW_CONFIDENCE"|"TECHNICAL_FAILURE";
 };
 
