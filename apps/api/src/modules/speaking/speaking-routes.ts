@@ -47,7 +47,7 @@ export async function handleSpeakingRoutes(
     const start=pathname.match(/^\/api\/v1\/speaking\/attempts\/([^/]+)\/start$/);
     if(req.method==="POST" && start){
       return send(res,200,await markRecordingStarted(
-        user.learner_id,start[1]
+        user.learner_id,start[1]!
       ));
     }
 
@@ -56,7 +56,7 @@ export async function handleSpeakingRoutes(
       const input=await body(req);
       return send(res,202,await submitAudioForProcessing(
         user.learner_id,
-        submit[1],
+        submit[1]!,
         input.temporaryObjectKey,
         Number(input.durationMs),
         new MockSttProvider()
@@ -66,7 +66,7 @@ export async function handleSpeakingRoutes(
     const evaluate=pathname.match(/^\/api\/v1\/speaking\/attempts\/([^/]+)\/evaluate$/);
     if(req.method==="POST" && evaluate){
       return send(res,202,await evaluateSpeakingAttempt(
-        user.learner_id,evaluate[1]
+        user.learner_id,evaluate[1]!
       ));
     }
 
