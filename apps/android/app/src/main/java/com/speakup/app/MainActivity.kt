@@ -1,6 +1,12 @@
 package com.speakup.app
 
 import android.os.Bundle
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import java.util.Locale
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,6 +44,23 @@ fun PremiumSpeakUp() {
     var completed by remember { mutableStateOf(preferences.getBoolean("cafe_lesson_complete", false)) }
     var practiceResponse by remember { mutableStateOf("") }
     var practiceChecked by remember { mutableStateOf(false) }
+    var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
+    var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
+    var speechStatus by remember { mutableStateOf("") }
+    val speechLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val words = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+            if (!words.isNullOrBlank()) {
+                practiceResponse = words
+                practiceChecked = false
+                speakingAttempts += 1
+                preferences.edit().putInt("speaking_attempts", speakingAttempts).apply()
+                speechStatus = "Speech captured. Review your words and check your reply."
+            } else speechStatus = "No words were recognized. Please try again."
+        } else speechStatus = "Speech recognition was cancelled or unavailable."
+    }
     val answer = "I'd like a cup of coffee, please."
     MaterialTheme(colorScheme = lightColorScheme(primary = Violet, background = Cream)) {
         Column(Modifier.fillMaxSize().background(Cream)) {
@@ -51,6 +74,8 @@ fun PremiumSpeakUp() {
                     "Today" -> {
                         Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = Navy, fontWeight = FontWeight.Bold)
                         Text("Speak a little. Grow every day.", color = Color.DarkGray)
+                        Spacer(Modifier.height(8.dp))
+                        Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = Violet, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(20.dp))
                         Surface(color = Navy, shape = RoundedCornerShape(26.dp)) {
                             Column(Modifier.fillMaxWidth().padding(24.dp)) {
@@ -86,7 +111,7 @@ fun PremiumSpeakUp() {
                             Text(if (selected == answer) "Excellent! This is a polite, natural request." else "Try again. 'I'd like...' is a polite way to order.", color = if (selected == answer) Color(0xFF177B57) else Color(0xFF9D5417))
                         }
                         Spacer(Modifier.height(20.dp))
-                        Button(onClick = { if (checked && selected == answer) { completed = true; preferences.edit().putBoolean("cafe_lesson_complete", true).apply(); page = "Review" } else checked = true }, enabled = selected.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
+                        Button(onClick = { if (checked && selected == answer) { if (!completed) { xp += 50; preferences.edit().putInt("total_xp", xp).apply() }; completed = true; preferences.edit().putBoolean("cafe_lesson_complete", true).apply(); page = "Review" } else checked = true }, enabled = selected.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
                             Text(if (checked && selected == answer) "Complete lesson" else "Check my answer")
                         }
                     }
@@ -103,7 +128,24 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text("Type your reply to practise the conversation. AI voice feedback is coming later.", color = Color.DarkGray)
+                        Text("Speak or type your reply. Recognition uses the speech service available on your device; AI pronunciation scoring is not yet connected.", color = Color.DarkGray)
+                        Spacer(Modifier.height(12.dp))
+                        Button(
+                            onClick = {
+                                speechStatus = ""
+                                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH.toLanguageTag())
+                                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Say your reply to the barista")
+                                }
+                                try { speechLauncher.launch(intent) }
+                                catch (_: android.content.ActivityNotFoundException) {
+                                    speechStatus = "No speech recognition app is available on this device."
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("🎙 Speak my answer") }
+                        if (speechStatus.isNotBlank()) Text(speechStatus, color = Color.DarkGray)
                         Spacer(Modifier.height(12.dp))
                         OutlinedTextField(
                             value = practiceResponse,
@@ -136,7 +178,9 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(16.dp))
                         FeatureCard(if (completed) "✓  First mission complete" else "◇  Your first mission awaits", if (completed) "Great start! Keep practising." else "Complete your first lesson to begin.", { page = "Learn" })
                         Spacer(Modifier.height(12.dp))
-                        Text("Your café lesson completion is saved on this device. Account sync and revision scheduling are planned.", color = Color.DarkGray)
+                        Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = Violet, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(8.dp))
+                        Text("Your progress is saved on this device. Account sync and revision scheduling are planned.", color = Color.DarkGray)
                     }
                 }
             }
