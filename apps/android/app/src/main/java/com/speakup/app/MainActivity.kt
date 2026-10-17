@@ -101,6 +101,15 @@ private val listeningChecks = listOf(
     ListeningCheck("Would you mind speaking a little more slowly?", "What does the speaker want?", listOf("Faster speech", "Slower speech", "No speech"), "Slower speech", "Would you mind ...? is a polite request."),
     ListeningCheck("The meeting has been moved to Friday morning.", "When is the meeting now?", listOf("Thursday evening", "Friday morning", "Saturday afternoon"), "Friday morning", "Has been moved to indicates a schedule change.")
 )
+private data class ReadingPassage(val title: String, val level: String, val passage: String, val question: String, val options: List<String>, val answer: String, val explanation: String)
+private val readingPassages = listOf(
+    ReadingPassage("Morning routine", "Beginner", "Maya wakes up at seven. She drinks water, eats breakfast, and walks to school. She likes to arrive early so she can read before class.", "Why does Maya arrive early?", listOf("To read before class", "To play football", "To buy breakfast"), "To read before class", "The final sentence tells us why Maya arrives early."),
+    ReadingPassage("At the library", "Beginner", "On Saturday, Ben visits the library with his sister. He borrows a science book and promises to return it next week. His sister chooses a storybook.", "Which book does Ben borrow?", listOf("A storybook", "A science book", "A cookbook"), "A science book", "The passage says Ben borrows a science book."),
+    ReadingPassage("A change of plans", "Intermediate", "The picnic was planned for Sunday morning, but the forecast predicted heavy rain. The family decided to visit the museum instead and save the picnic for another weekend.", "Why did the family change its plan?", listOf("The museum was closed", "They forgot the food", "Heavy rain was predicted"), "Heavy rain was predicted", "The weather forecast caused the change."),
+    ReadingPassage("A helpful colleague", "Intermediate", "Priya noticed that her colleague was struggling with a presentation. Although her own work was finished, she stayed late to review his slides. The next morning, he thanked her for the thoughtful suggestions.", "What can we infer about Priya?", listOf("She is supportive", "She dislikes teamwork", "She missed the presentation"), "She is supportive", "Staying late to help someone suggests she is supportive."),
+    ReadingPassage("Learning a new skill", "Intermediate", "At first, Omar found public speaking intimidating. He began practising short talks each evening, recorded his voice, and asked for feedback. After several weeks, he felt more comfortable speaking to a group.", "What helped Omar gain confidence?", listOf("Avoiding presentations", "Regular practice and feedback", "Memorising a single word"), "Regular practice and feedback", "Both daily practice and feedback contributed to his progress."),
+    ReadingPassage("The community garden", "Advanced", "Residents transformed an unused lot into a community garden. Besides supplying fresh vegetables, the project brought neighbours together. Volunteers shared tools and taught children how to grow food, making the space valuable beyond its harvest.", "What is the central idea?", listOf("Vegetables are always expensive", "Unused lots should remain empty", "The garden benefits the community in several ways"), "The garden benefits the community in several ways", "The passage emphasises social and educational benefits as well as fresh food.")
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -135,6 +144,10 @@ fun PremiumSpeakUp() {
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
     var gameMode by remember { mutableStateOf("Word Builder") }
+    var readingIndex by remember { mutableIntStateOf(0) }
+    var readingChoice by remember { mutableStateOf("") }
+    var readingChecked by remember { mutableStateOf(false) }
+    var readingMastered by remember { mutableStateOf((preferences.getStringSet("reading_mastered", emptySet()) ?: emptySet()).toSet()) }
     var listeningIndex by remember { mutableIntStateOf(0) }
     var listeningChoice by remember { mutableStateOf("") }
     var listeningChecked by remember { mutableStateOf(false) }
@@ -464,7 +477,7 @@ fun PremiumSpeakUp() {
                     "Games" -> {
                         Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening").forEach { mode ->
+                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
@@ -624,7 +637,7 @@ fun PremiumSpeakUp() {
                                 scenarioChoice = ""
                                 scenarioChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next situation →") }
-                        } else {
+                        } else if (gameMode == "Listening") {
                             val listening = listeningChecks[listeningIndex]
                             Text("Listening comprehension ${listeningIndex + 1} of ${listeningChecks.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             ListeningAudio(listening.phrase)
@@ -660,6 +673,39 @@ fun PremiumSpeakUp() {
                                 listeningChecked = false
                                 showListeningTranscript = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next comprehension check →") }
+                        } else {
+                            val passage = readingPassages[readingIndex]
+                            Text("Reading ${readingIndex + 1} of ${readingPassages.size} • ${passage.level}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text(passage.title, style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+                                Text(passage.passage, modifier = Modifier.padding(16.dp), color = primaryTextColor)
+                            }
+                            Spacer(Modifier.height(12.dp))
+                            Text(passage.question, style = MaterialTheme.typography.titleMedium, color = primaryTextColor)
+                            passage.options.forEach { choice ->
+                                OutlinedButton(onClick = { readingChoice = choice; readingChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                    Text((if (readingChoice == choice) "✓ " else "") + choice)
+                                }
+                            }
+                            if (readingChecked) {
+                                val correct = readingChoice == passage.answer
+                                Text(if (correct) "Correct! ${passage.explanation}" else "Try again. Re-read the passage and find the clue.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                readingChecked = true
+                                val id = readingIndex.toString()
+                                if (readingChoice == passage.answer && id !in readingMastered) {
+                                    readingMastered = readingMastered + id
+                                    xp += 10
+                                    preferences.edit().putStringSet("reading_mastered", readingMastered).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = readingChoice.isNotBlank()) { Text("Check reading answer") }
+                            Text("Passages mastered: ${readingMastered.size} / ${readingPassages.size} • +10 XP once per passage", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                readingIndex = (readingIndex + 1) % readingPassages.size
+                                readingChoice = ""
+                                readingChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next reading passage →") }
                         }
                     }
                     "Review" -> {
@@ -669,6 +715,7 @@ fun PremiumSpeakUp() {
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Spacer(Modifier.height(12.dp))
                         Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = accentTextColor, fontWeight = FontWeight.Bold)
+                        Text("Reading passages mastered: ${readingMastered.size} of ${readingPassages.size}", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         Text("Speaking confidence practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("$independentReplies of $confidenceAttempts checked replies attempted without the example", color = secondaryTextColor)
