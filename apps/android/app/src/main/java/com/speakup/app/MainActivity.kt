@@ -65,6 +65,9 @@ fun PremiumSpeakUp() {
     val lesson = lessons[lessonIndex]
     var practiceResponse by remember { mutableStateOf("") }
     var practiceChecked by remember { mutableStateOf(false) }
+    var confidenceAttempts by remember { mutableIntStateOf(preferences.getInt("confidence_attempts", 0)) }
+    var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
+    var showSpeakingHint by remember { mutableStateOf(true) }
     var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
@@ -206,7 +209,10 @@ fun PremiumSpeakUp() {
                                 Spacer(Modifier.height(12.dp))
                                 Text(lesson.question, style = MaterialTheme.typography.titleLarge, color = Navy)
                                 Spacer(Modifier.height(12.dp))
-                                Text("Practice response: $answer", color = Navy)
+                                if (showSpeakingHint) Text("Practice response: $answer", color = Navy)
+                                TextButton(onClick = { showSpeakingHint = !showSpeakingHint }) {
+                                    Text(if (showSpeakingHint) "Hide example • independent challenge" else "Show example")
+                                }
                             }
                         }
                         Spacer(Modifier.height(20.dp))
@@ -249,7 +255,15 @@ fun PremiumSpeakUp() {
                         }
                         Spacer(Modifier.height(8.dp))
                         OutlinedButton(
-                            onClick = { practiceChecked = true },
+                            onClick = {
+                                if (!practiceChecked) {
+                                    confidenceAttempts += 1
+                                    if (!showSpeakingHint) independentReplies += 1
+                                    preferences.edit().putInt("confidence_attempts", confidenceAttempts)
+                                        .putInt("independent_replies", independentReplies).apply()
+                                }
+                                practiceChecked = true
+                            },
                             enabled = practiceResponse.isNotBlank(),
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("Check my reply") }
@@ -263,6 +277,13 @@ fun PremiumSpeakUp() {
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Spacer(Modifier.height(12.dp))
                         Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = Violet, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(12.dp))
+                        Text("Speaking confidence practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("$independentReplies of $confidenceAttempts checked replies attempted without the example", color = Color.DarkGray)
+                        if (confidenceAttempts > 0) {
+                            LinearProgressIndicator(progress = { independentReplies.toFloat() / confidenceAttempts }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
+                        }
+                        Text("This tracks independent practice, not pronunciation quality or a certified fluency score.", color = Color.DarkGray, style = MaterialTheme.typography.bodySmall)
                         Spacer(Modifier.height(12.dp))
                         Text("Quick revision", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
                         Text("Correct revision answers: $revisionCorrect", color = Violet)
