@@ -12,6 +12,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -82,6 +83,15 @@ private val grammarQuestions = listOf(
     GrammarQuestion("Choose the polite request.", listOf("Can you help me, please?", "You helping me?", "Help me you."), "Can you help me, please?", "Can you ... please? is a natural, polite request."),
     GrammarQuestion("Which sentence uses the comparative correctly?", listOf("This book is more easy.", "This book is easiest than that.", "This book is easier than that."), "This book is easier than that.", "Use easier than when comparing two things.")
 )
+private data class ConversationScenario(val situation: String, val prompt: String, val options: List<String>, val correct: String, val explanation: String)
+private val conversationScenarios = listOf(
+    ConversationScenario("At a shop", "You want to know the price of a shirt. What do you say?", listOf("How much is this shirt?", "Give price shirt.", "This shirt how money?"), "How much is this shirt?", "How much is ...? is the natural way to ask about price."),
+    ConversationScenario("Job interview", "The interviewer says: Tell me about yourself.", listOf("I don't say.", "I'm a motivated learner who enjoys solving problems.", "You tell first."), "I'm a motivated learner who enjoys solving problems.", "Give a brief, positive introduction relevant to the interview."),
+    ConversationScenario("At the airport", "You cannot find your gate. What do you ask?", listOf("Where gate me?", "Excuse me, could you tell me where Gate 12 is?", "Gate now!"), "Excuse me, could you tell me where Gate 12 is?", "Excuse me and could you make your question polite."),
+    ConversationScenario("At a restaurant", "Your order has not arrived. What is a polite response?", listOf("Where is my food? Hurry!", "Excuse me, could you check on my order, please?", "Food no here."), "Excuse me, could you check on my order, please?", "A polite request is more effective than an angry demand."),
+    ConversationScenario("Meeting a new colleague", "A coworker says: Nice to meet you.", listOf("Nice to meet you too.", "No meet.", "I am not."), "Nice to meet you too.", "Reply with Nice to meet you too to return the greeting."),
+    ConversationScenario("Asking for help", "You do not understand an instruction. What do you say?", listOf("I no understand you.", "Could you explain that again, please?", "Don't talk."), "Could you explain that again, please?", "Asking for clarification politely is a useful speaking skill.")
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +126,10 @@ fun PremiumSpeakUp() {
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
     var gameMode by remember { mutableStateOf("Word Builder") }
+    var scenarioIndex by remember { mutableIntStateOf(0) }
+    var scenarioChoice by remember { mutableStateOf("") }
+    var scenarioChecked by remember { mutableStateOf(false) }
+    var scenarioMastered by remember { mutableStateOf((preferences.getStringSet("scenario_mastered", emptySet()) ?: emptySet()).toSet()) }
     var grammarIndex by remember { mutableIntStateOf(0) }
     var grammarChoice by remember { mutableStateOf("") }
     var grammarChecked by remember { mutableStateOf(false) }
@@ -435,8 +449,8 @@ fun PremiumSpeakUp() {
                     }
                     "Games" -> {
                         Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar").forEach { mode ->
+                        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
@@ -540,7 +554,7 @@ fun PremiumSpeakUp() {
                                 vocabularyChoice = ""
                                 vocabularyChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
-                        } else {
+                        } else if (gameMode == "Grammar") {
                             val question = grammarQuestions[grammarIndex]
                             Text("Grammar ${grammarIndex + 1} of ${grammarQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
@@ -568,6 +582,34 @@ fun PremiumSpeakUp() {
                                 grammarChoice = ""
                                 grammarChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next grammar question →") }
+                        } else {
+                            val scenario = conversationScenarios[scenarioIndex]
+                            Text("Situation ${scenarioIndex + 1} of ${conversationScenarios.size}: ${scenario.situation}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text(scenario.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
+                            scenario.options.forEach { choice ->
+                                OutlinedButton(onClick = { scenarioChoice = choice; scenarioChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                    Text((if (scenarioChoice == choice) "✓ " else "") + choice)
+                                }
+                            }
+                            if (scenarioChecked) {
+                                val correct = scenarioChoice == scenario.correct
+                                Text(if (correct) "Great response! ${scenario.explanation}" else "Try again. ${scenario.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                scenarioChecked = true
+                                val id = scenarioIndex.toString()
+                                if (scenarioChoice == scenario.correct && id !in scenarioMastered) {
+                                    scenarioMastered = scenarioMastered + id
+                                    xp += 10
+                                    preferences.edit().putStringSet("scenario_mastered", scenarioMastered).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = scenarioChoice.isNotBlank()) { Text("Check response") }
+                            Text("Situations mastered: ${scenarioMastered.size} / ${conversationScenarios.size} • +10 XP for each new success", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                scenarioIndex = (scenarioIndex + 1) % conversationScenarios.size
+                                scenarioChoice = ""
+                                scenarioChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next situation →") }
                         }
                     }
                     "Review" -> {
