@@ -27,12 +27,12 @@ private val Violet = Color(0xFF6C5CE7)
 private val Cream = Color(0xFFF7F7FC)
 private val Soft = Color(0xFFECE9FF)
 
-private data class Lesson(val title: String, val question: String, val answer: String, val choices: List<String>)
+private data class Lesson(val title: String, val question: String, val answer: String, val choices: List<String>, val tip: String)
 private val lessons = listOf(
-    Lesson("Café conversations", "Which sentence would you say when ordering coffee?", "I'd like a cup of coffee, please.", listOf("I want cup coffee.", "I'd like a cup of coffee, please.", "Me like coffee cup.")),
-    Lesson("Friendly introductions", "How do you introduce yourself politely?", "Hello, my name is Alex. Nice to meet you.", listOf("Me Alex. You?", "Hello, my name is Alex. Nice to meet you.", "I name Alex hello.")),
-    Lesson("Finding your way", "How do you politely ask for directions?", "Excuse me, could you tell me where the station is?", listOf("Where station go?", "Station where you?", "Excuse me, could you tell me where the station is?")),
-    Lesson("At the workplace", "How do you ask for help at work?", "Could you help me with this task, please?", listOf("Help task now.", "Could you help me with this task, please?", "You do this for me."))
+    Lesson("Café conversations", "Which sentence would you say when ordering coffee?", "I'd like a cup of coffee, please.", listOf("I want cup coffee.", "I'd like a cup of coffee, please.", "Me like coffee cup."), "Use I'd like to make a polite request."),
+    Lesson("Friendly introductions", "How do you introduce yourself politely?", "Hello, my name is Alex. Nice to meet you.", listOf("Me Alex. You?", "Hello, my name is Alex. Nice to meet you.", "I name Alex hello."), "Use My name is to introduce yourself and Nice to meet you to greet someone."),
+    Lesson("Finding your way", "How do you politely ask for directions?", "Excuse me, could you tell me where the station is?", listOf("Where station go?", "Station where you?", "Excuse me, could you tell me where the station is?"), "Excuse me and could you make your request more polite."),
+    Lesson("At the workplace", "How do you ask for help at work?", "Could you help me with this task, please?", listOf("Help task now.", "Could you help me with this task, please?", "You do this for me."), "Could you help me ... please? is a respectful request.")
 )
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +56,10 @@ fun PremiumSpeakUp() {
     var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
+    var revisionIndex by remember { mutableIntStateOf(0) }
+    var revisionAnswer by remember { mutableStateOf("") }
+    var revisionChecked by remember { mutableStateOf(false) }
+    var revisionCorrect by remember { mutableIntStateOf(preferences.getInt("revision_correct", 0)) }
     val speechLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -123,7 +127,7 @@ fun PremiumSpeakUp() {
                         }
                         if (checked) {
                             Spacer(Modifier.height(12.dp))
-                            Text(if (selected == answer) "Excellent! This is a polite, natural request." else "Try again. 'I'd like...' is a polite way to order.", color = if (selected == answer) Color(0xFF177B57) else Color(0xFF9D5417))
+                            Text(if (selected == answer) "Excellent! ${lesson.tip}" else "Try again. ${lesson.tip}", color = if (selected == answer) Color(0xFF177B57) else Color(0xFF9D5417))
                         }
                         Spacer(Modifier.height(20.dp))
                         Button(onClick = { if (checked && selected == answer) { if (lessonIndex.toString() !in completedIds) {
@@ -201,6 +205,47 @@ fun PremiumSpeakUp() {
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Spacer(Modifier.height(12.dp))
                         Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = Violet, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(12.dp))
+                        Text("Quick revision", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("Correct revision answers: $revisionCorrect", color = Violet)
+                        val reviewable = lessons.indices.filter { it.toString() in completedIds }
+                        if (reviewable.isEmpty()) {
+                            Text("Finish a lesson to unlock revision questions.", color = Color.DarkGray)
+                        } else {
+                            val current = reviewable[revisionIndex % reviewable.size]
+                            val reviewLesson = lessons[current]
+                            Text(reviewLesson.question, color = Navy, style = MaterialTheme.typography.titleMedium)
+                            reviewLesson.choices.forEach { choice ->
+                                OutlinedButton(
+                                    onClick = { revisionAnswer = choice; revisionChecked = false },
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (revisionAnswer == choice) Soft else Color.White)
+                                ) { Text(choice, color = Navy) }
+                            }
+                            if (revisionChecked) {
+                                Text(
+                                    if (revisionAnswer == reviewLesson.answer) "Correct! ${reviewLesson.tip}" else "Not quite. ${reviewLesson.tip}",
+                                    color = if (revisionAnswer == reviewLesson.answer) Color(0xFF177B57) else Color(0xFF9D5417)
+                                )
+                            }
+                            Button(
+                                onClick = {
+                                    if (!revisionChecked) {
+                                        revisionChecked = true
+                                        if (revisionAnswer == reviewLesson.answer) {
+                                            revisionCorrect += 1
+                                            preferences.edit().putInt("revision_correct", revisionCorrect).apply()
+                                        }
+                                    } else {
+                                        revisionIndex += 1
+                                        revisionAnswer = ""
+                                        revisionChecked = false
+                                    }
+                                },
+                                enabled = revisionChecked || revisionAnswer.isNotBlank(),
+                                modifier = Modifier.fillMaxWidth()
+                            ) { Text(if (revisionChecked) "Next revision question" else "Check revision answer") }
+                        }
                         Spacer(Modifier.height(8.dp))
                         Text("Your progress is saved on this device. Account sync and revision scheduling are planned.", color = Color.DarkGray)
                     }
