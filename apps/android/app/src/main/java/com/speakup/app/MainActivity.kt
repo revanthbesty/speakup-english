@@ -139,15 +139,15 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(12.dp))
                         Surface(color = Soft, shape = RoundedCornerShape(22.dp)) {
                             Column(Modifier.fillMaxWidth().padding(22.dp)) {
-                                Text("CAFÉ ROLE-PLAY", color = Violet, fontWeight = FontWeight.Bold)
+                                Text("${lesson.title.uppercase()} • SPEAKING PRACTICE", color = Violet, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(12.dp))
-                                Text("Barista: Hi! What would you like to order?", style = MaterialTheme.typography.titleLarge, color = Navy)
+                                Text(lesson.question, style = MaterialTheme.typography.titleLarge, color = Navy)
                                 Spacer(Modifier.height(12.dp))
                                 Text("Practice response: $answer", color = Navy)
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text("Speak or type your reply. Recognition uses the speech service available on your device; AI pronunciation scoring is not yet connected.", color = Color.DarkGray)
+                        Text("Speak or type your answer for this lesson. Keyword feedback is a practice aid, not a pronunciation score.", color = Color.DarkGray)
                         Spacer(Modifier.height(12.dp))
                         Button(
                             onClick = {
@@ -155,7 +155,7 @@ fun PremiumSpeakUp() {
                                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                                     putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH.toLanguageTag())
-                                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Say your reply to the barista")
+                                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your answer for ${lesson.title}")
                                 }
                                 try { speechLauncher.launch(intent) }
                                 catch (_: android.content.ActivityNotFoundException) {
@@ -169,17 +169,18 @@ fun PremiumSpeakUp() {
                         OutlinedTextField(
                             value = practiceResponse,
                             onValueChange = { practiceResponse = it; practiceChecked = false },
-                            label = { Text("Your reply to the barista") },
+                            label = { Text("Your spoken or typed response") },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 2
                         )
                         if (practiceChecked) {
                             Spacer(Modifier.height(10.dp))
-                            val naturalReply = practiceResponse.trim().contains("coffee", ignoreCase = true) &&
-                                (practiceResponse.contains("please", ignoreCase = true) || practiceResponse.contains("I'd like", ignoreCase = true))
+                            val keywords = lesson.answer.lowercase().replace(Regex("[^a-z ]"), "").split(" ").filter { it.length > 3 }.toSet()
+                            val spokenWords = practiceResponse.lowercase().replace(Regex("[^a-z ]"), "").split(" ").toSet()
+                            val naturalReply = keywords.isNotEmpty() && spokenWords.intersect(keywords).size * 2 >= keywords.size
                             Text(
-                                if (naturalReply) "Nice! Your reply sounds polite and clear."
-                                else "Tip: Try 'I'd like a cup of coffee, please.'",
+                                if (naturalReply) "Good practice! You used several key words from the example."
+                                else "Try this example: ${lesson.answer}",
                                 color = if (naturalReply) Color(0xFF177B57) else Color(0xFF9D5417)
                             )
                         }
@@ -190,7 +191,7 @@ fun PremiumSpeakUp() {
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("Check my reply") }
                         Spacer(Modifier.height(16.dp))
-                        Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Practice this sentence") }
+                        Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                     }
                     "Review" -> {
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
