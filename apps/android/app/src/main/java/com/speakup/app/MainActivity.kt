@@ -62,6 +62,17 @@ private val riddles = listOf(
     Riddle("I have hands but cannot clap. What am I?", listOf("A clock", "A child", "A tree"), "A clock", "A clock has hands that show the time."),
     Riddle("What has a neck but no head?", listOf("A bottle", "A bird", "A person"), "A bottle", "A bottle has a neck near its opening.")
 )
+private data class VocabularyCard(val word: String, val meaning: String, val example: String, val choices: List<String>)
+private val vocabularyCards = listOf(
+    VocabularyCard("Polite", "Showing respect and good manners", "It is polite to say please and thank you.", listOf("Showing respect and good manners", "Feeling very sleepy", "Moving quickly")),
+    VocabularyCard("Confident", "Feeling sure about your abilities", "She feels confident speaking English.", listOf("Feeling afraid of everything", "Feeling sure about your abilities", "Being late for work")),
+    VocabularyCard("Borrow", "To take something temporarily and return it", "May I borrow your pen?", listOf("To buy something new", "To throw something away", "To take something temporarily and return it")),
+    VocabularyCard("Improve", "To make something better", "I practise daily to improve my English.", listOf("To make something better", "To stop trying", "To forget a skill")),
+    VocabularyCard("Journey", "Travel from one place to another", "Our journey to the city was exciting.", listOf("A short message", "Travel from one place to another", "A kind of food")),
+    VocabularyCard("Grateful", "Feeling thankful", "I am grateful for your help.", listOf("Feeling angry", "Feeling thankful", "Feeling confused")),
+    VocabularyCard("Prepare", "To get ready for something", "I prepare for my interview every evening.", listOf("To get ready for something", "To give up", "To arrive late")),
+    VocabularyCard("Curious", "Wanting to learn or know more", "The curious student asked a question.", listOf("Not interested", "Very tired", "Wanting to learn or know more"))
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +107,10 @@ fun PremiumSpeakUp() {
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
     var gameMode by remember { mutableStateOf("Word Builder") }
+    var vocabularyIndex by remember { mutableIntStateOf(0) }
+    var vocabularyChoice by remember { mutableStateOf("") }
+    var vocabularyChecked by remember { mutableStateOf(false) }
+    var vocabularyMastered by remember { mutableStateOf((preferences.getStringSet("vocabulary_mastered", emptySet()) ?: emptySet()).toSet()) }
     var riddleIndex by remember { mutableIntStateOf(0) }
     var riddleChoice by remember { mutableStateOf("") }
     var riddleChecked by remember { mutableStateOf(false) }
@@ -408,7 +423,7 @@ fun PremiumSpeakUp() {
                     "Games" -> {
                         Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Word Builder", "Riddles").forEach { mode ->
+                            listOf("Word Builder", "Riddles", "Vocabulary").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
@@ -455,7 +470,7 @@ fun PremiumSpeakUp() {
                             puzzleWords = emptyList()
                             puzzleChecked = false
                         }, modifier = Modifier.fillMaxWidth()) { Text("Next puzzle →") }
-                        } else {
+                        } else if (gameMode == "Riddles") {
                             val riddle = riddles[riddleIndex]
                             Text("Riddle ${riddleIndex + 1} of ${riddles.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(riddle.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
@@ -482,6 +497,36 @@ fun PremiumSpeakUp() {
                                 riddleChoice = ""
                                 riddleChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next riddle →") }
+                        } else {
+                            val card = vocabularyCards[vocabularyIndex]
+                            Text("Vocabulary ${vocabularyIndex + 1} of ${vocabularyCards.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text(card.word, style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("What does this word mean?", color = secondaryTextColor)
+                            Spacer(Modifier.height(8.dp))
+                            card.choices.forEach { choice ->
+                                OutlinedButton(onClick = { vocabularyChoice = choice; vocabularyChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                    Text((if (vocabularyChoice == choice) "✓ " else "") + choice)
+                                }
+                            }
+                            if (vocabularyChecked) {
+                                val correct = vocabularyChoice == card.meaning
+                                Text(if (correct) "Correct! ${card.example}" else "Not quite. Try another meaning.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                vocabularyChecked = true
+                                val id = vocabularyIndex.toString()
+                                if (vocabularyChoice == card.meaning && id !in vocabularyMastered) {
+                                    vocabularyMastered = vocabularyMastered + id
+                                    xp += 10
+                                    preferences.edit().putStringSet("vocabulary_mastered", vocabularyMastered).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = vocabularyChoice.isNotBlank()) { Text("Check meaning") }
+                            Text("Words mastered: ${vocabularyMastered.size} / ${vocabularyCards.size} • +10 XP for each new word", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
+                                vocabularyChoice = ""
+                                vocabularyChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
                         }
                     }
                     "Review" -> {
