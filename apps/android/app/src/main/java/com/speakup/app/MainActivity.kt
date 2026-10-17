@@ -627,7 +627,7 @@ fun PremiumSpeakUp() {
                         } else {
                             val listening = listeningChecks[listeningIndex]
                             Text("Listening comprehension ${listeningIndex + 1} of ${listeningChecks.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
-                            Text("Read the short sentence, then answer the meaning question. Audio playback is planned.", color = secondaryTextColor)
+                            ListeningAudio(listening.phrase)
                             OutlinedButton(onClick = { showListeningTranscript = !showListeningTranscript }) { Text(if (showListeningTranscript) "Hide sentence" else "Show sentence") }
                             if (showListeningTranscript) {
                                 Surface(color = softSurfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
