@@ -164,7 +164,7 @@ fun PremiumSpeakUp() {
     var selected by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val preferences = remember(context) { context.getSharedPreferences("speakup_learning", android.content.Context.MODE_PRIVATE) }
+    val preferences = remember(context) { context.getSharedPreferences(MintIdentity.legacyPreferencesFile, android.content.Context.MODE_PRIVATE) }
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
@@ -274,8 +274,8 @@ fun PremiumSpeakUp() {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text("English Mint", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
-                        Text("FRESH GAMES • FLUENT VOICES", color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(MintIdentity.displayName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
+                        Text(MintIdentity.tagline, color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     }
                     if (!showPathSetup && !showPlacement) {
                         TextButton(onClick = { page = "Profile" }) {
