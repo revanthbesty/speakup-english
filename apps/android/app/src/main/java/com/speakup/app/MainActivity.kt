@@ -119,8 +119,8 @@ fun PremiumSpeakUp() {
     val primaryTextColor = if (darkAppearance) Color.White else Navy
     val secondaryTextColor = if (darkAppearance) Color(0xFFD2D9EA) else Color.DarkGray
     val accentTextColor = if (darkAppearance) NightAccent else Violet
-    val surfaceColor = if (darkAppearance) NightCard else surfaceColor
-    val softSurfaceColor = if (darkAppearance) NightCard else softSurfaceColor
+    val surfaceColor = if (darkAppearance) NightCard else Color.White
+    val softSurfaceColor = if (darkAppearance) NightCard else Soft
     MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, background = Night, surface = NightCard, onSurface = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
         Column(Modifier.fillMaxSize().background(backgroundColor)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
@@ -181,7 +181,7 @@ fun PremiumSpeakUp() {
                         OutlinedButton(
                             onClick = { placementSelected = choice },
                             modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (placementSelected == choice) Soft else surfaceColor)
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (placementSelected == choice) softSurfaceColor else surfaceColor)
                         ) { Text(choice, color = primaryTextColor, modifier = Modifier.fillMaxWidth()) }
                     }
                     Spacer(Modifier.height(12.dp))
@@ -306,7 +306,7 @@ fun PremiumSpeakUp() {
                         Text(lesson.question, color = primaryTextColor, style = MaterialTheme.typography.titleLarge)
                         Spacer(Modifier.height(16.dp))
                         lesson.choices.forEach { choice ->
-                            OutlinedButton(onClick = { selected = choice; checked = false }, modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected == choice) Soft else surfaceColor)) {
+                            OutlinedButton(onClick = { selected = choice; checked = false }, modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected == choice) softSurfaceColor else surfaceColor)) {
                                 Text(choice, color = primaryTextColor, modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp))
                             }
                         }
@@ -464,7 +464,7 @@ fun PremiumSpeakUp() {
                             Triple("XP Collector", xp >= 300, "Earn 300 XP")
                         )
                         badges.forEach { (name, earned, description) ->
-                            Surface(color = if (earned) Soft else surfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            Surface(color = if (earned) softSurfaceColor else surfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                                 Column(Modifier.padding(12.dp)) {
                                     Text("${if (earned) "🏅" else "🔒"} $name", color = primaryTextColor, fontWeight = FontWeight.Bold)
                                     Text(description, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
@@ -482,7 +482,7 @@ fun PremiumSpeakUp() {
                                 OutlinedButton(
                                     onClick = { revisionAnswer = choice; revisionChecked = false },
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (revisionAnswer == choice) Soft else surfaceColor)
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (revisionAnswer == choice) softSurfaceColor else surfaceColor)
                                 ) { Text(choice, color = primaryTextColor) }
                             }
                             if (revisionChecked) {
