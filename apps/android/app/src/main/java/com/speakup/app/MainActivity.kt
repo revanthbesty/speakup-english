@@ -130,6 +130,11 @@ fun PremiumSpeakUp() {
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
+    var learningGoal by remember { mutableStateOf(preferences.getString("learning_goal", "Everyday conversation") ?: "Everyday conversation") }
+    var chosenDifficulty by remember { mutableStateOf(preferences.getString("learning_difficulty", "Easy") ?: "Easy") }
+    var profileName by remember { mutableStateOf(preferences.getString("profile_name", "") ?: "") }
+    var profileFeedback by remember { mutableStateOf("") }
+    val learningGoals = listOf("Start speaking", "Everyday conversation", "School & exams", "Work & interviews", "Reading & writing", "Travel")
     var darkAppearance by remember { mutableStateOf(preferences.getBoolean("dark_appearance", false)) }
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
@@ -233,10 +238,23 @@ fun PremiumSpeakUp() {
                     Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                     Text("Choose the path that fits you. You can change it any time.", color = secondaryTextColor)
                     Spacer(Modifier.height(16.dp))
+                    Text("Your name (optional)", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                    OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                     Text("Who is learning?", fontWeight = FontWeight.SemiBold, color = primaryTextColor)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Kids", "Teen", "Adult").forEach { age ->
                             FilterChip(selected = learnerAge == age, onClick = { learnerAge = age }, label = { Text(age) })
+                        }
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    Text("Why are you learning English?", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                    learningGoals.forEach { goal ->
+                        FilterChip(selected = learningGoal == goal, onClick = { learningGoal = goal }, label = { Text(goal) }, modifier = Modifier.padding(end = 4.dp))
+                    }
+                    Text("Your preferred challenge", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf("Easy", "Medium", "Hard").forEach { difficulty ->
+                            FilterChip(selected = chosenDifficulty == difficulty, onClick = { chosenDifficulty = difficulty }, label = { Text(difficulty) })
                         }
                     }
                     Text("Daily practice goal", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
@@ -257,7 +275,7 @@ fun PremiumSpeakUp() {
                     }
                     Spacer(Modifier.height(12.dp))
                     Button(onClick = {
-                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putInt("daily_goal", dailyGoal).apply()
+                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putInt("daily_goal", dailyGoal).putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty).putString("profile_name", profileName).apply()
                         showPathSetup = false
                         showPlacement = !placementDone
                         page = "Today"
@@ -303,6 +321,8 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
+                        Text(if (profileName.isBlank()) "Welcome back!" else "Welcome, $profileName!", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Your focus: $learningGoal • $chosenDifficulty", color = accentTextColor)
                         Text("My colorful progress", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Your milestones grow as you practise.", color = secondaryTextColor)
                         Spacer(Modifier.height(10.dp))
@@ -368,7 +388,7 @@ fun PremiumSpeakUp() {
                             placementAnswers = emptyList()
                             showPlacement = true
                         }) { Text(if (placementDone) "Retake starting assessment" else "Take starting assessment") }
-                        TextButton(onClick = { showPathSetup = true }) { Text("Change my learning path") }
+                        TextButton(onClick = { page = "Profile" }) { Text("Manage my learning profile →") }
                         Spacer(Modifier.height(8.dp))
                         Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = accentTextColor, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(12.dp))
@@ -416,9 +436,11 @@ fun PremiumSpeakUp() {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                        Text("Finish one lesson to unlock the next. Previously completed lessons stay unlocked.", color = secondaryTextColor)
                         lessons.forEachIndexed { index, item ->
-                            TextButton(onClick = { lessonIndex = index; selected = ""; checked = false }, modifier = Modifier.fillMaxWidth()) {
-                                Text("${if (index.toString() in completedIds) "✓" else "○"} ${index + 1}. ${item.title}")
+                            val unlocked = index == 0 || (index - 1).toString() in completedIds || index.toString() in completedIds
+                            TextButton(onClick = { lessonIndex = index; selected = ""; checked = false }, enabled = unlocked, modifier = Modifier.fillMaxWidth()) {
+                                Text("${if (index.toString() in completedIds) "✓" else if (unlocked) "○" else "🔒"} Level ${index + 1}: ${item.title}")
                             }
                         }
                         Spacer(Modifier.height(18.dp))
@@ -515,6 +537,17 @@ fun PremiumSpeakUp() {
                     }
                     "Games" -> {
                         Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
+                        val suggestedModes = when (learningGoal) {
+                            "Start speaking" -> listOf("Word Builder", "Situations", "Listening")
+                            "School & exams" -> listOf("Grammar", "Reading", "Vocabulary")
+                            "Work & interviews" -> listOf("Situations", "Vocabulary", "Listening")
+                            "Reading & writing" -> listOf("Reading", "Grammar", "Word Builder")
+                            "Travel" -> listOf("Situations", "Listening", "Vocabulary")
+                            else -> listOf("Vocabulary", "Situations", "Word Builder")
+                        }
+                        Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
+                        Text("Browse all games below. Difficulty changes your learning preference; graded question filtering is being expanded.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
@@ -747,6 +780,45 @@ fun PremiumSpeakUp() {
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next reading passage →") }
                         }
                     }
+                    "Profile" -> {
+                        Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
+                        OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                        Text("Age group", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            listOf("Kids", "Teen", "Adult").forEach { age ->
+                                FilterChip(selected = learnerAge == age, onClick = { learnerAge = age; profileFeedback = "" }, label = { Text(age) })
+                            }
+                        }
+                        Text("Learning purpose", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        learningGoals.forEach { goal ->
+                            FilterChip(selected = learningGoal == goal, onClick = { learningGoal = goal; profileFeedback = "" }, label = { Text(goal) })
+                        }
+                        Text("Challenge difficulty", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            listOf("Easy", "Medium", "Hard").forEach { d ->
+                                FilterChip(selected = chosenDifficulty == d, onClick = { chosenDifficulty = d; profileFeedback = "" }, label = { Text(d) })
+                            }
+                        }
+                        Text("Learning pathway", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        learningPaths.forEach { path ->
+                            FilterChip(selected = chosenPath == path.id, onClick = { chosenPath = path.id; profileFeedback = "" }, label = { Text(path.title) })
+                        }
+                        Text("Daily goal", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            listOf(5, 10, 15).forEach { minutes ->
+                                FilterChip(selected = dailyGoal == minutes, onClick = { dailyGoal = minutes }, label = { Text("$minutes min") })
+                            }
+                        }
+                        Button(onClick = {
+                            preferences.edit().putString("profile_name", profileName).putString("learner_age", learnerAge)
+                                .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty)
+                                .putString("learning_path", chosenPath).putInt("daily_goal", dailyGoal).apply()
+                            profileFeedback = "Saved! Your recommendations are updated."
+                        }, modifier = Modifier.fillMaxWidth()) { Text("Save profile changes") }
+                        if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
+                        OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
+                    }
                     "Review" -> {
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(16.dp))
@@ -857,19 +929,19 @@ fun PremiumSpeakUp() {
             }
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 4.dp) {
-                listOf("Today", "Learn", "Games", "Speak", "Review").forEach { tab ->
+                listOf("Today", "Learn", "Games", "Review", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
                         "Learn" -> "▣"
                         "Games" -> "✦"
-                        "Speak" -> "♫"
-                        else -> "✓"
+                        "Review" -> "▤"
+                        else -> "◉"
                     }
                     NavigationBarItem(
                         selected = page == tab,
                         onClick = { page = tab },
                         icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab tab" }, style = MaterialTheme.typography.titleMedium) },
-                        label = { Text(tab, maxLines = 1) },
+                        label = { Text(when (tab) { "Today" -> "Home"; "Review" -> "Progress"; else -> tab }, maxLines = 1) },
                         alwaysShowLabel = true
                     )
                 }
