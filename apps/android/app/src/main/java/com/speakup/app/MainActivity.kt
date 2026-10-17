@@ -73,6 +73,15 @@ private val vocabularyCards = listOf(
     VocabularyCard("Prepare", "To get ready for something", "I prepare for my interview every evening.", listOf("To get ready for something", "To give up", "To arrive late")),
     VocabularyCard("Curious", "Wanting to learn or know more", "The curious student asked a question.", listOf("Not interested", "Very tired", "Wanting to learn or know more"))
 )
+private data class GrammarQuestion(val prompt: String, val options: List<String>, val correct: String, val explanation: String)
+private val grammarQuestions = listOf(
+    GrammarQuestion("Choose the correct present simple sentence.", listOf("She go to school.", "She goes to school.", "She going to school."), "She goes to school.", "Use goes with he, she, or it in the present simple."),
+    GrammarQuestion("Which sentence describes yesterday?", listOf("I visited my friend yesterday.", "I visit my friend yesterday.", "I visiting my friend yesterday."), "I visited my friend yesterday.", "Use the past tense visited for a completed action."),
+    GrammarQuestion("Choose the correct question.", listOf("Where you are going?", "Where are you going?", "Where going you?"), "Where are you going?", "In present continuous questions, put are before the subject."),
+    GrammarQuestion("Which sentence uses an article correctly?", listOf("I saw a elephant.", "I saw an elephant.", "I saw elephant."), "I saw an elephant.", "Use an before a vowel sound, as in elephant."),
+    GrammarQuestion("Choose the polite request.", listOf("Can you help me, please?", "You helping me?", "Help me you."), "Can you help me, please?", "Can you ... please? is a natural, polite request."),
+    GrammarQuestion("Which sentence uses the comparative correctly?", listOf("This book is more easy.", "This book is easiest than that.", "This book is easier than that."), "This book is easier than that.", "Use easier than when comparing two things.")
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,6 +116,10 @@ fun PremiumSpeakUp() {
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
     var gameMode by remember { mutableStateOf("Word Builder") }
+    var grammarIndex by remember { mutableIntStateOf(0) }
+    var grammarChoice by remember { mutableStateOf("") }
+    var grammarChecked by remember { mutableStateOf(false) }
+    var grammarMastered by remember { mutableStateOf((preferences.getStringSet("grammar_mastered", emptySet()) ?: emptySet()).toSet()) }
     var vocabularyIndex by remember { mutableIntStateOf(0) }
     var vocabularyChoice by remember { mutableStateOf("") }
     var vocabularyChecked by remember { mutableStateOf(false) }
@@ -423,7 +436,7 @@ fun PremiumSpeakUp() {
                     "Games" -> {
                         Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Word Builder", "Riddles", "Vocabulary").forEach { mode ->
+                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
@@ -497,7 +510,7 @@ fun PremiumSpeakUp() {
                                 riddleChoice = ""
                                 riddleChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next riddle →") }
-                        } else {
+                        } else if (gameMode == "Vocabulary") {
                             val card = vocabularyCards[vocabularyIndex]
                             Text("Vocabulary ${vocabularyIndex + 1} of ${vocabularyCards.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(card.word, style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -527,6 +540,34 @@ fun PremiumSpeakUp() {
                                 vocabularyChoice = ""
                                 vocabularyChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
+                        } else {
+                            val question = grammarQuestions[grammarIndex]
+                            Text("Grammar ${grammarIndex + 1} of ${grammarQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
+                            question.options.forEach { choice ->
+                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                    Text((if (grammarChoice == choice) "✓ " else "") + choice)
+                                }
+                            }
+                            if (grammarChecked) {
+                                val correct = grammarChoice == question.correct
+                                Text(if (correct) "Correct! ${question.explanation}" else "Try again. Hint: ${question.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                grammarChecked = true
+                                val id = grammarIndex.toString()
+                                if (grammarChoice == question.correct && id !in grammarMastered) {
+                                    grammarMastered = grammarMastered + id
+                                    xp += 10
+                                    preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = grammarChoice.isNotBlank()) { Text("Check grammar") }
+                            Text("Grammar mastered: ${grammarMastered.size} / ${grammarQuestions.size} • +10 XP per new correct answer", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                grammarIndex = (grammarIndex + 1) % grammarQuestions.size
+                                grammarChoice = ""
+                                grammarChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next grammar question →") }
                         }
                     }
                     "Review" -> {
