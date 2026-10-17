@@ -92,7 +92,7 @@ fun PremiumSpeakUp() {
                                 Spacer(Modifier.height(12.dp))
                                 Text("Order confidently at a café", style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(8.dp))
-                                Text("A practical 5-minute conversation challenge", color = Color(0xFFE4E3F6))
+                                Text("Four practical beginner conversation lessons", color = Color(0xFFE4E3F6))
                                 Spacer(Modifier.height(20.dp))
                                 Button(onClick = { page = "Learn"; checked = false; selected = "" }, modifier = Modifier.fillMaxWidth()) { Text("Start my mission →") }
                             }
@@ -106,6 +106,7 @@ fun PremiumSpeakUp() {
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = Violet, fontWeight = FontWeight.Bold)
                         lessons.forEachIndexed { index, item ->
                             TextButton(onClick = { lessonIndex = index; selected = ""; checked = false }, modifier = Modifier.fillMaxWidth()) {
