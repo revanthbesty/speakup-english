@@ -27,6 +27,15 @@ private val Violet = Color(0xFF6C5CE7)
 private val Cream = Color(0xFFF7F7FC)
 private val Soft = Color(0xFFECE9FF)
 
+private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
+private val learningPaths = listOf(
+    LearningPath("zero", "Start from zero", "Letters, everyday words and first sentences", "Begin with friendly introductions and simple phrases."),
+    LearningPath("basic", "I know a little English", "Build vocabulary, grammar and daily conversation", "Practise the four beginner conversation lessons."),
+    LearningPath("speaking", "I understand but cannot speak", "Gain confidence through guided speaking", "Open Speaking Studio and practise one short response."),
+    LearningPath("advanced", "I want advanced English", "Fluency, presentations and precise vocabulary", "Start with speaking practice while advanced courses are developed."),
+    LearningPath("exams", "I am preparing for exams", "IELTS and other English exam pathways", "Practise reading and speaking while exam modules are developed.")
+)
+
 private data class Lesson(val title: String, val question: String, val answer: String, val choices: List<String>, val tip: String)
 private val lessons = listOf(
     Lesson("Café conversations", "Which sentence would you say when ordering coffee?", "I'd like a cup of coffee, please.", listOf("I want cup coffee.", "I'd like a cup of coffee, please.", "Me like coffee cup."), "Use I'd like to make a polite request."),
@@ -48,6 +57,9 @@ fun PremiumSpeakUp() {
     var checked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences("speakup_learning", android.content.Context.MODE_PRIVATE) }
+    var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
+    var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
+    var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
     val lesson = lessons[lessonIndex]
@@ -83,10 +95,41 @@ fun PremiumSpeakUp() {
                     Text("ENGLISH", color = Violet, style = MaterialTheme.typography.labelMedium)
                 }
                 Spacer(Modifier.height(24.dp))
-                when (page) {
+                if (showPathSetup) {
+                    Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                    Text("Choose the path that fits you. You can change it any time.", color = Color.DarkGray)
+                    Spacer(Modifier.height(16.dp))
+                    Text("Who is learning?", fontWeight = FontWeight.SemiBold, color = Navy)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf("Kids", "Teen", "Adult").forEach { age ->
+                            FilterChip(selected = learnerAge == age, onClick = { learnerAge = age }, label = { Text(age) })
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    learningPaths.forEach { path ->
+                        Surface(color = if (chosenPath == path.id) Soft else Color.White, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shadowElevation = 1.dp) {
+                            Column(Modifier.padding(16.dp)) {
+                                Text(path.title, color = Navy, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                Text(path.subtitle, color = Color.DarkGray)
+                                TextButton(onClick = { chosenPath = path.id }) { Text(if (chosenPath == path.id) "✓ Selected" else "Choose this path") }
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Button(onClick = {
+                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).apply()
+                        showPathSetup = false
+                        page = "Today"
+                    }, enabled = chosenPath.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Start my learning journey →") }
+                } else when (page) {
                     "Today" -> {
                         Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = Navy, fontWeight = FontWeight.Bold)
                         Text("Speak a little. Grow every day.", color = Color.DarkGray)
+                        Spacer(Modifier.height(8.dp))
+                        val activePath = learningPaths.firstOrNull { it.id == chosenPath }
+                        Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = Violet, fontWeight = FontWeight.Bold)
+                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
+                        TextButton(onClick = { showPathSetup = true }) { Text("Change my learning path") }
                         Spacer(Modifier.height(8.dp))
                         Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = Violet, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(20.dp))
@@ -251,11 +294,13 @@ fun PremiumSpeakUp() {
                     }
                 }
             }
+            if (!showPathSetup) {
             HorizontalDivider()
             Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 listOf("Today", "Learn", "Speak", "Review").forEach { tab ->
                     TextButton(onClick = { page = tab }) { Text(tab, color = if (page == tab) Violet else Color.Gray) }
                 }
+            }
             }
         }
     }
