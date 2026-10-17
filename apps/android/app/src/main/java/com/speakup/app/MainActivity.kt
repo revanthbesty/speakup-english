@@ -463,7 +463,7 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(8.dp))
                         val levels = listOf(0, 100, 300, 600, 1000, 1800, 3000, 5000, 8000, 12000)
                         val level = levels.indexOfLast { xp >= it } + 1
-                        val levelNames = listOf("First Steps", "Word Explorer", "Sentence Builder", "Rising Speaker", "Confident Communicator", "Conversation Champion", "Fluent Explorer", "English Achiever", "Language Master", "SpeakUp Legend")
+                        val levelNames = listOf("First Steps", "Word Explorer", "Sentence Builder", "Rising Speaker", "Confident Communicator", "Conversation Champion", "Fluent Explorer", "English Achiever", "Language Master", "Mint Legend")
                         val currentFloor = levels[level - 1]
                         val nextTarget = levels.getOrNull(level)
                         Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
