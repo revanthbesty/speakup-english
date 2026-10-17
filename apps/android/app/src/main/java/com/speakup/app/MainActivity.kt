@@ -26,6 +26,7 @@ private val Navy = Color(0xFF111C35)
 private val Violet = Color(0xFF6C5CE7)
 private val Cream = Color(0xFFF7F7FC)
 private val Soft = Color(0xFFECE9FF)
+private val DarkBackground = Color(0xFF10192D)
 
 private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
 private val learningPaths = listOf(
@@ -66,6 +67,8 @@ fun PremiumSpeakUp() {
     val preferences = remember(context) { context.getSharedPreferences("speakup_learning", android.content.Context.MODE_PRIVATE) }
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
+    var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
+    var darkMode by remember { mutableStateOf(preferences.getBoolean("dark_mode", false)) }
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
     var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", 0)) }
@@ -107,14 +110,20 @@ fun PremiumSpeakUp() {
         } else speechStatus = "Speech recognition was cancelled or unavailable."
     }
     val answer = lesson.answer
-    MaterialTheme(colorScheme = lightColorScheme(primary = Violet, background = Cream)) {
-        Column(Modifier.fillMaxSize().background(Cream)) {
+    MaterialTheme(colorScheme = if (darkMode) darkColorScheme(primary = Color(0xFFB4A8FF), background = DarkBackground, surface = DarkBackground) else lightColorScheme(primary = Violet, background = Cream)) {
+        Column(Modifier.fillMaxSize().background(if (darkMode) DarkBackground else Cream)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("speakup.", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = Navy)
                     Text("ENGLISH", color = Violet, style = MaterialTheme.typography.labelMedium)
                 }
-                Spacer(Modifier.height(24.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = {
+                        darkMode = !darkMode
+                        preferences.edit().putBoolean("dark_mode", darkMode).apply()
+                    }) { Text(if (darkMode) "☀ Light mode" else "☾ Dark mode") }
+                }
+                Spacer(Modifier.height(12.dp))
                 if (showPathSetup) {
                     Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
                     Text("Choose the path that fits you. You can change it any time.", color = Color.DarkGray)
@@ -123,6 +132,12 @@ fun PremiumSpeakUp() {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Kids", "Teen", "Adult").forEach { age ->
                             FilterChip(selected = learnerAge == age, onClick = { learnerAge = age }, label = { Text(age) })
+                        }
+                    }
+                    Text("Daily practice goal", color = if (darkMode) Color.White else Navy, fontWeight = FontWeight.SemiBold)
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(5, 10, 15).forEach { minutes ->
+                            FilterChip(selected = dailyGoal == minutes, onClick = { dailyGoal = minutes }, label = { Text("$minutes min") })
                         }
                     }
                     Spacer(Modifier.height(12.dp))
@@ -137,7 +152,7 @@ fun PremiumSpeakUp() {
                     }
                     Spacer(Modifier.height(12.dp))
                     Button(onClick = {
-                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).apply()
+                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putInt("daily_goal", dailyGoal).apply()
                         showPathSetup = false
                         showPlacement = !placementDone
                         page = "Today"
@@ -182,12 +197,14 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
-                        Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = Navy, fontWeight = FontWeight.Bold)
+                        Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = if (darkMode) Color.White else Navy, fontWeight = FontWeight.Bold)
                         Text("Speak a little. Grow every day.", color = Color.DarkGray)
                         Spacer(Modifier.height(8.dp))
                         val activePath = learningPaths.firstOrNull { it.id == chosenPath }
                         Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = Violet, fontWeight = FontWeight.Bold)
-                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
+                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = if (darkMode) Color.LightGray else Color.DarkGray)
+                        Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = if (darkMode) Color.White else Navy)
+                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                         if (placementDone) {
                             val recommendation = when (placementScore) {
                                 0 -> "Suggested start: first words and everyday phrases"
@@ -226,11 +243,17 @@ fun PremiumSpeakUp() {
                             Column(Modifier.fillMaxWidth().padding(24.dp)) {
                                 Text("TODAY'S SPEAKING MISSION", color = Color(0xFFBEB5FF), fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(12.dp))
-                                Text("Order confidently at a café", style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.Bold)
+                                val nextLesson = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
+                                Text(if (completedIds.size == lessons.size) "Keep your English strong" else lessons[nextLesson].title, style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(8.dp))
-                                Text("Four practical beginner conversation lessons", color = Color(0xFFE4E3F6))
+                                Text(if (completedIds.size == lessons.size) "Review your skills or try a speaking challenge" else "Your next lesson is ready • ${lessons.size - completedIds.size} lessons remaining", color = Color(0xFFE4E3F6))
                                 Spacer(Modifier.height(20.dp))
-                                Button(onClick = { page = "Learn"; checked = false; selected = "" }, modifier = Modifier.fillMaxWidth()) { Text("Start my mission →") }
+                                Button(onClick = {
+                                    lessonIndex = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
+                                    page = if (completedIds.size == lessons.size) "Review" else "Learn"
+                                    checked = false
+                                    selected = ""
+                                }, modifier = Modifier.fillMaxWidth()) { Text(if (completedIds.size == lessons.size) "Review my skills →" else "Continue learning →") }
                             }
                         }
                         Spacer(Modifier.height(24.dp))
