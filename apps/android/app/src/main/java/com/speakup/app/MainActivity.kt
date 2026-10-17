@@ -10,6 +10,7 @@ import java.util.Locale
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.Brush
@@ -242,17 +243,18 @@ fun PremiumSpeakUp() {
     MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, background = Night, surface = NightCard, onSurface = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
         Column(Modifier.fillMaxSize().background(backgroundColor)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("speakup.", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
-                    Text("ENGLISH", color = accentTextColor, style = MaterialTheme.typography.labelMedium)
+                Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column {
+                        Text("speakup.", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
+                        Text("LEARN • PLAY • SPEAK", color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                    }
+                    if (!showPathSetup && !showPlacement) {
+                        TextButton(onClick = { page = "Profile" }) {
+                            Text("◉  Profile", color = accentTextColor, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
-
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = {
-                        darkAppearance = !darkAppearance
-                        preferences.edit().putBoolean("dark_appearance", darkAppearance).apply()
-                    }) { Text(if (darkAppearance) "Use light theme" else "Use dark theme") }
-                }
+                Spacer(Modifier.height(12.dp))
                 if (showPathSetup) {
                     Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                     Text("Choose the path that fits you. You can change it any time.", color = secondaryTextColor)
@@ -340,10 +342,31 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
-                        Text(if (profileName.isBlank()) "Welcome back!" else "Welcome, $profileName!", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Your focus: $learningGoal • $chosenDifficulty", color = accentTextColor)
-                        Text("My colorful progress", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Text("Your milestones grow as you practise.", color = secondaryTextColor)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(28.dp),
+                            color = Color.Transparent
+                        ) {
+                            Column(
+                                modifier = Modifier.background(
+                                    Brush.linearGradient(listOf(Color(0xFF4935B8), Color(0xFF8A5CF6), Color(0xFFB269CF))),
+                                    RoundedCornerShape(28.dp)
+                                ).padding(22.dp)
+                            ) {
+                                Text(if (profileName.isBlank()) "Your learning journey" else "Welcome, $profileName!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                                Text("$learningGoal  •  $chosenDifficulty", color = Color.White.copy(alpha = 0.90f))
+                                Spacer(Modifier.height(14.dp))
+                                Text("$xp XP   ✦   ${completedIds.size} lessons completed", color = Color.White, fontWeight = FontWeight.Bold)
+                                Spacer(Modifier.height(12.dp))
+                                Button(
+                                    onClick = { page = "Learn" },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF4935B8))
+                                ) { Text("Continue learning  →", fontWeight = FontWeight.Bold) }
+                            }
+                        }
+                        Spacer(Modifier.height(20.dp))
+                        Text("Your progress", style = MaterialTheme.typography.headlineSmall, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Text("Small steps, big achievements.", color = secondaryTextColor)
                         Spacer(Modifier.height(10.dp))
                         val masteredGames = puzzleAwarded.size + riddleAwards.size + vocabularyMastered.size + grammarMastered.size + scenarioMastered.size + listeningMastered.size + readingMastered.size
                         val availableGames = lessons.size + riddles.size + vocabularyCards.size + grammarQuestions.size + conversationScenarios.size + listeningChecks.size + readingPassages.size
@@ -409,8 +432,6 @@ fun PremiumSpeakUp() {
                         }) { Text(if (placementDone) "Retake starting assessment" else "Take starting assessment") }
                         TextButton(onClick = { page = "Profile" }) { Text("Manage my learning profile →") }
                         Spacer(Modifier.height(8.dp))
-                        Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = accentTextColor, fontWeight = FontWeight.SemiBold)
-                        Spacer(Modifier.height(12.dp))
                         val levels = listOf(0, 100, 300, 600, 1000, 1800, 3000, 5000, 8000, 12000)
                         val level = levels.indexOfLast { xp >= it } + 1
                         val levelNames = listOf("First Steps", "Word Explorer", "Sentence Builder", "Rising Speaker", "Confident Communicator", "Conversation Champion", "Fluent Explorer", "English Achiever", "Language Master", "SpeakUp Legend")
@@ -838,6 +859,10 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Profile" -> {
+                        TextButton(onClick = {
+                            darkAppearance = !darkAppearance
+                            preferences.edit().putBoolean("dark_appearance", darkAppearance).apply()
+                        }) { Text(if (darkAppearance) "☀  Use light appearance" else "☾  Use dark appearance") }
                         Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -985,21 +1010,33 @@ fun PremiumSpeakUp() {
                 }
             }
             if (!showPathSetup && !showPlacement) {
-            NavigationBar(containerColor = surfaceColor, tonalElevation = 4.dp) {
+            NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
                 listOf("Today", "Learn", "Games", "Review", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
                         "Learn" -> "▣"
                         "Games" -> "✦"
-                        "Review" -> "▤"
+                        "Review" -> "▥"
                         else -> "◉"
                     }
+                    val isActive = page == tab || (page == "Speak" && tab == "Learn")
+                    val iconColor by animateColorAsState(
+                        targetValue = if (isActive) accentTextColor else secondaryTextColor,
+                        animationSpec = tween(durationMillis = 220), label = "nav-$tab"
+                    )
                     NavigationBarItem(
-                        selected = page == tab,
+                        selected = isActive,
                         onClick = { page = tab },
-                        icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab tab" }, style = MaterialTheme.typography.titleMedium) },
-                        label = { Text(when (tab) { "Today" -> "Home"; "Review" -> "Progress"; else -> tab }, maxLines = 1) },
-                        alwaysShowLabel = true
+                        icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab navigation" }, color = iconColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
+                        label = { Text(when (tab) { "Today" -> "Home"; "Review" -> "Progress"; else -> tab }, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                        alwaysShowLabel = true,
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = accentTextColor,
+                            selectedTextColor = accentTextColor,
+                            indicatorColor = softSurfaceColor,
+                            unselectedIconColor = secondaryTextColor,
+                            unselectedTextColor = secondaryTextColor
+                        )
                     )
                 }
             }
