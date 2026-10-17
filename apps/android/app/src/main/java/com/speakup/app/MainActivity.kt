@@ -129,6 +129,21 @@ private val guidedDialogues = listOf(
     GuidedDialogue("dlg-h-03", "Hard", "Customer service", "My order arrived damaged, and I need it for an event tomorrow.", "Acknowledge and propose a solution.", listOf("I'm sorry it arrived damaged. Let me check whether express replacement is possible.", "That happens. Goodbye.", "The event was yesterday."), "I'm sorry it arrived damaged. Let me check whether express replacement is possible.", "A useful response acknowledges the issue and offers a practical next step."),
     GuidedDialogue("dlg-h-04", "Hard", "Exam speaking", "What impact might public transport investment have on cities?", "Give an opinion and a supporting reason.", listOf("Investment could reduce congestion because reliable services may encourage fewer car journeys.", "Transport is good.", "I don't know any city."), "Investment could reduce congestion because reliable services may encourage fewer car journeys.", "Support your main claim with an explanation of cause and effect.")
 )
+private data class SkillPractice(val id: String, val difficulty: String, val skill: String, val goal: String, val prompt: String, val choices: List<String>, val answer: String, val tip: String)
+private val skillPractices = listOf(
+    SkillPractice("skill-e-01", "Easy", "Speaking", "Start speaking", "How do you greet someone in the morning?", listOf("Good morning!", "Good nighttime!", "Morning is mine."), "Good morning!", "Use Good morning before midday."),
+    SkillPractice("skill-e-02", "Easy", "Listening", "Travel", "Someone says: The bus leaves at nine. When does the bus leave?", listOf("At nine", "At five", "Tomorrow evening"), "At nine", "Listen for the time expression nine."),
+    SkillPractice("skill-e-03", "Easy", "Reading", "Reading & writing", "Read: Tom has a red bag. What colour is Tom's bag?", listOf("Blue", "Red", "Green"), "Red", "Find the descriptive word next to bag."),
+    SkillPractice("skill-e-04", "Easy", "Grammar", "School & exams", "Choose the correct sentence.", listOf("He is happy.", "He are happy.", "He am happy."), "He is happy.", "He takes is in the present tense."),
+    SkillPractice("skill-m-01", "Medium", "Speaking", "Work & interviews", "Your manager asks if a report will be ready today. What is a clear reply?", listOf("Yes, I'll send it by four o'clock.", "Yes report it maybe.", "It was tomorrow."), "Yes, I'll send it by four o'clock.", "A clear commitment includes a specific time."),
+    SkillPractice("skill-m-02", "Medium", "Reading", "Reading & writing", "Read: The workshop was postponed because the presenter was ill. Why was it postponed?", listOf("The venue closed", "The presenter was ill", "Nobody registered"), "The presenter was ill", "Because introduces the reason."),
+    SkillPractice("skill-m-03", "Medium", "Grammar", "School & exams", "Choose the correct conditional sentence.", listOf("If it rains, we will stay indoors.", "If it rain, we staying.", "If raining, we stays."), "If it rains, we will stay indoors.", "Use present simple after if for a likely future condition."),
+    SkillPractice("skill-m-04", "Medium", "Listening", "Travel", "A guide says: Meet outside the museum at quarter past ten. At what time?", listOf("10:15", "10:45", "11:10"), "10:15", "Quarter past ten means 15 minutes after ten."),
+    SkillPractice("skill-h-01", "Hard", "Speaking", "Work & interviews", "A client requests an unrealistic deadline. Which response balances empathy and boundaries?", listOf("I understand the urgency; we can deliver a draft by Friday and the final version Monday.", "That is impossible. Stop asking.", "We can do anything yesterday."), "I understand the urgency; we can deliver a draft by Friday and the final version Monday.", "Acknowledge the concern, explain options and agree on realistic milestones."),
+    SkillPractice("skill-h-02", "Hard", "Reading", "Reading & writing", "Read: Despite initial reservations, the committee endorsed the proposal after reviewing the evidence. What changed?", listOf("The evidence persuaded the committee", "The committee cancelled the meeting", "The proposal was rejected unanimously"), "The evidence persuaded the committee", "Despite signals a contrast between initial concerns and the final decision."),
+    SkillPractice("skill-h-03", "Hard", "Grammar", "School & exams", "Choose the correctly inverted conditional.", listOf("Had I known, I would have called.", "Had I knew, I will call.", "If had I known, I called."), "Had I known, I would have called.", "Had I known is a formal inversion of If I had known."),
+    SkillPractice("skill-h-04", "Hard", "Listening", "Travel", "An announcement says: Boarding has been deferred until further notice. What does it mean?", listOf("Boarding is postponed with no new time given", "Boarding has finished", "Passengers must board immediately"), "Boarding is postponed with no new time given", "Deferred until further notice means delayed without a confirmed restart time.")
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -167,6 +182,11 @@ fun PremiumSpeakUp() {
     var confidenceAttempts by remember { mutableIntStateOf(preferences.getInt("confidence_attempts", 0)) }
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
+    var learnMode by remember { mutableStateOf("Lessons") }
+    var skillPracticeIndex by remember { mutableIntStateOf(0) }
+    var skillPracticeAnswer by remember { mutableStateOf("") }
+    var skillPracticeChecked by remember { mutableStateOf(false) }
+    var skillMastered by remember { mutableStateOf((preferences.getStringSet("skill_practice_mastered", emptySet()) ?: emptySet()).toSet()) }
     var gameMode by remember { mutableStateOf("Word Builder") }
     var dialogueIndex by remember { mutableIntStateOf(0) }
     var dialogueChoice by remember { mutableStateOf("") }
@@ -474,6 +494,13 @@ fun PremiumSpeakUp() {
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Your personalised path • $chosenDifficulty • $learningGoal", color = accentTextColor, fontWeight = FontWeight.SemiBold)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("Lessons", "Skill practice").forEach { mode ->
+                                FilterChip(selected = learnMode == mode, onClick = { learnMode = mode }, label = { Text(mode) })
+                            }
+                        }
+                        if (learnMode == "Lessons") {
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = accentTextColor, fontWeight = FontWeight.Bold)
                         Text("Finish one lesson to unlock the next. Previously completed lessons stay unlocked.", color = secondaryTextColor)
@@ -503,6 +530,39 @@ fun PremiumSpeakUp() {
                                 }
                                 page = "Review" } else checked = true }, enabled = selected.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
                             Text(if (checked && selected == answer) "Complete lesson" else "Check my answer")
+                        }
+                        } else {
+                            val tier = skillPractices.filter { it.difficulty == chosenDifficulty }
+                            val ordered = tier.sortedWith(compareBy<SkillPractice> { it.goal != learningGoal }.thenBy { it.id })
+                            val exercise = ordered[skillPracticeIndex % ordered.size]
+                            Text("Your $chosenDifficulty skill practice", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("Recommended first: $learningGoal. Change difficulty in Profile whenever you wish.", color = secondaryTextColor)
+                            Text("${exercise.skill} • ${exercise.goal}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text(exercise.prompt, style = MaterialTheme.typography.titleMedium, color = primaryTextColor)
+                            exercise.choices.forEach { choice ->
+                                OutlinedButton(onClick = { skillPracticeAnswer = choice; skillPracticeChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                    Text((if (skillPracticeAnswer == choice) "✓ " else "") + choice)
+                                }
+                            }
+                            if (skillPracticeChecked) {
+                                val correct = skillPracticeAnswer == exercise.answer
+                                Text(if (correct) "Correct! ${exercise.tip}" else "Try again. ${exercise.tip}",
+                                    color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                skillPracticeChecked = true
+                                if (skillPracticeAnswer == exercise.answer && exercise.id !in skillMastered) {
+                                    skillMastered = skillMastered + exercise.id
+                                    xp += 10
+                                    preferences.edit().putStringSet("skill_practice_mastered", skillMastered).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = skillPracticeAnswer.isNotBlank()) { Text("Check answer") }
+                            Text("Skills mastered: ${skillMastered.count { id -> tier.any { it.id == id } }} / ${tier.size} at $chosenDifficulty", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                skillPracticeIndex += 1
+                                skillPracticeAnswer = ""
+                                skillPracticeChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next skill challenge →") }
                         }
                     }
                     "Speak" -> {
