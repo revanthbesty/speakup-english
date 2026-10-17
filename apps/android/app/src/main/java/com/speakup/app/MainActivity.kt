@@ -92,6 +92,15 @@ private val conversationScenarios = listOf(
     ConversationScenario("Meeting a new colleague", "A coworker says: Nice to meet you.", listOf("Nice to meet you too.", "No meet.", "I am not."), "Nice to meet you too.", "Reply with Nice to meet you too to return the greeting."),
     ConversationScenario("Asking for help", "You do not understand an instruction. What do you say?", listOf("I no understand you.", "Could you explain that again, please?", "Don't talk."), "Could you explain that again, please?", "Asking for clarification politely is a useful speaking skill.")
 )
+private data class ListeningCheck(val phrase: String, val question: String, val options: List<String>, val correct: String, val explanation: String)
+private val listeningChecks = listOf(
+    ListeningCheck("Could I have a glass of water, please?", "What is the speaker asking for?", listOf("A glass of water", "A bus ticket", "A notebook"), "A glass of water", "Could I have ... please? is a polite way to ask for something."),
+    ListeningCheck("The train leaves at half past six.", "When does the train leave?", listOf("6:00", "6:30", "7:30"), "6:30", "Half past six means thirty minutes after six."),
+    ListeningCheck("I have been studying English for two years.", "How long has the person studied English?", listOf("Two days", "Two months", "Two years"), "Two years", "For two years tells us the duration."),
+    ListeningCheck("Please turn left at the next street.", "Which direction should you turn?", listOf("Right", "Left", "Straight ahead"), "Left", "Turn left means move to your left side."),
+    ListeningCheck("Would you mind speaking a little more slowly?", "What does the speaker want?", listOf("Faster speech", "Slower speech", "No speech"), "Slower speech", "Would you mind ...? is a polite request."),
+    ListeningCheck("The meeting has been moved to Friday morning.", "When is the meeting now?", listOf("Thursday evening", "Friday morning", "Saturday afternoon"), "Friday morning", "Has been moved to indicates a schedule change.")
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +135,11 @@ fun PremiumSpeakUp() {
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
     var gameMode by remember { mutableStateOf("Word Builder") }
+    var listeningIndex by remember { mutableIntStateOf(0) }
+    var listeningChoice by remember { mutableStateOf("") }
+    var listeningChecked by remember { mutableStateOf(false) }
+    var listeningMastered by remember { mutableStateOf((preferences.getStringSet("listening_mastered", emptySet()) ?: emptySet()).toSet()) }
+    var showListeningTranscript by remember { mutableStateOf(false) }
     var scenarioIndex by remember { mutableIntStateOf(0) }
     var scenarioChoice by remember { mutableStateOf("") }
     var scenarioChecked by remember { mutableStateOf(false) }
@@ -450,7 +464,7 @@ fun PremiumSpeakUp() {
                     "Games" -> {
                         Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations").forEach { mode ->
+                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
@@ -582,7 +596,7 @@ fun PremiumSpeakUp() {
                                 grammarChoice = ""
                                 grammarChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next grammar question →") }
-                        } else {
+                        } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
                             Text("Situation ${scenarioIndex + 1} of ${conversationScenarios.size}: ${scenario.situation}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(scenario.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
@@ -610,6 +624,42 @@ fun PremiumSpeakUp() {
                                 scenarioChoice = ""
                                 scenarioChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next situation →") }
+                        } else {
+                            val listening = listeningChecks[listeningIndex]
+                            Text("Listening comprehension ${listeningIndex + 1} of ${listeningChecks.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text("Read the short sentence, then answer the meaning question. Audio playback is planned.", color = secondaryTextColor)
+                            OutlinedButton(onClick = { showListeningTranscript = !showListeningTranscript }) { Text(if (showListeningTranscript) "Hide sentence" else "Show sentence") }
+                            if (showListeningTranscript) {
+                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+                                    Text(listening.phrase, modifier = Modifier.padding(16.dp), color = primaryTextColor)
+                                }
+                            }
+                            Text(listening.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
+                            listening.options.forEach { choice ->
+                                OutlinedButton(onClick = { listeningChoice = choice; listeningChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                    Text((if (listeningChoice == choice) "✓ " else "") + choice)
+                                }
+                            }
+                            if (listeningChecked) {
+                                val correct = listeningChoice == listening.correct
+                                Text(if (correct) "Correct! ${listening.explanation}" else "Try again. ${listening.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                listeningChecked = true
+                                val id = listeningIndex.toString()
+                                if (listeningChoice == listening.correct && id !in listeningMastered) {
+                                    listeningMastered = listeningMastered + id
+                                    xp += 10
+                                    preferences.edit().putStringSet("listening_mastered", listeningMastered).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = listeningChoice.isNotBlank()) { Text("Check comprehension") }
+                            Text("Checks mastered: ${listeningMastered.size} / ${listeningChecks.size} • +10 XP for a first correct answer", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                listeningIndex = (listeningIndex + 1) % listeningChecks.size
+                                listeningChoice = ""
+                                listeningChecked = false
+                                showListeningTranscript = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next comprehension check →") }
                         }
                     }
                     "Review" -> {
