@@ -10,6 +10,9 @@ import java.util.Locale
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.horizontalScroll
@@ -300,6 +303,31 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
+                        Text("My colorful progress", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Text("Your milestones grow as you practise.", color = secondaryTextColor)
+                        Spacer(Modifier.height(10.dp))
+                        val masteredGames = puzzleAwarded.size + riddleAwards.size + vocabularyMastered.size + grammarMastered.size + scenarioMastered.size + listeningMastered.size + readingMastered.size
+                        val availableGames = lessons.size + riddles.size + vocabularyCards.size + grammarQuestions.size + conversationScenarios.size + listeningChecks.size + readingPassages.size
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            ProgressTile("Lessons", "${completedIds.size} / ${lessons.size}", completedIds.size.toFloat() / lessons.size.coerceAtLeast(1), Color(0xFF7456EF), Color(0xFFAC83FA), Modifier.weight(1f))
+                            ProgressTile("Games", "$masteredGames / $availableGames", masteredGames.toFloat() / availableGames.coerceAtLeast(1), Color(0xFFFF6A70), Color(0xFFFFB267), Modifier.weight(1f))
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            ProgressTile("Reading", "${readingMastered.size} / ${readingPassages.size}", readingMastered.size.toFloat() / readingPassages.size.coerceAtLeast(1), Color(0xFF178D8D), Color(0xFF50CDB7), Modifier.weight(1f))
+                            ProgressTile("Listening", "${listeningMastered.size} / ${listeningChecks.size}", listeningMastered.size.toFloat() / listeningChecks.size.coerceAtLeast(1), Color(0xFF2770D5), Color(0xFF66A9FA), Modifier.weight(1f))
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp)) {
+                                Text("⭐ $xp XP earned", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                Text("$speakingAttempts speaking attempts • ${completedIds.size} lessons finished", color = primaryTextColor)
+                                val dueCount = lessons.indices.count { it.toString() in completedIds && (revisionSchedule[it.toString()] ?: 0L) <= System.currentTimeMillis() }
+                                Text("$dueCount revision lessons ready today", color = primaryTextColor)
+                                TextButton(onClick = { page = "Review" }) { Text("Explore detailed progress →") }
+                            }
+                        }
+                        Spacer(Modifier.height(18.dp))
                         Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text(when (learnerAge) {
                             "Kids" -> "Play, discover words, and speak with confidence!"
@@ -848,6 +876,25 @@ fun PremiumSpeakUp() {
             }
             }
         }
+    }
+}
+
+
+@Composable
+private fun ProgressTile(title: String, amount: String, progress: Float, first: Color, second: Color, modifier: Modifier = Modifier) {
+    val animated by animateFloatAsState(targetValue = progress.coerceIn(0f, 1f), animationSpec = tween(durationMillis = 650), label = "progress-$title")
+    Column(
+        modifier = modifier.background(Brush.linearGradient(listOf(first, second)), RoundedCornerShape(20.dp)).padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(title, color = Color.White, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(amount, color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        LinearProgressIndicator(
+            progress = { animated },
+            modifier = Modifier.fillMaxWidth(),
+            color = Color.White,
+            trackColor = Color.White.copy(alpha = 0.28f)
+        )
     }
 }
 
