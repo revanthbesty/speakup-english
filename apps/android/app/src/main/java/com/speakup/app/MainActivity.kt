@@ -189,13 +189,13 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
-                        Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = if (darkMode) Color.White else Navy, fontWeight = FontWeight.Bold)
+                        Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = Navy, fontWeight = FontWeight.Bold)
                         Text("Speak a little. Grow every day.", color = Color.DarkGray)
                         Spacer(Modifier.height(8.dp))
                         val activePath = learningPaths.firstOrNull { it.id == chosenPath }
                         Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = Violet, fontWeight = FontWeight.Bold)
                         Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
-                        Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = if (darkMode) Color.White else Navy)
+                        Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = Navy)
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                         if (placementDone) {
                             val recommendation = when (placementScore) {
