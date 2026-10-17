@@ -26,7 +26,6 @@ private val Navy = Color(0xFF111C35)
 private val Violet = Color(0xFF6C5CE7)
 private val Cream = Color(0xFFF7F7FC)
 private val Soft = Color(0xFFECE9FF)
-private val DarkBackground = Color(0xFF10192D)
 
 private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
 private val learningPaths = listOf(
@@ -68,7 +67,6 @@ fun PremiumSpeakUp() {
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
-    var darkMode by remember { mutableStateOf(preferences.getBoolean("dark_mode", false)) }
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
     var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", 0)) }
@@ -110,20 +108,14 @@ fun PremiumSpeakUp() {
         } else speechStatus = "Speech recognition was cancelled or unavailable."
     }
     val answer = lesson.answer
-    MaterialTheme(colorScheme = if (darkMode) darkColorScheme(primary = Color(0xFFB4A8FF), background = DarkBackground, surface = DarkBackground) else lightColorScheme(primary = Violet, background = Cream)) {
-        Column(Modifier.fillMaxSize().background(if (darkMode) DarkBackground else Cream)) {
+    MaterialTheme(colorScheme = lightColorScheme(primary = Violet, background = Cream)) {
+        Column(Modifier.fillMaxSize().background(Cream)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("speakup.", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = Navy)
                     Text("ENGLISH", color = Violet, style = MaterialTheme.typography.labelMedium)
                 }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    TextButton(onClick = {
-                        darkMode = !darkMode
-                        preferences.edit().putBoolean("dark_mode", darkMode).apply()
-                    }) { Text(if (darkMode) "☀ Light mode" else "☾ Dark mode") }
-                }
-                Spacer(Modifier.height(12.dp))
+
                 if (showPathSetup) {
                     Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
                     Text("Choose the path that fits you. You can change it any time.", color = Color.DarkGray)
@@ -134,7 +126,7 @@ fun PremiumSpeakUp() {
                             FilterChip(selected = learnerAge == age, onClick = { learnerAge = age }, label = { Text(age) })
                         }
                     }
-                    Text("Daily practice goal", color = if (darkMode) Color.White else Navy, fontWeight = FontWeight.SemiBold)
+                    Text("Daily practice goal", color = Navy, fontWeight = FontWeight.SemiBold)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(5, 10, 15).forEach { minutes ->
                             FilterChip(selected = dailyGoal == minutes, onClick = { dailyGoal = minutes }, label = { Text("$minutes min") })
@@ -202,7 +194,7 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(8.dp))
                         val activePath = learningPaths.firstOrNull { it.id == chosenPath }
                         Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = Violet, fontWeight = FontWeight.Bold)
-                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = if (darkMode) Color.LightGray else Color.DarkGray)
+                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
                         Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = if (darkMode) Color.White else Navy)
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                         if (placementDone) {
