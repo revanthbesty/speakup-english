@@ -176,6 +176,17 @@ fun PremiumSpeakUp() {
     var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
+    var revisionSchedule by remember {
+        mutableStateOf(lessons.indices.associate { index ->
+            index.toString() to preferences.getLong("revision_due_$index", 0L)
+        })
+    }
+    var revisionStages by remember {
+        mutableStateOf(lessons.indices.associate { index ->
+            index.toString() to preferences.getInt("revision_stage_$index", 0)
+        })
+    }
+    var reviewEarly by remember { mutableStateOf(false) }
     var revisionIndex by remember { mutableIntStateOf(0) }
     var revisionAnswer by remember { mutableStateOf("") }
     var revisionChecked by remember { mutableStateOf(false) }
@@ -744,45 +755,75 @@ fun PremiumSpeakUp() {
                             }
                         }
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
+                        val now = System.currentTimeMillis()
+                        val dueLessons = reviewable.filter { (revisionSchedule[it.toString()] ?: 0L) <= now }
+                        Text("Due for review: ${dueLessons.size} of ${reviewable.size} completed lessons", color = accentTextColor, fontWeight = FontWeight.Bold)
                         if (reviewable.isEmpty()) {
                             Text("Finish a lesson to unlock revision questions.", color = secondaryTextColor)
                         } else {
-                            val current = reviewable[revisionIndex % reviewable.size]
-                            val reviewLesson = lessons[current]
-                            Text(reviewLesson.question, color = primaryTextColor, style = MaterialTheme.typography.titleMedium)
-                            reviewLesson.choices.forEach { choice ->
-                                OutlinedButton(
-                                    onClick = { revisionAnswer = choice; revisionChecked = false },
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (revisionAnswer == choice) softSurfaceColor else surfaceColor)
-                                ) { Text(choice, color = primaryTextColor) }
+                            if (dueLessons.isEmpty()) {
+                                Text("All caught up! Your next review will appear when it is due.", color = secondaryTextColor)
+                                TextButton(onClick = { reviewEarly = !reviewEarly; revisionIndex = 0; revisionAnswer = ""; revisionChecked = false }) {
+                                    Text(if (reviewEarly) "Return to scheduled reviews" else "Practise early anyway")
+                                }
+                            } else if (reviewEarly) {
+                                TextButton(onClick = { reviewEarly = false; revisionIndex = 0; revisionAnswer = ""; revisionChecked = false }) {
+                                    Text("Show only due reviews")
+                                }
                             }
-                            if (revisionChecked) {
-                                Text(
-                                    if (revisionAnswer == reviewLesson.answer) "Correct! ${reviewLesson.tip}" else "Not quite. ${reviewLesson.tip}",
-                                    color = if (revisionAnswer == reviewLesson.answer) Color(0xFF177B57) else Color(0xFF9D5417)
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    if (!revisionChecked) {
-                                        revisionChecked = true
-                                        if (revisionAnswer == reviewLesson.answer) {
-                                            revisionCorrect += 1
-                                            preferences.edit().putInt("revision_correct", revisionCorrect).apply()
+                            val queue = if (reviewEarly) reviewable else dueLessons
+                            if (queue.isNotEmpty()) {
+                                val current = queue[revisionIndex % queue.size]
+                                val reviewLesson = lessons[current]
+                                val stage = revisionStages[current.toString()] ?: 0
+                                Text("Lesson: ${reviewLesson.title} • Review stage ${stage.coerceIn(0, 3)} / 3", color = secondaryTextColor)
+                                Text(reviewLesson.question, color = primaryTextColor, style = MaterialTheme.typography.titleMedium)
+                                reviewLesson.choices.forEach { choice ->
+                                    OutlinedButton(
+                                        onClick = { if (!revisionChecked) revisionAnswer = choice },
+                                        enabled = !revisionChecked,
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(containerColor = if (revisionAnswer == choice) softSurfaceColor else surfaceColor)
+                                    ) { Text(choice, color = primaryTextColor) }
+                                }
+                                if (revisionChecked) {
+                                    Text(
+                                        if (revisionAnswer == reviewLesson.answer) "Correct! ${reviewLesson.tip}" else "Not quite. ${reviewLesson.tip}",
+                                        color = if (revisionAnswer == reviewLesson.answer) Color(0xFF177B57) else Color(0xFF9D5417)
+                                    )
+                                    Text(
+                                        if (revisionAnswer == reviewLesson.answer) "This lesson will return in ${listOf(1, 3, 7)[stage.coerceIn(0, 2)]} day(s)." else "This lesson stays due for another try.",
+                                        color = secondaryTextColor
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        if (!revisionChecked) {
+                                            revisionChecked = true
+                                            if (revisionAnswer == reviewLesson.answer) {
+                                                revisionCorrect += 1
+                                                preferences.edit().putInt("revision_correct", revisionCorrect).apply()
+                                            }
+                                        } else {
+                                            val correct = revisionAnswer == reviewLesson.answer
+                                            val nextStage = if (correct) (stage + 1).coerceAtMost(3) else 0
+                                            val interval = listOf(1, 3, 7)[stage.coerceIn(0, 2)]
+                                            val nextDue = if (correct) System.currentTimeMillis() + interval * 86_400_000L else 0L
+                                            revisionStages = revisionStages + (current.toString() to nextStage)
+                                            revisionSchedule = revisionSchedule + (current.toString() to nextDue)
+                                            preferences.edit().putInt("revision_stage_$current", nextStage).putLong("revision_due_$current", nextDue).apply()
+                                            revisionIndex = if (correct) 0 else revisionIndex + 1
+                                            revisionAnswer = ""
+                                            revisionChecked = false
                                         }
-                                    } else {
-                                        revisionIndex += 1
-                                        revisionAnswer = ""
-                                        revisionChecked = false
-                                    }
-                                },
-                                enabled = revisionChecked || revisionAnswer.isNotBlank(),
-                                modifier = Modifier.fillMaxWidth()
-                            ) { Text(if (revisionChecked) "Next revision question" else "Check revision answer") }
+                                    },
+                                    enabled = revisionChecked || revisionAnswer.isNotBlank(),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { Text(if (revisionChecked) "Save review and continue" else "Check revision answer") }
+                            }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("Your progress is saved on this device. Account sync and revision scheduling are planned.", color = secondaryTextColor)
+                        Text("Your progress and 1/3/7-day review schedule are saved on this device. Account sync is planned.", color = secondaryTextColor)
                     }
                 }
             }
