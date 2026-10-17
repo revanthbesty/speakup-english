@@ -55,6 +55,13 @@ private val lessons = listOf(
     Lesson("Finding your way", "How do you politely ask for directions?", "Excuse me, could you tell me where the station is?", listOf("Where station go?", "Station where you?", "Excuse me, could you tell me where the station is?"), "Excuse me and could you make your request more polite."),
     Lesson("At the workplace", "How do you ask for help at work?", "Could you help me with this task, please?", listOf("Help task now.", "Could you help me with this task, please?", "You do this for me."), "Could you help me ... please? is a respectful request.")
 )
+private data class Riddle(val question: String, val options: List<String>, val answer: String, val explanation: String)
+private val riddles = listOf(
+    Riddle("I have keys but no locks. You use me to type. What am I?", listOf("A keyboard", "A door", "A clock"), "A keyboard", "A keyboard has keys for typing, not opening locks."),
+    Riddle("What gets wetter the more it dries?", listOf("A towel", "The sun", "A book"), "A towel", "A towel absorbs water while drying things."),
+    Riddle("I have hands but cannot clap. What am I?", listOf("A clock", "A child", "A tree"), "A clock", "A clock has hands that show the time."),
+    Riddle("What has a neck but no head?", listOf("A bottle", "A bird", "A person"), "A bottle", "A bottle has a neck near its opening.")
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,6 +95,11 @@ fun PremiumSpeakUp() {
     var confidenceAttempts by remember { mutableIntStateOf(preferences.getInt("confidence_attempts", 0)) }
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
+    var gameMode by remember { mutableStateOf("Word Builder") }
+    var riddleIndex by remember { mutableIntStateOf(0) }
+    var riddleChoice by remember { mutableStateOf("") }
+    var riddleChecked by remember { mutableStateOf(false) }
+    var riddleAwards by remember { mutableStateOf((preferences.getStringSet("riddle_awards", emptySet()) ?: emptySet()).toSet()) }
     var puzzleWords by remember { mutableStateOf(listOf<String>()) }
     var puzzleChecked by remember { mutableStateOf(false) }
     var puzzlesSolved by remember { mutableIntStateOf(preferences.getInt("puzzles_solved", 0)) }
@@ -394,7 +406,14 @@ fun PremiumSpeakUp() {
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                     }
                     "Games" -> {
-                        Text("Word Builder", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("Word Builder", "Riddles").forEach { mode ->
+                                FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
+                            }
+                        }
+                        if (gameMode == "Word Builder") {
+                        Text("Word Builder", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("Build a natural English sentence by tapping the words in order.", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         Text("PUZZLE ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = accentTextColor, fontWeight = FontWeight.Bold)
@@ -404,7 +423,7 @@ fun PremiumSpeakUp() {
                             Text(if (puzzleWords.isEmpty()) "Tap words below to build your sentence" else puzzleWords.joinToString(" "), modifier = Modifier.padding(16.dp), color = primaryTextColor)
                         }
                         Spacer(Modifier.height(12.dp))
-                        val tokens = lesson.answer.split(" ")
+                        val tokens = remember(lessonIndex) { lesson.answer.split(" ").shuffled() }
                         val remaining = tokens.toMutableList()
                         puzzleWords.forEach { remaining.remove(it) }
                         remaining.forEach { word ->
@@ -417,6 +436,7 @@ fun PremiumSpeakUp() {
                             Text(if (correct) "Great work! ${lesson.tip}" else "Not yet. Rearrange the words and try again.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { puzzleWords = puzzleWords.dropLast(1); puzzleChecked = false }, enabled = puzzleWords.isNotEmpty()) { Text("Undo") }
                             OutlinedButton(onClick = { puzzleWords = emptyList(); puzzleChecked = false }) { Text("Reset") }
                             Button(onClick = {
                                 puzzleChecked = true
@@ -435,6 +455,34 @@ fun PremiumSpeakUp() {
                             puzzleWords = emptyList()
                             puzzleChecked = false
                         }, modifier = Modifier.fillMaxWidth()) { Text("Next puzzle →") }
+                        } else {
+                            val riddle = riddles[riddleIndex]
+                            Text("Riddle ${riddleIndex + 1} of ${riddles.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text(riddle.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
+                            riddle.options.forEach { option ->
+                                OutlinedButton(onClick = { riddleChoice = option; riddleChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                    Text((if (riddleChoice == option) "✓ " else "") + option)
+                                }
+                            }
+                            if (riddleChecked) {
+                                Text(if (riddleChoice == riddle.answer) "Correct! ${riddle.explanation}" else "Try again. Think about the clue.", color = if (riddleChoice == riddle.answer) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                riddleChecked = true
+                                val id = riddleIndex.toString()
+                                if (riddleChoice == riddle.answer && id !in riddleAwards) {
+                                    riddleAwards = riddleAwards + id
+                                    xp += 10
+                                    preferences.edit().putStringSet("riddle_awards", riddleAwards).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = riddleChoice.isNotBlank()) { Text("Check answer") }
+                            Text("Riddles mastered: ${riddleAwards.size} / ${riddles.size} • +10 XP per new correct riddle", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                riddleIndex = (riddleIndex + 1) % riddles.size
+                                riddleChoice = ""
+                                riddleChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next riddle →") }
+                        }
                     }
                     "Review" -> {
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
