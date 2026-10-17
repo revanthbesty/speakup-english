@@ -36,6 +36,13 @@ private val learningPaths = listOf(
     LearningPath("exams", "I am preparing for exams", "IELTS and other English exam pathways", "Practise reading and speaking while exam modules are developed.")
 )
 
+private data class PlacementQuestion(val prompt: String, val choices: List<String>, val correct: String)
+private val placementQuestions = listOf(
+    PlacementQuestion("Choose the correct greeting.", listOf("Hello, how are you?", "Hello, how you?", "Hello, you how?"), "Hello, how are you?"),
+    PlacementQuestion("Choose the correct past-tense sentence.", listOf("Yesterday I go to school.", "Yesterday I went to school.", "Yesterday I going school."), "Yesterday I went to school."),
+    PlacementQuestion("Choose the most natural formal request.", listOf("Give me your report now.", "I need report.", "Could you please send me the report by Friday?"), "Could you please send me the report by Friday?")
+)
+
 private data class Lesson(val title: String, val question: String, val answer: String, val choices: List<String>, val tip: String)
 private val lessons = listOf(
     Lesson("Café conversations", "Which sentence would you say when ordering coffee?", "I'd like a cup of coffee, please.", listOf("I want cup coffee.", "I'd like a cup of coffee, please.", "Me like coffee cup."), "Use I'd like to make a polite request."),
@@ -60,6 +67,12 @@ fun PremiumSpeakUp() {
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
+    var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
+    var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", 0)) }
+    var placementIndex by remember { mutableIntStateOf(0) }
+    var placementSelected by remember { mutableStateOf("") }
+    var placementAnswers by remember { mutableStateOf(listOf<Boolean>()) }
+    var showPlacement by remember { mutableStateOf(false) }
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
     val lesson = lessons[lessonIndex]
@@ -126,8 +139,47 @@ fun PremiumSpeakUp() {
                     Button(onClick = {
                         preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).apply()
                         showPathSetup = false
+                        showPlacement = !placementDone
                         page = "Today"
                     }, enabled = chosenPath.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Start my learning journey →") }
+                } else if (showPlacement) {
+                    Text("Find your starting point", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                    Text("Three quick questions help us suggest a starting point. This is not a certified language assessment.", color = Color.DarkGray)
+                    Spacer(Modifier.height(12.dp))
+                    LinearProgressIndicator(progress = { placementIndex.toFloat() / placementQuestions.size }, modifier = Modifier.fillMaxWidth())
+                    Text("QUESTION ${placementIndex + 1} OF ${placementQuestions.size}", color = Violet, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(12.dp))
+                    val placementQuestion = placementQuestions[placementIndex]
+                    Text(placementQuestion.prompt, style = MaterialTheme.typography.titleLarge, color = Navy)
+                    placementQuestion.choices.forEach { choice ->
+                        OutlinedButton(
+                            onClick = { placementSelected = choice },
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (placementSelected == choice) Soft else Color.White)
+                        ) { Text(choice, color = Navy, modifier = Modifier.fillMaxWidth()) }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            val updated = placementAnswers + (placementSelected == placementQuestion.correct)
+                            placementAnswers = updated
+                            placementSelected = ""
+                            if (placementIndex == placementQuestions.lastIndex) {
+                                placementScore = updated.count { it }
+                                placementDone = true
+                                showPlacement = false
+                                preferences.edit().putBoolean("placement_done", true)
+                                    .putInt("placement_score", placementScore).apply()
+                            } else placementIndex += 1
+                        },
+                        enabled = placementSelected.isNotBlank(),
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text(if (placementIndex == placementQuestions.lastIndex) "See my starting point" else "Next question →") }
+                    TextButton(onClick = {
+                        showPlacement = false
+                        placementDone = true
+                        preferences.edit().putBoolean("placement_done", true).apply()
+                    }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
                         Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = Navy, fontWeight = FontWeight.Bold)
@@ -136,6 +188,21 @@ fun PremiumSpeakUp() {
                         val activePath = learningPaths.firstOrNull { it.id == chosenPath }
                         Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = Violet, fontWeight = FontWeight.Bold)
                         Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
+                        if (placementDone) {
+                            val recommendation = when (placementScore) {
+                                0 -> "Suggested start: first words and everyday phrases"
+                                1 -> "Suggested start: basic everyday conversations"
+                                2 -> "Suggested start: sentence building and speaking practice"
+                                else -> "Suggested start: speaking challenges and more advanced practice"
+                            }
+                            Text(recommendation, color = Navy, fontWeight = FontWeight.SemiBold)
+                        }
+                        TextButton(onClick = {
+                            placementIndex = 0
+                            placementSelected = ""
+                            placementAnswers = emptyList()
+                            showPlacement = true
+                        }) { Text(if (placementDone) "Retake starting assessment" else "Take starting assessment") }
                         TextButton(onClick = { showPathSetup = true }) { Text("Change my learning path") }
                         Spacer(Modifier.height(8.dp))
                         Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = Violet, fontWeight = FontWeight.SemiBold)
@@ -395,7 +462,7 @@ fun PremiumSpeakUp() {
                     }
                 }
             }
-            if (!showPathSetup) {
+            if (!showPathSetup && !showPlacement) {
             HorizontalDivider()
             Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 listOf("Today", "Learn", "Games", "Speak", "Review").forEach { tab ->
