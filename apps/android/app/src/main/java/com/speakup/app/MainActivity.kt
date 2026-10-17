@@ -27,6 +27,13 @@ private val Violet = Color(0xFF6C5CE7)
 private val Cream = Color(0xFFF7F7FC)
 private val Soft = Color(0xFFECE9FF)
 
+private data class Lesson(val title: String, val question: String, val answer: String, val choices: List<String>)
+private val lessons = listOf(
+    Lesson("Café conversations", "Which sentence would you say when ordering coffee?", "I'd like a cup of coffee, please.", listOf("I want cup coffee.", "I'd like a cup of coffee, please.", "Me like coffee cup.")),
+    Lesson("Friendly introductions", "How do you introduce yourself politely?", "Hello, my name is Alex. Nice to meet you.", listOf("Me Alex. You?", "Hello, my name is Alex. Nice to meet you.", "I name Alex hello.")),
+    Lesson("Finding your way", "How do you politely ask for directions?", "Excuse me, could you tell me where the station is?", listOf("Where station go?", "Station where you?", "Excuse me, could you tell me where the station is?")),
+    Lesson("At the workplace", "How do you ask for help at work?", "Could you help me with this task, please?", listOf("Help task now.", "Could you help me with this task, please?", "You do this for me."))
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,7 +48,9 @@ fun PremiumSpeakUp() {
     var checked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences("speakup_learning", android.content.Context.MODE_PRIVATE) }
-    var completed by remember { mutableStateOf(preferences.getBoolean("cafe_lesson_complete", false)) }
+    var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
+    var lessonIndex by remember { mutableIntStateOf(0) }
+    val lesson = lessons[lessonIndex]
     var practiceResponse by remember { mutableStateOf("") }
     var practiceChecked by remember { mutableStateOf(false) }
     var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
@@ -61,7 +70,7 @@ fun PremiumSpeakUp() {
             } else speechStatus = "No words were recognized. Please try again."
         } else speechStatus = "Speech recognition was cancelled or unavailable."
     }
-    val answer = "I'd like a cup of coffee, please."
+    val answer = lesson.answer
     MaterialTheme(colorScheme = lightColorScheme(primary = Violet, background = Cream)) {
         Column(Modifier.fillMaxSize().background(Cream)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
@@ -97,11 +106,16 @@ fun PremiumSpeakUp() {
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
-                        Text("LESSON 01 • CAFÉ CONVERSATIONS", color = Violet, fontWeight = FontWeight.Bold)
+                        Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = Violet, fontWeight = FontWeight.Bold)
+                        lessons.forEachIndexed { index, item ->
+                            TextButton(onClick = { lessonIndex = index; selected = ""; checked = false }, modifier = Modifier.fillMaxWidth()) {
+                                Text("${if (index.toString() in completedIds) "✓" else "○"} ${index + 1}. ${item.title}")
+                            }
+                        }
                         Spacer(Modifier.height(18.dp))
-                        Text("Which sentence would you say when ordering coffee?", color = Navy, style = MaterialTheme.typography.titleLarge)
+                        Text(lesson.question, color = Navy, style = MaterialTheme.typography.titleLarge)
                         Spacer(Modifier.height(16.dp))
-                        listOf("I want cup coffee.", answer, "Me like coffee cup.").forEach { choice ->
+                        lesson.choices.forEach { choice ->
                             OutlinedButton(onClick = { selected = choice; checked = false }, modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected == choice) Soft else Color.White)) {
                                 Text(choice, color = Navy, modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp))
                             }
@@ -111,7 +125,12 @@ fun PremiumSpeakUp() {
                             Text(if (selected == answer) "Excellent! This is a polite, natural request." else "Try again. 'I'd like...' is a polite way to order.", color = if (selected == answer) Color(0xFF177B57) else Color(0xFF9D5417))
                         }
                         Spacer(Modifier.height(20.dp))
-                        Button(onClick = { if (checked && selected == answer) { if (!completed) { xp += 50; preferences.edit().putInt("total_xp", xp).apply() }; completed = true; preferences.edit().putBoolean("cafe_lesson_complete", true).apply(); page = "Review" } else checked = true }, enabled = selected.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
+                        Button(onClick = { if (checked && selected == answer) { if (lessonIndex.toString() !in completedIds) {
+                                    completedIds = completedIds + lessonIndex.toString()
+                                    xp += 50
+                                    preferences.edit().putInt("total_xp", xp).putStringSet("completed_lessons", completedIds).apply()
+                                }
+                                page = "Review" } else checked = true }, enabled = selected.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
                             Text(if (checked && selected == answer) "Complete lesson" else "Check my answer")
                         }
                     }
@@ -176,7 +195,8 @@ fun PremiumSpeakUp() {
                     "Review" -> {
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
                         Spacer(Modifier.height(16.dp))
-                        FeatureCard(if (completed) "✓  First mission complete" else "◇  Your first mission awaits", if (completed) "Great start! Keep practising." else "Complete your first lesson to begin.", { page = "Learn" })
+                        FeatureCard("✓  ${completedIds.size} of ${lessons.size} lessons completed", "Each new lesson earns 50 XP.", { page = "Learn" })
+                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Spacer(Modifier.height(12.dp))
                         Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = Violet, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(8.dp))
