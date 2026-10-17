@@ -23,7 +23,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.isSystemInDarkTheme
 
 private val Navy = Color(0xFF111C35)
 private val Violet = Color(0xFF6C5CE7)
@@ -268,7 +267,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        Surface(color = primaryTextColor, shape = RoundedCornerShape(26.dp)) {
+                        Surface(color = Navy, shape = RoundedCornerShape(26.dp)) {
                             Column(Modifier.fillMaxWidth().padding(24.dp)) {
                                 Text("TODAY'S SPEAKING MISSION", color = Color(0xFFBEB5FF), fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(12.dp))
