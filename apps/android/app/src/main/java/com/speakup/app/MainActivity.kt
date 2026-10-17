@@ -69,7 +69,7 @@ fun PremiumSpeakUp() {
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
-    var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", 0)) }
+    var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", -1)) }
     var placementIndex by remember { mutableIntStateOf(0) }
     var placementSelected by remember { mutableStateOf("") }
     var placementAnswers by remember { mutableStateOf(listOf<Boolean>()) }
@@ -185,19 +185,25 @@ fun PremiumSpeakUp() {
                     TextButton(onClick = {
                         showPlacement = false
                         placementDone = true
-                        preferences.edit().putBoolean("placement_done", true).apply()
+                        placementScore = -1
+                        preferences.edit().putBoolean("placement_done", true).putInt("placement_score", -1).apply()
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
                         Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = Navy, fontWeight = FontWeight.Bold)
-                        Text("Speak a little. Grow every day.", color = Color.DarkGray)
+                        Text(when (learnerAge) {
+                            "Kids" -> "Play, discover words, and speak with confidence!"
+                            "Teen" -> "Build your skills through challenges and real conversations."
+                            else -> "Practical English for your everyday goals."
+                        }, color = Color.DarkGray)
                         Spacer(Modifier.height(8.dp))
                         val activePath = learningPaths.firstOrNull { it.id == chosenPath }
                         Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = Violet, fontWeight = FontWeight.Bold)
                         Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
+                        Text("Your journey is personal: practise at your pace, revisit lessons, and build confidence.", color = Color.DarkGray, style = MaterialTheme.typography.bodySmall)
                         Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = Navy)
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
-                        if (placementDone) {
+                        if (placementDone && placementScore >= 0) {
                             val recommendation = when (placementScore) {
                                 0 -> "Suggested start: first words and everyday phrases"
                                 1 -> "Suggested start: basic everyday conversations"
@@ -478,10 +484,22 @@ fun PremiumSpeakUp() {
                 }
             }
             if (!showPathSetup && !showPlacement) {
-            HorizontalDivider()
-            Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+            NavigationBar(containerColor = Color.White, tonalElevation = 4.dp) {
                 listOf("Today", "Learn", "Games", "Speak", "Review").forEach { tab ->
-                    TextButton(onClick = { page = tab }) { Text(tab, color = if (page == tab) Violet else Color.Gray) }
+                    val symbol = when (tab) {
+                        "Today" -> "⌂"
+                        "Learn" -> "▣"
+                        "Games" -> "✦"
+                        "Speak" -> "♫"
+                        else -> "✓"
+                    }
+                    NavigationBarItem(
+                        selected = page == tab,
+                        onClick = { page = tab },
+                        icon = { Text(symbol, style = MaterialTheme.typography.titleMedium) },
+                        label = { Text(tab, maxLines = 1) },
+                        alwaysShowLabel = true
+                    )
                 }
             }
             }
