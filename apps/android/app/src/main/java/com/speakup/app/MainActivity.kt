@@ -129,7 +129,7 @@ private val guidedDialogues = listOf(
     GuidedDialogue("dlg-h-03", "Hard", "Customer service", "My order arrived damaged, and I need it for an event tomorrow.", "Acknowledge and propose a solution.", listOf("I'm sorry it arrived damaged. Let me check whether express replacement is possible.", "That happens. Goodbye.", "The event was yesterday."), "I'm sorry it arrived damaged. Let me check whether express replacement is possible.", "A useful response acknowledges the issue and offers a practical next step."),
     GuidedDialogue("dlg-h-04", "Hard", "Exam speaking", "What impact might public transport investment have on cities?", "Give an opinion and a supporting reason.", listOf("Investment could reduce congestion because reliable services may encourage fewer car journeys.", "Transport is good.", "I don't know any city."), "Investment could reduce congestion because reliable services may encourage fewer car journeys.", "Support your main claim with an explanation of cause and effect.")
 )
-private data class SkillPractice(val id: String, val difficulty: String, val skill: String, val goal: String, val prompt: String, val choices: List<String>, val answer: String, val tip: String)
+private data class SkillPractice(val id: String, val difficulty: String, val skill: String, val goal: String, val prompt: String, val choices: List<String>, val answer: String, val tip: String, val ageGroup: String = "All")
 private val skillPractices = listOf(
     SkillPractice("skill-e-01", "Easy", "Speaking", "Start speaking", "How do you greet someone in the morning?", listOf("Good morning!", "Good nighttime!", "Morning is mine."), "Good morning!", "Use Good morning before midday."),
     SkillPractice("skill-e-02", "Easy", "Listening", "Travel", "Someone says: The bus leaves at nine. When does the bus leave?", listOf("At nine", "At five", "Tomorrow evening"), "At nine", "Listen for the time expression nine."),
@@ -142,7 +142,13 @@ private val skillPractices = listOf(
     SkillPractice("skill-h-01", "Hard", "Speaking", "Work & interviews", "A client requests an unrealistic deadline. Which response balances empathy and boundaries?", listOf("I understand the urgency; we can deliver a draft by Friday and the final version Monday.", "That is impossible. Stop asking.", "We can do anything yesterday."), "I understand the urgency; we can deliver a draft by Friday and the final version Monday.", "Acknowledge the concern, explain options and agree on realistic milestones."),
     SkillPractice("skill-h-02", "Hard", "Reading", "Reading & writing", "Read: Despite initial reservations, the committee endorsed the proposal after reviewing the evidence. What changed?", listOf("The evidence persuaded the committee", "The committee cancelled the meeting", "The proposal was rejected unanimously"), "The evidence persuaded the committee", "Despite signals a contrast between initial concerns and the final decision."),
     SkillPractice("skill-h-03", "Hard", "Grammar", "School & exams", "Choose the correctly inverted conditional.", listOf("Had I known, I would have called.", "Had I knew, I will call.", "If had I known, I called."), "Had I known, I would have called.", "Had I known is a formal inversion of If I had known."),
-    SkillPractice("skill-h-04", "Hard", "Listening", "Travel", "An announcement says: Boarding has been deferred until further notice. What does it mean?", listOf("Boarding is postponed with no new time given", "Boarding has finished", "Passengers must board immediately"), "Boarding is postponed with no new time given", "Deferred until further notice means delayed without a confirmed restart time.")
+    SkillPractice("skill-h-04", "Hard", "Listening", "Travel", "An announcement says: Boarding has been deferred until further notice. What does it mean?", listOf("Boarding is postponed with no new time given", "Boarding has finished", "Passengers must board immediately"), "Boarding is postponed with no new time given", "Deferred until further notice means delayed without a confirmed restart time."),
+    SkillPractice("skill-k-01", "Easy", "Vocabulary", "Start speaking", "Which word means an animal that says meow?", listOf("Cat", "Cup", "Car"), "Cat", "A cat is a pet that may say meow.", "Kids"),
+    SkillPractice("skill-k-02", "Medium", "Reading", "School & exams", "Read: Lina watered her small plant every day. Soon it grew new leaves. Why did the plant grow?", listOf("Lina cared for it", "It ate cake", "It went on holiday"), "Lina cared for it", "The passage links Lina's regular care with new leaves.", "Kids"),
+    SkillPractice("skill-t-01", "Easy", "Speaking", "Everyday conversation", "A classmate says: Want to join our study group? What is a friendly reply?", listOf("Sure, I'd love to!", "Study no yes.", "Go away, group."), "Sure, I'd love to!", "I'd love to is a natural way to accept an invitation.", "Teen"),
+    SkillPractice("skill-t-02", "Hard", "Reading", "School & exams", "Your group disagrees about a project idea. Which response encourages discussion?", listOf("Let's compare the evidence before choosing.", "My idea is always right.", "We must stop the project."), "Let's compare the evidence before choosing.", "Use respectful language to invite evidence-based discussion.", "Teen"),
+    SkillPractice("skill-a-01", "Medium", "Speaking", "Work & interviews", "A coworker asks for a schedule update. Which reply is clearest?", listOf("The meeting will begin at 3 pm in Room 2.", "Meeting it is stuff.", "I am calendar."), "The meeting will begin at 3 pm in Room 2.", "A precise update includes the time and location.", "Adult"),
+    SkillPractice("skill-a-02", "Hard", "Writing", "Work & interviews", "Choose the clearest professional email sentence.", listOf("Please find the updated proposal attached for your review.", "Proposal here look.", "I attach did yesterday tomorrow."), "Please find the updated proposal attached for your review.", "Professional writing is clear, courteous and grammatical.", "Adult")
 )
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -532,11 +538,15 @@ fun PremiumSpeakUp() {
                             Text(if (checked && selected == answer) "Complete lesson" else "Check my answer")
                         }
                         } else {
-                            val tier = skillPractices.filter { it.difficulty == chosenDifficulty }
-                            val ordered = tier.sortedWith(compareBy<SkillPractice> { it.goal != learningGoal }.thenBy { it.id })
-                            val exercise = ordered[skillPracticeIndex % ordered.size]
+                            val tier = skillPractices.filter { it.difficulty == chosenDifficulty && (it.ageGroup == "All" || it.ageGroup == learnerAge) }
+                            val ordered = tier.sortedWith(compareBy<SkillPractice> { it.ageGroup != learnerAge }.thenBy { it.goal != learningGoal }.thenBy { it.id })
+                            val availablePosition = ordered.indexOfFirst { it.id !in skillMastered }.let { if (it < 0) ordered.lastIndex else it }
+                            val currentPosition = skillPracticeIndex.coerceIn(0, availablePosition)
+                            val exercise = ordered[currentPosition]
                             Text("Your $chosenDifficulty skill practice", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            Text("Recommended first: $learningGoal. Change difficulty in Profile whenever you wish.", color = secondaryTextColor)
+                            Text("For $learnerAge learners • Focus: $learningGoal", color = secondaryTextColor)
+                            Text("Stage ${currentPosition + 1} of ${ordered.size} • Complete each challenge to unlock the next.", color = accentTextColor)
+                            LinearProgressIndicator(progress = { skillMastered.count { id -> ordered.any { it.id == id } }.toFloat() / ordered.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                             Text("${exercise.skill} • ${exercise.goal}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(exercise.prompt, style = MaterialTheme.typography.titleMedium, color = primaryTextColor)
                             exercise.choices.forEach { choice ->
@@ -557,12 +567,12 @@ fun PremiumSpeakUp() {
                                     preferences.edit().putStringSet("skill_practice_mastered", skillMastered).putInt("total_xp", xp).apply()
                                 }
                             }, enabled = skillPracticeAnswer.isNotBlank()) { Text("Check answer") }
-                            Text("Skills mastered: ${skillMastered.count { id -> tier.any { it.id == id } }} / ${tier.size} at $chosenDifficulty", color = accentTextColor)
+                            Text("Skills mastered: ${skillMastered.count { id -> ordered.any { it.id == id } }} / ${ordered.size} at $chosenDifficulty", color = accentTextColor)
                             OutlinedButton(onClick = {
-                                skillPracticeIndex += 1
+                                skillPracticeIndex = (currentPosition + 1).coerceAtMost(ordered.lastIndex)
                                 skillPracticeAnswer = ""
                                 skillPracticeChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next skill challenge →") }
+                            }, enabled = exercise.id in skillMastered && currentPosition < ordered.lastIndex, modifier = Modifier.fillMaxWidth()) { Text(if (exercise.id in skillMastered && currentPosition == ordered.lastIndex) "All stages completed!" else "Next unlocked stage →") }
                         }
                     }
                     "Speak" -> {
