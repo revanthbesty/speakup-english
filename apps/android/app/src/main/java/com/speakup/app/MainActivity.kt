@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -202,7 +204,7 @@ fun PremiumSpeakUp() {
                         Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
                         Text("Your journey is personal: practise at your pace, revisit lessons, and build confidence.", color = Color.DarkGray, style = MaterialTheme.typography.bodySmall)
                         Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = Navy)
-                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
+                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).semantics { contentDescription = "${completedIds.size} of ${lessons.size} lessons completed" })
                         if (placementDone && placementScore >= 0) {
                             val recommendation = when (placementScore) {
                                 0 -> "Suggested start: first words and everyday phrases"
@@ -508,7 +510,7 @@ fun PremiumSpeakUp() {
                     NavigationBarItem(
                         selected = page == tab,
                         onClick = { page = tab },
-                        icon = { Text(symbol, style = MaterialTheme.typography.titleMedium) },
+                        icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab tab" }, style = MaterialTheme.typography.titleMedium) },
                         label = { Text(tab, maxLines = 1) },
                         alwaysShowLabel = true
                     )
