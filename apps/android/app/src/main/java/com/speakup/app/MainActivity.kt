@@ -132,6 +132,21 @@ fun PremiumSpeakUp() {
                         TextButton(onClick = { showPathSetup = true }) { Text("Change my learning path") }
                         Spacer(Modifier.height(8.dp))
                         Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = Violet, fontWeight = FontWeight.SemiBold)
+                        Spacer(Modifier.height(12.dp))
+                        val levels = listOf(0, 100, 300, 600, 1000, 1800, 3000, 5000, 8000, 12000)
+                        val level = levels.indexOfLast { xp >= it } + 1
+                        val levelNames = listOf("First Steps", "Word Explorer", "Sentence Builder", "Rising Speaker", "Confident Communicator", "Conversation Champion", "Fluent Explorer", "English Achiever", "Language Master", "SpeakUp Legend")
+                        val currentFloor = levels[level - 1]
+                        val nextTarget = levels.getOrNull(level)
+                        Surface(color = Color.White, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp)) {
+                                Text("LEVEL $level • ${levelNames[level - 1]}", color = Navy, fontWeight = FontWeight.Bold)
+                                if (nextTarget != null) {
+                                    LinearProgressIndicator(progress = { (xp - currentFloor).toFloat() / (nextTarget - currentFloor) }, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp))
+                                    Text("${nextTarget - xp} XP to Level ${level + 1}", color = Color.DarkGray)
+                                } else Text("Maximum achievement level reached!", color = Violet)
+                            }
+                        }
                         Spacer(Modifier.height(20.dp))
                         Surface(color = Navy, shape = RoundedCornerShape(26.dp)) {
                             Column(Modifier.fillMaxWidth().padding(24.dp)) {
@@ -251,6 +266,23 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(12.dp))
                         Text("Quick revision", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
                         Text("Correct revision answers: $revisionCorrect", color = Violet)
+                        Spacer(Modifier.height(16.dp))
+                        Text("Achievement badges", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
+                        val badges = listOf(
+                            Triple("First Steps", completedIds.isNotEmpty(), "Complete your first lesson"),
+                            Triple("Lesson Explorer", completedIds.size >= 4, "Complete four lessons"),
+                            Triple("Brave Speaker", speakingAttempts >= 1, "Try microphone speaking"),
+                            Triple("Memory Starter", revisionCorrect >= 3, "Answer three revision questions correctly"),
+                            Triple("XP Collector", xp >= 300, "Earn 300 XP")
+                        )
+                        badges.forEach { (name, earned, description) ->
+                            Surface(color = if (earned) Soft else Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                                Column(Modifier.padding(12.dp)) {
+                                    Text("${if (earned) "🏅" else "🔒"} $name", color = Navy, fontWeight = FontWeight.Bold)
+                                    Text(description, color = Color.DarkGray, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         if (reviewable.isEmpty()) {
                             Text("Finish a lesson to unlock revision questions.", color = Color.DarkGray)
