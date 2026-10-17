@@ -1,6 +1,7 @@
 package com.speakup.app
 
 import android.os.Bundle
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -32,7 +33,11 @@ fun PremiumSpeakUp() {
     var page by remember { mutableStateOf("Today") }
     var selected by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
-    var completed by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val preferences = remember(context) { context.getSharedPreferences("speakup_learning", android.content.Context.MODE_PRIVATE) }
+    var completed by remember { mutableStateOf(preferences.getBoolean("cafe_lesson_complete", false)) }
+    var practiceResponse by remember { mutableStateOf("") }
+    var practiceChecked by remember { mutableStateOf(false) }
     val answer = "I'd like a cup of coffee, please."
     MaterialTheme(colorScheme = lightColorScheme(primary = Violet, background = Cream)) {
         Column(Modifier.fillMaxSize().background(Cream)) {
@@ -61,7 +66,7 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(24.dp))
                         Text("Explore your academy", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
                         Spacer(Modifier.height(12.dp))
-                        FeatureCard("✦  AI Speaking Studio", "Practice real-life conversations", { page = "Speak" })
+                        FeatureCard("✦  Speaking Studio", "Practise a café conversation", { page = "Speak" })
                         FeatureCard("▣  My Learning Path", "Build practical everyday English", { page = "Learn" })
                         FeatureCard("↻  Smart Revision", "Revisit what you have learned", { page = "Review" })
                     }
@@ -81,12 +86,12 @@ fun PremiumSpeakUp() {
                             Text(if (selected == answer) "Excellent! This is a polite, natural request." else "Try again. 'I'd like...' is a polite way to order.", color = if (selected == answer) Color(0xFF177B57) else Color(0xFF9D5417))
                         }
                         Spacer(Modifier.height(20.dp))
-                        Button(onClick = { if (checked && selected == answer) { completed = true; page = "Review" } else checked = true }, enabled = selected.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
+                        Button(onClick = { if (checked && selected == answer) { completed = true; preferences.edit().putBoolean("cafe_lesson_complete", true).apply(); page = "Review" } else checked = true }, enabled = selected.isNotEmpty(), modifier = Modifier.fillMaxWidth()) {
                             Text(if (checked && selected == answer) "Complete lesson" else "Check my answer")
                         }
                     }
                     "Speak" -> {
-                        Text("AI Speaking Studio", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("Speaking Studio", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
                         Spacer(Modifier.height(12.dp))
                         Surface(color = Soft, shape = RoundedCornerShape(22.dp)) {
                             Column(Modifier.fillMaxWidth().padding(22.dp)) {
@@ -98,7 +103,31 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text("Live AI voice conversation will be enabled after secure speech-service integration.", color = Color.DarkGray)
+                        Text("Type your reply to practise the conversation. AI voice feedback is coming later.", color = Color.DarkGray)
+                        Spacer(Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = practiceResponse,
+                            onValueChange = { practiceResponse = it; practiceChecked = false },
+                            label = { Text("Your reply to the barista") },
+                            modifier = Modifier.fillMaxWidth(),
+                            minLines = 2
+                        )
+                        if (practiceChecked) {
+                            Spacer(Modifier.height(10.dp))
+                            val naturalReply = practiceResponse.trim().contains("coffee", ignoreCase = true) &&
+                                (practiceResponse.contains("please", ignoreCase = true) || practiceResponse.contains("I'd like", ignoreCase = true))
+                            Text(
+                                if (naturalReply) "Nice! Your reply sounds polite and clear."
+                                else "Tip: Try 'I'd like a cup of coffee, please.'",
+                                color = if (naturalReply) Color(0xFF177B57) else Color(0xFF9D5417)
+                            )
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedButton(
+                            onClick = { practiceChecked = true },
+                            enabled = practiceResponse.isNotBlank(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Check my reply") }
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Practice this sentence") }
                     }
@@ -107,7 +136,7 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(16.dp))
                         FeatureCard(if (completed) "✓  First mission complete" else "◇  Your first mission awaits", if (completed) "Great start! Keep practising." else "Complete your first lesson to begin.", { page = "Learn" })
                         Spacer(Modifier.height(12.dp))
-                        Text("Persistent mastery, revision scheduling and learning analytics will appear when account sync is connected.", color = Color.DarkGray)
+                        Text("Your café lesson completion is saved on this device. Account sync and revision scheduling are planned.", color = Color.DarkGray)
                     }
                 }
             }
