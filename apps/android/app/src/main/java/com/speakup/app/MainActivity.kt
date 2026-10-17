@@ -113,6 +113,21 @@ private val readingPassages = listOf(
     ReadingPassage("Learning a new skill", "Intermediate", "At first, Omar found public speaking intimidating. He began practising short talks each evening, recorded his voice, and asked for feedback. After several weeks, he felt more comfortable speaking to a group.", "What helped Omar gain confidence?", listOf("Avoiding presentations", "Regular practice and feedback", "Memorising a single word"), "Regular practice and feedback", "Both daily practice and feedback contributed to his progress."),
     ReadingPassage("The community garden", "Advanced", "Residents transformed an unused lot into a community garden. Besides supplying fresh vegetables, the project brought neighbours together. Volunteers shared tools and taught children how to grow food, making the space valuable beyond its harvest.", "What is the central idea?", listOf("Vegetables are always expensive", "Unused lots should remain empty", "The garden benefits the community in several ways"), "The garden benefits the community in several ways", "The passage emphasises social and educational benefits as well as fresh food.")
 )
+private data class GuidedDialogue(val id: String, val level: String, val topic: String, val other: String, val prompt: String, val options: List<String>, val correct: String, val tip: String)
+private val guidedDialogues = listOf(
+    GuidedDialogue("dlg-e-01", "Easy", "Greetings", "Hello! What's your name?", "Introduce yourself politely.", listOf("My name is Sam. Nice to meet you!", "You name is?", "Goodbye now."), "My name is Sam. Nice to meet you!", "Use My name is to introduce yourself."),
+    GuidedDialogue("dlg-e-02", "Easy", "School", "Can I borrow your pencil?", "Agree to lend a pencil.", listOf("Yes, here you are.", "No pencil want.", "I am pencil."), "Yes, here you are.", "Here you are is natural when handing something to someone."),
+    GuidedDialogue("dlg-e-03", "Easy", "Shopping", "Can I help you?", "Ask to see a blue shirt.", listOf("Yes, do you have this in blue?", "I no blue.", "Shirt yesterday."), "Yes, do you have this in blue?", "Do you have this in ...? helps you ask about an item."),
+    GuidedDialogue("dlg-e-04", "Easy", "Food", "Would you like some juice?", "Accept a drink politely.", listOf("Yes, please. Thank you!", "Juice is window.", "I drinking yesterday."), "Yes, please. Thank you!", "Yes, please is a polite way to accept an offer."),
+    GuidedDialogue("dlg-m-01", "Medium", "Directions", "The station is a few blocks away. Do you need directions?", "Ask for a clearer route.", listOf("Thanks! Should I turn left at the traffic lights?", "Station gone there me?", "I travel every day."), "Thanks! Should I turn left at the traffic lights?", "Ask a specific follow-up question to clarify directions."),
+    GuidedDialogue("dlg-m-02", "Medium", "Work", "Could you send the report before lunch?", "Confirm when you will send it.", listOf("Certainly. I'll email it by eleven.", "Report is very report.", "I sent tomorrow yesterday."), "Certainly. I'll email it by eleven.", "A clear commitment includes a specific time."),
+    GuidedDialogue("dlg-m-03", "Medium", "Travel", "I'm sorry, the train to Bristol has been delayed.", "Ask for the updated departure time.", listOf("Do you know what time it is expected to leave?", "Where yesterday?", "Train is reading."), "Do you know what time it is expected to leave?", "An indirect question is polite when asking staff for information."),
+    GuidedDialogue("dlg-m-04", "Medium", "Social", "What do you usually do at the weekend?", "Describe a routine.", listOf("I often meet friends or go cycling.", "Yesterday tomorrow bike.", "Weekend are many."), "I often meet friends or go cycling.", "Use present simple for habits, with often or usually."),
+    GuidedDialogue("dlg-h-01", "Hard", "Interview", "Can you describe a challenge you overcame at work?", "Give a concise answer with a result.", listOf("We faced a deadline, so I reorganised tasks and we delivered on time.", "There were challenges, I think.", "You should ask someone else."), "We faced a deadline, so I reorganised tasks and we delivered on time.", "Explain the problem, your action, and a measurable result."),
+    GuidedDialogue("dlg-h-02", "Hard", "Debate", "Some colleagues believe remote work reduces collaboration. What do you think?", "Offer a balanced opinion.", listOf("While remote work can limit spontaneous discussion, scheduled check-ins can support teamwork.", "They are wrong and that is all.", "Remote has words."), "While remote work can limit spontaneous discussion, scheduled check-ins can support teamwork.", "Use while to acknowledge another view before offering your position."),
+    GuidedDialogue("dlg-h-03", "Hard", "Customer service", "My order arrived damaged, and I need it for an event tomorrow.", "Acknowledge and propose a solution.", listOf("I'm sorry it arrived damaged. Let me check whether express replacement is possible.", "That happens. Goodbye.", "The event was yesterday."), "I'm sorry it arrived damaged. Let me check whether express replacement is possible.", "A useful response acknowledges the issue and offers a practical next step."),
+    GuidedDialogue("dlg-h-04", "Hard", "Exam speaking", "What impact might public transport investment have on cities?", "Give an opinion and a supporting reason.", listOf("Investment could reduce congestion because reliable services may encourage fewer car journeys.", "Transport is good.", "I don't know any city."), "Investment could reduce congestion because reliable services may encourage fewer car journeys.", "Support your main claim with an explanation of cause and effect.")
+)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,6 +167,10 @@ fun PremiumSpeakUp() {
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
     var gameMode by remember { mutableStateOf("Word Builder") }
+    var dialogueIndex by remember { mutableIntStateOf(0) }
+    var dialogueChoice by remember { mutableStateOf("") }
+    var dialogueChecked by remember { mutableStateOf(false) }
+    var dialogueCompleted by remember { mutableStateOf((preferences.getStringSet("dialogue_mastered", emptySet()) ?: emptySet()).toSet()) }
     var readingIndex by remember { mutableIntStateOf(0) }
     var readingChoice by remember { mutableStateOf("") }
     var readingChecked by remember { mutableStateOf(false) }
@@ -539,17 +558,17 @@ fun PremiumSpeakUp() {
                         Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
                         val suggestedModes = when (learningGoal) {
-                            "Start speaking" -> listOf("Word Builder", "Situations", "Listening")
+                            "Start speaking" -> listOf("Dialogues", "Word Builder", "Listening")
                             "School & exams" -> listOf("Grammar", "Reading", "Vocabulary")
-                            "Work & interviews" -> listOf("Situations", "Vocabulary", "Listening")
+                            "Work & interviews" -> listOf("Dialogues", "Situations", "Vocabulary")
                             "Reading & writing" -> listOf("Reading", "Grammar", "Word Builder")
-                            "Travel" -> listOf("Situations", "Listening", "Vocabulary")
+                            "Travel" -> listOf("Dialogues", "Situations", "Listening")
                             else -> listOf("Vocabulary", "Situations", "Word Builder")
                         }
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
                         Text("Browse all games below. Difficulty changes your learning preference; graded question filtering is being expanded.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading").forEach { mode ->
+                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
@@ -745,7 +764,7 @@ fun PremiumSpeakUp() {
                                 listeningChecked = false
                                 showListeningTranscript = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next comprehension check →") }
-                        } else {
+                        } else if (gameMode == "Reading") {
                             val passage = readingPassages[readingIndex]
                             Text("Reading ${readingIndex + 1} of ${readingPassages.size} • ${passage.level}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(passage.title, style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -778,6 +797,44 @@ fun PremiumSpeakUp() {
                                 readingChoice = ""
                                 readingChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next reading passage →") }
+                        } else {
+                            val availableDialogues = guidedDialogues.filter { it.level == chosenDifficulty }
+                            val dialogue = availableDialogues[dialogueIndex % availableDialogues.size]
+                            Text("Role-play dialogues • $chosenDifficulty", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                            Text("Choose a natural reply, then try saying it aloud in Speaking Studio.", color = secondaryTextColor)
+                            Text("Dialogue ${dialogueIndex % availableDialogues.size + 1} of ${availableDialogues.size} • ${dialogue.topic}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(16.dp)) {
+                                    Text("Conversation partner", color = accentTextColor, fontWeight = FontWeight.Bold)
+                                    Text(dialogue.other, style = MaterialTheme.typography.titleMedium, color = primaryTextColor)
+                                }
+                            }
+                            Text(dialogue.prompt, color = primaryTextColor, style = MaterialTheme.typography.titleMedium)
+                            dialogue.options.forEach { option ->
+                                OutlinedButton(
+                                    onClick = { dialogueChoice = option; dialogueChecked = false },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (dialogueChoice == option) softSurfaceColor else surfaceColor)
+                                ) { Text(option, color = primaryTextColor) }
+                            }
+                            if (dialogueChecked) {
+                                Text(if (dialogueChoice == dialogue.correct) "Well done! ${dialogue.tip}" else "Try again. ${dialogue.tip}",
+                                    color = if (dialogueChoice == dialogue.correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                            }
+                            Button(onClick = {
+                                dialogueChecked = true
+                                if (dialogueChoice == dialogue.correct && dialogue.id !in dialogueCompleted) {
+                                    dialogueCompleted = dialogueCompleted + dialogue.id
+                                    xp += 10
+                                    preferences.edit().putStringSet("dialogue_mastered", dialogueCompleted).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = dialogueChoice.isNotBlank()) { Text("Check reply") }
+                            Text("Mastered: ${dialogueCompleted.count { id -> availableDialogues.any { it.id == id } }} / ${availableDialogues.size} at $chosenDifficulty", color = accentTextColor)
+                            OutlinedButton(onClick = {
+                                dialogueIndex += 1
+                                dialogueChoice = ""
+                                dialogueChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next conversation →") }
                         }
                     }
                     "Profile" -> {
