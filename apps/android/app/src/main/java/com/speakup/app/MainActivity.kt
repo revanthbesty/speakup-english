@@ -23,11 +23,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.isSystemInDarkTheme
 
 private val Navy = Color(0xFF111C35)
 private val Violet = Color(0xFF6C5CE7)
 private val Cream = Color(0xFFF7F7FC)
 private val Soft = Color(0xFFECE9FF)
+private val Night = Color(0xFF0D1426)
+private val NightCard = Color(0xFF1B2741)
+private val NightAccent = Color(0xFFB7ACFF)
 
 private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
 private val learningPaths = listOf(
@@ -69,6 +73,7 @@ fun PremiumSpeakUp() {
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
+    var darkAppearance by remember { mutableStateOf(preferences.getBoolean("dark_appearance", false)) }
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
     var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", -1)) }
@@ -110,25 +115,37 @@ fun PremiumSpeakUp() {
         } else speechStatus = "Speech recognition was cancelled or unavailable."
     }
     val answer = lesson.answer
-    MaterialTheme(colorScheme = lightColorScheme(primary = Violet, background = Cream)) {
-        Column(Modifier.fillMaxSize().background(Cream)) {
+    val backgroundColor = if (darkAppearance) Night else Cream
+    val primaryTextColor = if (darkAppearance) Color.White else Navy
+    val secondaryTextColor = if (darkAppearance) Color(0xFFD2D9EA) else Color.DarkGray
+    val accentTextColor = if (darkAppearance) NightAccent else Violet
+    val surfaceColor = if (darkAppearance) NightCard else surfaceColor
+    val softSurfaceColor = if (darkAppearance) NightCard else softSurfaceColor
+    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, background = Night, surface = NightCard, onSurface = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
+        Column(Modifier.fillMaxSize().background(backgroundColor)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("speakup.", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = Navy)
-                    Text("ENGLISH", color = Violet, style = MaterialTheme.typography.labelMedium)
+                    Text("speakup.", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
+                    Text("ENGLISH", color = accentTextColor, style = MaterialTheme.typography.labelMedium)
                 }
 
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = {
+                        darkAppearance = !darkAppearance
+                        preferences.edit().putBoolean("dark_appearance", darkAppearance).apply()
+                    }) { Text(if (darkAppearance) "Use light theme" else "Use dark theme") }
+                }
                 if (showPathSetup) {
-                    Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
-                    Text("Choose the path that fits you. You can change it any time.", color = Color.DarkGray)
+                    Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                    Text("Choose the path that fits you. You can change it any time.", color = secondaryTextColor)
                     Spacer(Modifier.height(16.dp))
-                    Text("Who is learning?", fontWeight = FontWeight.SemiBold, color = Navy)
+                    Text("Who is learning?", fontWeight = FontWeight.SemiBold, color = primaryTextColor)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Kids", "Teen", "Adult").forEach { age ->
                             FilterChip(selected = learnerAge == age, onClick = { learnerAge = age }, label = { Text(age) })
                         }
                     }
-                    Text("Daily practice goal", color = Navy, fontWeight = FontWeight.SemiBold)
+                    Text("Daily practice goal", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf(5, 10, 15).forEach { minutes ->
                             FilterChip(selected = dailyGoal == minutes, onClick = { dailyGoal = minutes }, label = { Text("$minutes min") })
@@ -136,10 +153,10 @@ fun PremiumSpeakUp() {
                     }
                     Spacer(Modifier.height(12.dp))
                     learningPaths.forEach { path ->
-                        Surface(color = if (chosenPath == path.id) Soft else Color.White, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shadowElevation = 1.dp) {
+                        Surface(color = if (chosenPath == path.id) softSurfaceColor else surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shadowElevation = 1.dp) {
                             Column(Modifier.padding(16.dp)) {
-                                Text(path.title, color = Navy, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                                Text(path.subtitle, color = Color.DarkGray)
+                                Text(path.title, color = primaryTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                Text(path.subtitle, color = secondaryTextColor)
                                 TextButton(onClick = { chosenPath = path.id }) { Text(if (chosenPath == path.id) "✓ Selected" else "Choose this path") }
                             }
                         }
@@ -152,20 +169,20 @@ fun PremiumSpeakUp() {
                         page = "Today"
                     }, enabled = chosenPath.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Start my learning journey →") }
                 } else if (showPlacement) {
-                    Text("Find your starting point", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
-                    Text("Three quick questions help us suggest a starting point. This is not a certified language assessment.", color = Color.DarkGray)
+                    Text("Find your starting point", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                    Text("Three quick questions help us suggest a starting point. This is not a certified language assessment.", color = secondaryTextColor)
                     Spacer(Modifier.height(12.dp))
                     LinearProgressIndicator(progress = { placementIndex.toFloat() / placementQuestions.size }, modifier = Modifier.fillMaxWidth())
-                    Text("QUESTION ${placementIndex + 1} OF ${placementQuestions.size}", color = Violet, fontWeight = FontWeight.Bold)
+                    Text("QUESTION ${placementIndex + 1} OF ${placementQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(12.dp))
                     val placementQuestion = placementQuestions[placementIndex]
-                    Text(placementQuestion.prompt, style = MaterialTheme.typography.titleLarge, color = Navy)
+                    Text(placementQuestion.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                     placementQuestion.choices.forEach { choice ->
                         OutlinedButton(
                             onClick = { placementSelected = choice },
                             modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (placementSelected == choice) Soft else Color.White)
-                        ) { Text(choice, color = Navy, modifier = Modifier.fillMaxWidth()) }
+                            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (placementSelected == choice) Soft else surfaceColor)
+                        ) { Text(choice, color = primaryTextColor, modifier = Modifier.fillMaxWidth()) }
                     }
                     Spacer(Modifier.height(12.dp))
                     Button(
@@ -192,18 +209,18 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
-                        Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = Navy, fontWeight = FontWeight.Bold)
+                        Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text(when (learnerAge) {
                             "Kids" -> "Play, discover words, and speak with confidence!"
                             "Teen" -> "Build your skills through challenges and real conversations."
                             else -> "Practical English for your everyday goals."
-                        }, color = Color.DarkGray)
+                        }, color = secondaryTextColor)
                         Spacer(Modifier.height(8.dp))
                         val activePath = learningPaths.firstOrNull { it.id == chosenPath }
-                        Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = Violet, fontWeight = FontWeight.Bold)
-                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = Color.DarkGray)
-                        Text("Your journey is personal: practise at your pace, revisit lessons, and build confidence.", color = Color.DarkGray, style = MaterialTheme.typography.bodySmall)
-                        Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = Navy)
+                        Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = accentTextColor, fontWeight = FontWeight.Bold)
+                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = secondaryTextColor)
+                        Text("Your journey is personal: practise at your pace, revisit lessons, and build confidence.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = primaryTextColor)
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).semantics { contentDescription = "${completedIds.size} of ${lessons.size} lessons completed" })
                         if (placementDone && placementScore >= 0) {
                             val recommendation = when (placementScore) {
@@ -212,10 +229,10 @@ fun PremiumSpeakUp() {
                                 2 -> "Suggested start: sentence building and speaking practice"
                                 else -> "Suggested start: speaking challenges and more advanced practice"
                             }
-                            Surface(color = Soft, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                 Column(Modifier.padding(16.dp)) {
-                                    Text("YOUR STARTING POINT", color = Violet, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
-                                    Text(recommendation, color = Navy, fontWeight = FontWeight.SemiBold)
+                                    Text("YOUR STARTING POINT", color = accentTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
+                                    Text(recommendation, color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                                     Spacer(Modifier.height(8.dp))
                                     Button(onClick = {
                                         page = if (placementScore >= 2) "Speak" else "Learn"
@@ -234,24 +251,24 @@ fun PremiumSpeakUp() {
                         }) { Text(if (placementDone) "Retake starting assessment" else "Take starting assessment") }
                         TextButton(onClick = { showPathSetup = true }) { Text("Change my learning path") }
                         Spacer(Modifier.height(8.dp))
-                        Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = Violet, fontWeight = FontWeight.SemiBold)
+                        Text("$xp XP earned  •  $speakingAttempts speaking attempts", color = accentTextColor, fontWeight = FontWeight.SemiBold)
                         Spacer(Modifier.height(12.dp))
                         val levels = listOf(0, 100, 300, 600, 1000, 1800, 3000, 5000, 8000, 12000)
                         val level = levels.indexOfLast { xp >= it } + 1
                         val levelNames = listOf("First Steps", "Word Explorer", "Sentence Builder", "Rising Speaker", "Confident Communicator", "Conversation Champion", "Fluent Explorer", "English Achiever", "Language Master", "SpeakUp Legend")
                         val currentFloor = levels[level - 1]
                         val nextTarget = levels.getOrNull(level)
-                        Surface(color = Color.White, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp)) {
-                                Text("LEVEL $level • ${levelNames[level - 1]}", color = Navy, fontWeight = FontWeight.Bold)
+                                Text("LEVEL $level • ${levelNames[level - 1]}", color = primaryTextColor, fontWeight = FontWeight.Bold)
                                 if (nextTarget != null) {
                                     LinearProgressIndicator(progress = { (xp - currentFloor).toFloat() / (nextTarget - currentFloor) }, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp))
-                                    Text("${nextTarget - xp} XP to Level ${level + 1}", color = Color.DarkGray)
-                                } else Text("Maximum achievement level reached!", color = Violet)
+                                    Text("${nextTarget - xp} XP to Level ${level + 1}", color = secondaryTextColor)
+                                } else Text("Maximum achievement level reached!", color = accentTextColor)
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        Surface(color = Navy, shape = RoundedCornerShape(26.dp)) {
+                        Surface(color = primaryTextColor, shape = RoundedCornerShape(26.dp)) {
                             Column(Modifier.fillMaxWidth().padding(24.dp)) {
                                 Text("TODAY'S SPEAKING MISSION", color = Color(0xFFBEB5FF), fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(12.dp))
@@ -269,7 +286,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(24.dp))
-                        Text("Explore your academy", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("Explore your academy", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         FeatureCard("✦  Speaking Studio", "Practise a café conversation", { page = "Speak" })
                         FeatureCard("▣  My Learning Path", "Build practical everyday English", { page = "Learn" })
@@ -277,20 +294,20 @@ fun PremiumSpeakUp() {
                         FeatureCard("🧩  Word Builder Games", "Arrange words into useful English sentences", { page = "Games" })
                     }
                     "Learn" -> {
-                        Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
-                        Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = Violet, fontWeight = FontWeight.Bold)
+                        Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = accentTextColor, fontWeight = FontWeight.Bold)
                         lessons.forEachIndexed { index, item ->
                             TextButton(onClick = { lessonIndex = index; selected = ""; checked = false }, modifier = Modifier.fillMaxWidth()) {
                                 Text("${if (index.toString() in completedIds) "✓" else "○"} ${index + 1}. ${item.title}")
                             }
                         }
                         Spacer(Modifier.height(18.dp))
-                        Text(lesson.question, color = Navy, style = MaterialTheme.typography.titleLarge)
+                        Text(lesson.question, color = primaryTextColor, style = MaterialTheme.typography.titleLarge)
                         Spacer(Modifier.height(16.dp))
                         lesson.choices.forEach { choice ->
-                            OutlinedButton(onClick = { selected = choice; checked = false }, modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected == choice) Soft else Color.White)) {
-                                Text(choice, color = Navy, modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp))
+                            OutlinedButton(onClick = { selected = choice; checked = false }, modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected == choice) Soft else surfaceColor)) {
+                                Text(choice, color = primaryTextColor, modifier = Modifier.fillMaxWidth().padding(vertical = 7.dp))
                             }
                         }
                         if (checked) {
@@ -308,22 +325,22 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Speak" -> {
-                        Text("Speaking Studio", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("Speaking Studio", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(12.dp))
-                        Surface(color = Soft, shape = RoundedCornerShape(22.dp)) {
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp)) {
                             Column(Modifier.fillMaxWidth().padding(22.dp)) {
-                                Text("${lesson.title.uppercase()} • SPEAKING PRACTICE", color = Violet, fontWeight = FontWeight.Bold)
+                                Text("${lesson.title.uppercase()} • SPEAKING PRACTICE", color = accentTextColor, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(12.dp))
-                                Text(lesson.question, style = MaterialTheme.typography.titleLarge, color = Navy)
+                                Text(lesson.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                                 Spacer(Modifier.height(12.dp))
-                                if (showSpeakingHint) Text("Practice response: $answer", color = Navy)
+                                if (showSpeakingHint) Text("Practice response: $answer", color = primaryTextColor)
                                 TextButton(onClick = { showSpeakingHint = !showSpeakingHint }) {
                                     Text(if (showSpeakingHint) "Hide example • independent challenge" else "Show example")
                                 }
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text("Speak or type your answer for this lesson. Keyword feedback is a practice aid, not a pronunciation score.", color = Color.DarkGray)
+                        Text("Speak or type your answer for this lesson. Keyword feedback is a practice aid, not a pronunciation score.", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         Button(
                             onClick = {
@@ -340,7 +357,7 @@ fun PremiumSpeakUp() {
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("🎙 Speak my answer") }
-                        if (speechStatus.isNotBlank()) Text(speechStatus, color = Color.DarkGray)
+                        if (speechStatus.isNotBlank()) Text(speechStatus, color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         OutlinedTextField(
                             value = practiceResponse,
@@ -378,14 +395,14 @@ fun PremiumSpeakUp() {
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                     }
                     "Games" -> {
-                        Text("Word Builder", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
-                        Text("Build a natural English sentence by tapping the words in order.", color = Color.DarkGray)
+                        Text("Word Builder", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Build a natural English sentence by tapping the words in order.", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
-                        Text("PUZZLE ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = Violet, fontWeight = FontWeight.Bold)
-                        Text(lesson.question, style = MaterialTheme.typography.titleMedium, color = Navy)
+                        Text("PUZZLE ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                        Text(lesson.question, style = MaterialTheme.typography.titleMedium, color = primaryTextColor)
                         Spacer(Modifier.height(14.dp))
-                        Surface(color = Soft, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
-                            Text(if (puzzleWords.isEmpty()) "Tap words below to build your sentence" else puzzleWords.joinToString(" "), modifier = Modifier.padding(16.dp), color = Navy)
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+                            Text(if (puzzleWords.isEmpty()) "Tap words below to build your sentence" else puzzleWords.joinToString(" "), modifier = Modifier.padding(16.dp), color = primaryTextColor)
                         }
                         Spacer(Modifier.height(12.dp))
                         val tokens = lesson.answer.split(" ")
@@ -393,7 +410,7 @@ fun PremiumSpeakUp() {
                         puzzleWords.forEach { remaining.remove(it) }
                         remaining.forEach { word ->
                             OutlinedButton(onClick = { puzzleWords = puzzleWords + word; puzzleChecked = false }, modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-                                Text(word, color = Navy)
+                                Text(word, color = primaryTextColor)
                             }
                         }
                         if (puzzleChecked) {
@@ -413,7 +430,7 @@ fun PremiumSpeakUp() {
                             }, enabled = puzzleWords.isNotEmpty()) { Text("Check puzzle") }
                         }
                         Spacer(Modifier.height(10.dp))
-                        Text("Puzzles solved: $puzzlesSolved • +10 XP once per unique puzzle", color = Violet)
+                        Text("Puzzles solved: $puzzlesSolved • +10 XP once per unique puzzle", color = accentTextColor)
                         OutlinedButton(onClick = {
                             lessonIndex = (lessonIndex + 1) % lessons.size
                             puzzleWords = emptyList()
@@ -421,24 +438,24 @@ fun PremiumSpeakUp() {
                         }, modifier = Modifier.fillMaxWidth()) { Text("Next puzzle →") }
                     }
                     "Review" -> {
-                        Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(16.dp))
                         FeatureCard("✓  ${completedIds.size} of ${lessons.size} lessons completed", "Each new lesson earns 50 XP.", { page = "Learn" })
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Spacer(Modifier.height(12.dp))
-                        Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = Violet, fontWeight = FontWeight.Bold)
+                        Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = accentTextColor, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(12.dp))
-                        Text("Speaking confidence practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
-                        Text("$independentReplies of $confidenceAttempts checked replies attempted without the example", color = Color.DarkGray)
+                        Text("Speaking confidence practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("$independentReplies of $confidenceAttempts checked replies attempted without the example", color = secondaryTextColor)
                         if (confidenceAttempts > 0) {
                             LinearProgressIndicator(progress = { independentReplies.toFloat() / confidenceAttempts }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp))
                         }
-                        Text("This tracks independent practice, not pronunciation quality or a certified fluency score.", color = Color.DarkGray, style = MaterialTheme.typography.bodySmall)
+                        Text("This tracks independent practice, not pronunciation quality or a certified fluency score.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Spacer(Modifier.height(12.dp))
-                        Text("Quick revision", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
-                        Text("Correct revision answers: $revisionCorrect", color = Violet)
+                        Text("Quick revision", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Correct revision answers: $revisionCorrect", color = accentTextColor)
                         Spacer(Modifier.height(16.dp))
-                        Text("Achievement badges", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("Achievement badges", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         val badges = listOf(
                             Triple("First Steps", completedIds.isNotEmpty(), "Complete your first lesson"),
                             Triple("Lesson Explorer", completedIds.size >= 4, "Complete four lessons"),
@@ -447,26 +464,26 @@ fun PremiumSpeakUp() {
                             Triple("XP Collector", xp >= 300, "Earn 300 XP")
                         )
                         badges.forEach { (name, earned, description) ->
-                            Surface(color = if (earned) Soft else Color.White, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            Surface(color = if (earned) Soft else surfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                                 Column(Modifier.padding(12.dp)) {
-                                    Text("${if (earned) "🏅" else "🔒"} $name", color = Navy, fontWeight = FontWeight.Bold)
-                                    Text(description, color = Color.DarkGray, style = MaterialTheme.typography.bodySmall)
+                                    Text("${if (earned) "🏅" else "🔒"} $name", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                    Text(description, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         if (reviewable.isEmpty()) {
-                            Text("Finish a lesson to unlock revision questions.", color = Color.DarkGray)
+                            Text("Finish a lesson to unlock revision questions.", color = secondaryTextColor)
                         } else {
                             val current = reviewable[revisionIndex % reviewable.size]
                             val reviewLesson = lessons[current]
-                            Text(reviewLesson.question, color = Navy, style = MaterialTheme.typography.titleMedium)
+                            Text(reviewLesson.question, color = primaryTextColor, style = MaterialTheme.typography.titleMedium)
                             reviewLesson.choices.forEach { choice ->
                                 OutlinedButton(
                                     onClick = { revisionAnswer = choice; revisionChecked = false },
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (revisionAnswer == choice) Soft else Color.White)
-                                ) { Text(choice, color = Navy) }
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (revisionAnswer == choice) Soft else surfaceColor)
+                                ) { Text(choice, color = primaryTextColor) }
                             }
                             if (revisionChecked) {
                                 Text(
@@ -493,12 +510,12 @@ fun PremiumSpeakUp() {
                             ) { Text(if (revisionChecked) "Next revision question" else "Check revision answer") }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Text("Your progress is saved on this device. Account sync and revision scheduling are planned.", color = Color.DarkGray)
+                        Text("Your progress is saved on this device. Account sync and revision scheduling are planned.", color = secondaryTextColor)
                     }
                 }
             }
             if (!showPathSetup && !showPlacement) {
-            NavigationBar(containerColor = Color.White, tonalElevation = 4.dp) {
+            NavigationBar(containerColor = surfaceColor, tonalElevation = 4.dp) {
                 listOf("Today", "Learn", "Games", "Speak", "Review").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
@@ -523,10 +540,10 @@ fun PremiumSpeakUp() {
 
 @Composable
 private fun FeatureCard(title: String, subtitle: String, onClick: () -> Unit) {
-    Surface(color = Color.White, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shadowElevation = 2.dp) {
+    Surface(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shadowElevation = 2.dp) {
         Column(Modifier.padding(18.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, color = Navy, fontWeight = FontWeight.Bold)
-            Text(subtitle, color = Color.DarkGray)
+            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+            Text(subtitle, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f))
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = onClick) { Text("Explore →") }
         }
