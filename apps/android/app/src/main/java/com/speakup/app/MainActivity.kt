@@ -15,6 +15,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
@@ -29,13 +30,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-private val Navy = Color(0xFF111C35)
-private val Violet = Color(0xFF6C5CE7)
-private val Cream = Color(0xFFF7F7FC)
-private val Soft = Color(0xFFECE9FF)
-private val Night = Color(0xFF0D1426)
-private val NightCard = Color(0xFF1B2741)
-private val NightAccent = Color(0xFFB7ACFF)
+private val Navy = Color(0xFF102A33)
+private val Violet = Color(0xFF0E8F75)
+private val Cream = Color(0xFFF6FAFA)
+private val Soft = Color(0xFFE2F7ED)
+private val Night = Color(0xFF101923)
+private val NightCard = Color(0xFF192733)
+private val NightAccent = Color(0xFF72D9BA)
 
 private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
 private val learningPaths = listOf(
@@ -172,7 +173,9 @@ fun PremiumSpeakUp() {
     var profileName by remember { mutableStateOf(preferences.getString("profile_name", "") ?: "") }
     var profileFeedback by remember { mutableStateOf("") }
     val learningGoals = listOf("Start speaking", "Everyday conversation", "School & exams", "Work & interviews", "Reading & writing", "Travel")
-    var darkAppearance by remember { mutableStateOf(preferences.getBoolean("dark_appearance", false)) }
+    val followSystemDark = isSystemInDarkTheme()
+    var themePreference by remember { mutableStateOf(preferences.getString("mint_theme_mode", if (preferences.getBoolean("dark_appearance", false)) "dark" else "system") ?: "system") }
+    val darkAppearance = when (themePreference) { "dark" -> true; "light" -> false; else -> followSystemDark }
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
     var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", -1)) }
@@ -271,8 +274,8 @@ fun PremiumSpeakUp() {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text("speakup.", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
-                        Text("LEARN • PLAY • SPEAK", color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text("English Mint", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
+                        Text("FRESH GAMES • FLUENT VOICES", color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     }
                     if (!showPathSetup && !showPlacement) {
                         TextButton(onClick = { page = "Profile" }) {
@@ -929,10 +932,20 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Profile" -> {
-                        TextButton(onClick = {
-                            darkAppearance = !darkAppearance
-                            preferences.edit().putBoolean("dark_appearance", darkAppearance).apply()
-                        }) { Text(if (darkAppearance) "☀  Use light appearance" else "☾  Use dark appearance") }
+                        Text("Appearance", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("system" to "System", "light" to "Light", "dark" to "Dark").forEach { (mode, label) ->
+                                FilterChip(
+                                    selected = themePreference == mode,
+                                    onClick = {
+                                        themePreference = mode
+                                        preferences.edit().putString("mint_theme_mode", mode).apply()
+                                    },
+                                    label = { Text(label) }
+                                )
+                            }
+                        }
+                        Text("Night-friendly colors reduce glare for some users; take regular screen breaks.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
