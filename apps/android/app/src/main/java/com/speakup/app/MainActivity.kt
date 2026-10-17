@@ -210,7 +210,19 @@ fun PremiumSpeakUp() {
                                 2 -> "Suggested start: sentence building and speaking practice"
                                 else -> "Suggested start: speaking challenges and more advanced practice"
                             }
-                            Text(recommendation, color = Navy, fontWeight = FontWeight.SemiBold)
+                            Surface(color = Soft, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                Column(Modifier.padding(16.dp)) {
+                                    Text("YOUR STARTING POINT", color = Violet, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
+                                    Text(recommendation, color = Navy, fontWeight = FontWeight.SemiBold)
+                                    Spacer(Modifier.height(8.dp))
+                                    Button(onClick = {
+                                        page = if (placementScore >= 2) "Speak" else "Learn"
+                                        lessonIndex = if (placementScore >= 2) 2 else 0
+                                        checked = false
+                                        selected = ""
+                                    }) { Text(if (placementScore >= 2) "Start speaking practice →" else "Start recommended lesson →") }
+                                }
+                            }
                         }
                         TextButton(onClick = {
                             placementIndex = 0
