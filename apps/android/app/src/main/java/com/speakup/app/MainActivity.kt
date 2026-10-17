@@ -71,7 +71,7 @@ fun PremiumSpeakUp() {
     var puzzleWords by remember { mutableStateOf(listOf<String>()) }
     var puzzleChecked by remember { mutableStateOf(false) }
     var puzzlesSolved by remember { mutableIntStateOf(preferences.getInt("puzzles_solved", 0)) }
-    var puzzleAwarded by remember { mutableStateOf(setOf<Int>()) }
+    var puzzleAwarded by remember { mutableStateOf((preferences.getStringSet("puzzle_awards", emptySet()) ?: emptySet()).toSet()) }
     var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
@@ -302,16 +302,16 @@ fun PremiumSpeakUp() {
                             OutlinedButton(onClick = { puzzleWords = emptyList(); puzzleChecked = false }) { Text("Reset") }
                             Button(onClick = {
                                 puzzleChecked = true
-                                if (puzzleWords.joinToString(" ") == lesson.answer && lessonIndex !in puzzleAwarded) {
-                                    puzzleAwarded = puzzleAwarded + lessonIndex
+                                if (puzzleWords.joinToString(" ") == lesson.answer && lessonIndex.toString() !in puzzleAwarded) {
+                                    puzzleAwarded = puzzleAwarded + lessonIndex.toString()
                                     puzzlesSolved += 1
                                     xp += 10
-                                    preferences.edit().putInt("puzzles_solved", puzzlesSolved).putInt("total_xp", xp).apply()
+                                    preferences.edit().putInt("puzzles_solved", puzzlesSolved).putInt("total_xp", xp).putStringSet("puzzle_awards", puzzleAwarded).apply()
                                 }
                             }, enabled = puzzleWords.isNotEmpty()) { Text("Check puzzle") }
                         }
                         Spacer(Modifier.height(10.dp))
-                        Text("Puzzles solved: $puzzlesSolved • +10 XP for a first correct solution in this session", color = Violet)
+                        Text("Puzzles solved: $puzzlesSolved • +10 XP once per unique puzzle", color = Violet)
                         OutlinedButton(onClick = {
                             lessonIndex = (lessonIndex + 1) % lessons.size
                             puzzleWords = emptyList()
