@@ -62,4 +62,16 @@ class ListeningSessionTest {
         assertTrue(session.message.contains("Try again"))
         assertNotNull(session.play())
     }
+
+    @Test fun engineCancellationCannotStopANewerReplay() {
+        val session = ListeningSession {}
+        session.initialized(true)
+        val old = session.play()
+        val current = session.play()
+        session.cancelled(old)
+        assertTrue(session.speaking)
+        session.cancelled(current)
+        assertFalse(session.speaking)
+        assertTrue(session.ready)
+    }
 }

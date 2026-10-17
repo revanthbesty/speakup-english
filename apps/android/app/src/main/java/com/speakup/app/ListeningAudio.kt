@@ -25,7 +25,7 @@ internal fun ListeningAudio(phrase: String) {
     var message by remember(phrase) { mutableStateOf("Preparing English voice…") }
     var slow by remember { mutableStateOf(false) }
     var engine by remember(phrase) { mutableStateOf<TextToSpeech?>(null) }
-    val session = remember(phrase) { ListeningSession {
+    val session = remember(phrase, owner) { ListeningSession {
         ready = it.ready
         speaking = it.speaking
         message = it.message
@@ -60,6 +60,9 @@ internal fun ListeningAudio(phrase: String) {
             tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) = Unit
                 override fun onDone(utteranceId: String?) { handler.post { session.finished(utteranceId) } }
+                override fun onStop(utteranceId: String?, interrupted: Boolean) {
+                    handler.post { session.cancelled(utteranceId) }
+                }
                 @Deprecated("Required by Android")
                 override fun onError(utteranceId: String?) { handler.post { session.finished(utteranceId, true) } }
                 override fun onError(utteranceId: String?, errorCode: Int) { onError(utteranceId) }

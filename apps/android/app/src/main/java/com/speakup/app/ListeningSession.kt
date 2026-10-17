@@ -45,6 +45,10 @@ internal class ListeningSession(private val publish: (ListeningSession) -> Unit)
         publish(this)
     }
 
+    fun cancelled(token: String?) {
+        if (!closed && token != null && token == active) stop()
+    }
+
     fun close() {
         active = null
         speaking = false
