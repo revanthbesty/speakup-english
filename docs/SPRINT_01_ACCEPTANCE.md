@@ -25,10 +25,10 @@ Scope: learner onboarding, placement, personalized Today dashboard, Material nav
 - Check TalkBack labels and large-font layout at 200% font scaling.
 - Verify narrow-screen bottom navigation labels and touch targets.
 - Exercise speech recognition, games, revision and lesson completion.
-- Check dark system mode contrast; app currently uses explicit light surfaces.
+- Verify manually selected dark and light appearance, persistence, mission-card contrast and large text.
 
 ## Deferred items / limitations
-- A dedicated dark theme is not shipped; light UI remains intentionally consistent.
+- A user-toggleable dark appearance was added; automated build and on-device contrast verification remain required.
 - Formal automated Compose UI tests and device accessibility audit not yet in place.
 - Placement is a brief routing aid, not a proficiency certification.
 - The current lesson library is a prototype; full curriculum belongs to Sprint 2.
