@@ -68,6 +68,10 @@ fun PremiumSpeakUp() {
     var confidenceAttempts by remember { mutableIntStateOf(preferences.getInt("confidence_attempts", 0)) }
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
+    var puzzleWords by remember { mutableStateOf(listOf<String>()) }
+    var puzzleChecked by remember { mutableStateOf(false) }
+    var puzzlesSolved by remember { mutableIntStateOf(preferences.getInt("puzzles_solved", 0)) }
+    var puzzleAwarded by remember { mutableStateOf(setOf<Int>()) }
     var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
@@ -168,6 +172,7 @@ fun PremiumSpeakUp() {
                         FeatureCard("✦  Speaking Studio", "Practise a café conversation", { page = "Speak" })
                         FeatureCard("▣  My Learning Path", "Build practical everyday English", { page = "Learn" })
                         FeatureCard("↻  Smart Revision", "Revisit what you have learned", { page = "Review" })
+                        FeatureCard("🧩  Word Builder Games", "Arrange words into useful English sentences", { page = "Games" })
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
@@ -270,6 +275,49 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                     }
+                    "Games" -> {
+                        Text("Word Builder", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
+                        Text("Build a natural English sentence by tapping the words in order.", color = Color.DarkGray)
+                        Spacer(Modifier.height(12.dp))
+                        Text("PUZZLE ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = Violet, fontWeight = FontWeight.Bold)
+                        Text(lesson.question, style = MaterialTheme.typography.titleMedium, color = Navy)
+                        Spacer(Modifier.height(14.dp))
+                        Surface(color = Soft, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth()) {
+                            Text(if (puzzleWords.isEmpty()) "Tap words below to build your sentence" else puzzleWords.joinToString(" "), modifier = Modifier.padding(16.dp), color = Navy)
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        val tokens = lesson.answer.split(" ")
+                        val remaining = tokens.toMutableList()
+                        puzzleWords.forEach { remaining.remove(it) }
+                        remaining.forEach { word ->
+                            OutlinedButton(onClick = { puzzleWords = puzzleWords + word; puzzleChecked = false }, modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+                                Text(word, color = Navy)
+                            }
+                        }
+                        if (puzzleChecked) {
+                            val correct = puzzleWords.joinToString(" ") == lesson.answer
+                            Text(if (correct) "Great work! ${lesson.tip}" else "Not yet. Rearrange the words and try again.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { puzzleWords = emptyList(); puzzleChecked = false }) { Text("Reset") }
+                            Button(onClick = {
+                                puzzleChecked = true
+                                if (puzzleWords.joinToString(" ") == lesson.answer && lessonIndex !in puzzleAwarded) {
+                                    puzzleAwarded = puzzleAwarded + lessonIndex
+                                    puzzlesSolved += 1
+                                    xp += 10
+                                    preferences.edit().putInt("puzzles_solved", puzzlesSolved).putInt("total_xp", xp).apply()
+                                }
+                            }, enabled = puzzleWords.isNotEmpty()) { Text("Check puzzle") }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Text("Puzzles solved: $puzzlesSolved • +10 XP for a first correct solution in this session", color = Violet)
+                        OutlinedButton(onClick = {
+                            lessonIndex = (lessonIndex + 1) % lessons.size
+                            puzzleWords = emptyList()
+                            puzzleChecked = false
+                        }, modifier = Modifier.fillMaxWidth()) { Text("Next puzzle →") }
+                    }
                     "Review" -> {
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = Navy)
                         Spacer(Modifier.height(16.dp))
@@ -350,7 +398,7 @@ fun PremiumSpeakUp() {
             if (!showPathSetup) {
             HorizontalDivider()
             Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                listOf("Today", "Learn", "Speak", "Review").forEach { tab ->
+                listOf("Today", "Learn", "Games", "Speak", "Review").forEach { tab ->
                     TextButton(onClick = { page = tab }) { Text(tab, color = if (page == tab) Violet else Color.Gray) }
                 }
             }
