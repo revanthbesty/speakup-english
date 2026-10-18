@@ -34,6 +34,8 @@ internal fun MintFeedScreen(
     onReport: (String, MintReportReason) -> Unit,
     onReact: (String) -> Unit,
     onChallengeCompleted: (String) -> Unit,
+    savedWords: Set<String>,
+    onToggleWord: (String) -> Unit,
     onSpeakingPrompt: (String) -> Unit
 ) {
     var level by rememberSaveable { mutableStateOf(MintClipLevel.EASY) }
@@ -49,7 +51,7 @@ internal fun MintFeedScreen(
     var wordSheetOpen by remember { mutableStateOf(false) }
     var speakMomentOpen by remember { mutableStateOf(false) }
     var suggestedReplyVisible by remember { mutableStateOf(false) }
-    val visibleClips = MintFeedCatalog.visible(learnerAge, level, blockedIds)
+    val visibleClips = MintClipRecommendations.ordered(MintFeedCatalog.visible(learnerAge, level, blockedIds), completedChallengeIds, reactionIds)
     val currentIndex = MintClipsPlayback.safeIndex(clipIndex, visibleClips.size)
     val clip = visibleClips.getOrNull(currentIndex)
 
@@ -76,6 +78,7 @@ internal fun MintFeedScreen(
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Mint Clips", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
         Text("Offline captioned stories · Watch, read and practise", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Unfinished stories first · Finite, age-safe local recommendations", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintClipLevel.entries.forEach { option ->
                 FilterChip(selected = level == option, onClick = { level = option; reset(0) },
@@ -160,6 +163,12 @@ internal fun MintFeedScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text(frame.spokenLine, color = MaterialTheme.colorScheme.onSurface)
                         Text("Read or listen to the sentence. Offline dictionary definitions aren't available yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        val candidates = frame.spokenLine.lowercase().split(Regex("[^a-z]+")).mapNotNull { MintSavedVocabulary.normalized(it) }.distinct().take(8)
+                        candidates.forEach { word ->
+                            OutlinedButton(onClick = { onToggleWord(word) }, modifier = Modifier.fillMaxWidth()) {
+                                Text(if (word in savedWords) "✓ $word · remove saved word" else "+ Save $word")
+                            }
+                        }
                     }
                 },
                 confirmButton = { TextButton(onClick = { wordSheetOpen = false }) { Text("Back to clip") } }
