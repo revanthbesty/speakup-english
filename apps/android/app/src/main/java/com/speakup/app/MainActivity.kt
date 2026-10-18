@@ -319,6 +319,7 @@ fun PremiumSpeakUp() {
     var scenarioMastered by remember { mutableStateOf((preferences.getStringSet("scenario_mastered", emptySet()) ?: emptySet()).toSet()) }
     var grammarIndex by remember { mutableIntStateOf(0) }
     var grammarBookmarks by remember { mutableStateOf((preferences.getStringSet("mint_grammar_bookmarks", emptySet()) ?: emptySet()).toSet()) }
+    var grammarRevisionMissed by remember { mutableStateOf((preferences.getStringSet("mint_grammar_revision_missed", emptySet()) ?: emptySet()).toSet()) }
     var grammarSavedOnly by remember { mutableStateOf(false) }
     var grammarShowExplanation by remember { mutableStateOf(false) }
 
@@ -1515,6 +1516,16 @@ fun PremiumSpeakUp() {
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            val grammarReviewIndices = MintGrammarRevision.reviewIndices(grammarQuestions.size, grammarRevisionMissed, grammarBookmarks, grammarMastered)
+                            Text("Progress: ${MintGrammarRevision.masteredCount(grammarQuestions.size,grammarMastered)} / ${grammarQuestions.size} mastered (${MintGrammarRevision.progressPercent(grammarQuestions.size,grammarMastered)}%)", color = primaryTextColor)
+                            LinearProgressIndicator(progress = { MintGrammarRevision.progressPercent(grammarQuestions.size,grammarMastered) / 100f },modifier = Modifier.fillMaxWidth())
+                            Text("Revision queue: ${grammarReviewIndices.size} questions (mistakes, bookmarks and unmastered).",color = secondaryTextColor)
+                            if (grammarReviewIndices.isNotEmpty()) OutlinedButton(onClick = {
+                                grammarIndex = grammarReviewIndices.first()
+                                grammarChoice = ""; grammarChecked = false; grammarSetComplete = false
+                                grammarHadError = false; grammarWrongCount = 0; grammarFirstTryCorrect = 0
+                                grammarSetNewXp = 0; grammarMissedNotes = emptyList()
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Review first question →") }
                             Text("Grammar Hub · ${MintGrammarHub.packCount(grammarQuestions.size)} practice packs · ${MintGrammarHub.savedCount(grammarBookmarks, grammarQuestions.size)} bookmarked questions",
                                 color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                             Text("Pilot packs are not verified topic classifications or Easy/Medium/Hard assessments.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
@@ -1624,9 +1635,15 @@ fun PremiumSpeakUp() {
                                     grammarHadError = true
                                     grammarWrongCount += 1
                                     grammarMissedNotes = grammarMissedNotes + "${question.prompt} — ${question.explanation}"
+                                    grammarRevisionMissed = grammarRevisionMissed + MintGrammarRevision.missedKey(grammarIndex)
+                                    preferences.edit().putStringSet("mint_grammar_revision_missed",grammarRevisionMissed).apply()
                                 }
                                 grammarChecked = true
                                 val id = grammarIndex.toString()
+                                if (grammarChoice == question.correct) {
+                                    grammarRevisionMissed = grammarRevisionMissed - MintGrammarRevision.missedKey(grammarIndex)
+                                    preferences.edit().putStringSet("mint_grammar_revision_missed",grammarRevisionMissed).apply()
+                                }
                                 if (grammarChoice == question.correct && id !in grammarMastered) {
                                     grammarMastered = grammarMastered + id
                                     xp += 10
