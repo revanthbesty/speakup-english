@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,34 +35,34 @@ internal fun MintWelcomeFlow(
         "School & exams" to "🎓", "Work & interviews" to "💼",
         "Reading & writing" to "📖", "Travel" to "🌍"
     )
-    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
         Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,
             horizontalArrangement=Arrangement.SpaceBetween) {
-            Text("YOUR ENGLISH JOURNEY",style=MaterialTheme.typography.labelMedium,
+            Text("YOUR ENGLISH ADVENTURE",style=MaterialTheme.typography.labelMedium,
                 color=mint,fontWeight=FontWeight.Bold)
-            Text("${step+1} / 4",color=subtle,style=MaterialTheme.typography.labelMedium)
+            Text("STEP ${step+1} OF 4",color=subtle,style=MaterialTheme.typography.labelMedium)
         }
         LinearProgressIndicator(progress={(step+1)/4f},modifier=Modifier.fillMaxWidth().height(7.dp),
             color=mint,trackColor=MaterialTheme.colorScheme.surfaceVariant)
         if(step==0) {
             Box(
-                modifier=Modifier.fillMaxWidth().height(240.dp).background(
+                modifier=Modifier.fillMaxWidth().height(252.dp).background(
                     Brush.linearGradient(listOf(Color(0xFFBDF9E5),Color(0xFFE7DAFF),Color(0xFFCCEAFF))),
                     RoundedCornerShape(28.dp)),
                 contentAlignment=Alignment.Center
             ) {
                 Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                    Text("🌱🎧",style=MaterialTheme.typography.displayLarge)
-                    Text("🎮  💬  🎤",style=MaterialTheme.typography.headlineMedium)
-                    Text("PLAY  •  PRACTISE  •  SPEAK",color=Color(0xFF164637),
+                    Text("🌱",style=MaterialTheme.typography.displayLarge)
+                    Text("💬      🎮      🎧",style=MaterialTheme.typography.headlineLarge)
+                    Text("FRESH GAMES. FLUENT VOICES.",color=Color(0xFF164637),
                         style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
                 }
             }
             Text("Play. Practice. Speak.",style=MaterialTheme.typography.headlineLarge,
                 fontWeight=FontWeight.ExtraBold,color=ink)
-            Text("Learn English through games, stories and friendly speaking practice — at your pace.",
+            Text("Learn English the fun way with games, stories, speaking practice and daily discoveries.",
                 style=MaterialTheme.typography.bodyLarge,color=subtle)
-            Row(horizontalArrangement=Arrangement.spacedBy(9.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(7.dp)) {
                 listOf("🎮 Games","📚 Stories","🎤 Speak").forEach { text ->
                     Surface(color=MaterialTheme.colorScheme.primaryContainer,
                         shape=RoundedCornerShape(30.dp)) {
@@ -100,7 +101,7 @@ internal fun MintWelcomeFlow(
         } else if(step==2) {
             Text("What's your goal?",style=MaterialTheme.typography.headlineLarge,
                 fontWeight=FontWeight.Bold,color=ink)
-            Text("Choose what matters most. You can change this later.",color=subtle)
+            Text("Pick your first learning adventure. You can change this any time.",color=subtle)
             goals.forEach { (option,symbol) ->
                 val picked=goal==option
                 Surface(onClick={onGoal(option)},shape=RoundedCornerShape(18.dp),
@@ -132,11 +133,8 @@ internal fun MintWelcomeFlow(
             Text("A level check is optional. Skipping it won't change existing learning history.",
                 style=MaterialTheme.typography.bodySmall,color=subtle)
         }
-        Button(onClick={ if(step==3) onFinish(false) else step++ },
-            modifier=Modifier.fillMaxWidth().heightIn(min=56.dp),
-            shape=RoundedCornerShape(18.dp),
-            colors=ButtonDefaults.buttonColors(containerColor=mint,contentColor=Color(0xFF073C2D))
-        ) { Text(if(step==3)"Start my adventure →" else "Continue →",fontWeight=FontWeight.Bold) }
+        MintPrimaryAction(if (step == 0) "Let\'s begin →" else if (step == 3) "Start my adventure →" else "Continue →",
+            onClick = { if (step == 3) onFinish(false) else step++ })
         if(step==3) {
             TextButton(onClick={onFinish(true)},modifier=Modifier.fillMaxWidth()) {
                 Text("Take the optional level check",color=purple)
@@ -145,7 +143,7 @@ internal fun MintWelcomeFlow(
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,
                 verticalAlignment=Alignment.CenterVertically) {
                 TextButton(onClick={ if(step>0) step-- },enabled=step>0) {Text("← Back")}
-                TextButton(onClick={step=3}) {Text("Skip optional steps")}
+                TextButton(onClick={step=3}) {Text("Skip to my adventure")}
             }
         }
     }
