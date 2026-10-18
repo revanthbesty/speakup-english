@@ -212,6 +212,18 @@ fun PremiumSpeakUp() {
     var skillPracticeAnswer by remember { mutableStateOf("") }
     var skillPracticeChecked by remember { mutableStateOf(false) }
     var skillMastered by remember { mutableStateOf((preferences.getStringSet("skill_practice_mastered", emptySet()) ?: emptySet()).toSet()) }
+    var blockedMintClips by remember {
+        mutableStateOf((preferences.getStringSet("mint_hidden_clips", emptySet()) ?: emptySet()).toSet())
+    }
+    var reportedMintClips by remember {
+        mutableStateOf((preferences.getStringSet("mint_local_clip_reports", emptySet()) ?: emptySet()).toSet())
+    }
+    var reactedMintClips by remember {
+        mutableStateOf((preferences.getStringSet("mint_private_reactions", emptySet()) ?: emptySet()).toSet())
+    }
+    var mintStoryCompletions by remember {
+        mutableStateOf((preferences.getStringSet("mint_story_completed", emptySet()) ?: emptySet()).toSet())
+    }
     var gameMode by remember { mutableStateOf("Mint Quests") }
     var mintDifficulty by remember { mutableStateOf(when (chosenDifficulty) { "Hard" -> MintDifficulty.HARD; "Medium" -> MintDifficulty.MEDIUM; else -> MintDifficulty.EASY }) }
     var mintMechanic by remember { mutableStateOf(MintMechanic.CHOOSE_REPLY) }
@@ -500,6 +512,10 @@ fun PremiumSpeakUp() {
                             OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
                         }
                         Spacer(Modifier.height(20.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            OutlinedButton(onClick = { page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Watch Mint Reels") }
+                            OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.weight(1f)) { Text("My Progress") }
+                        }
                         Text("Your progress", style = MaterialTheme.typography.headlineSmall, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Small steps, big achievements.", color = secondaryTextColor)
                         Spacer(Modifier.height(10.dp))
@@ -792,6 +808,45 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                         }
+                    }
+                    "Feed" -> {
+                        val learnerMinimumAge = when (learnerAgeBand) {
+                            "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
+                        }
+                        MintFeedScreen(
+                            learnerAge = learnerMinimumAge,
+                            reducedMotion = motionReduced,
+                            blockedIds = blockedMintClips,
+                            reportedKeys = reportedMintClips,
+                            reactionIds = reactedMintClips,
+                            completedChallengeIds = mintStoryCompletions,
+                            onBlock = { id ->
+                                blockedMintClips = blockedMintClips + id
+                                preferences.edit().putStringSet("mint_hidden_clips", blockedMintClips).apply()
+                            },
+                            onReport = { id, reason ->
+                                val report = MintContentReport(id, reason, System.currentTimeMillis())
+                                if (MintSocialSafety.validReport(report, MintFeedCatalog.clips.map { it.id }.toSet())) {
+                                    reportedMintClips = reportedMintClips + MintSocialSafety.reportKey(report)
+                                    preferences.edit().putStringSet("mint_local_clip_reports", reportedMintClips).apply()
+                                }
+                            },
+                            onReact = { id ->
+                                reactedMintClips = if (id in reactedMintClips) reactedMintClips - id else reactedMintClips + id
+                                preferences.edit().putStringSet("mint_private_reactions", reactedMintClips).apply()
+                            },
+                            onChallengeCompleted = { id ->
+                                mintStoryCompletions = mintStoryCompletions + id
+                                preferences.edit().putStringSet("mint_story_completed", mintStoryCompletions).apply()
+                            },
+                            onSpeakingPrompt = { prompt ->
+                                mintSpeakingMission = prompt
+                                speakingView = "Lessons"
+                                practiceResponse = ""
+                                practiceChecked = false
+                                page = "Speak"
+                            }
+                        )
                     }
                     "Games" -> {
                         Text("Mint Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
@@ -1225,6 +1280,14 @@ fun PremiumSpeakUp() {
                             })
                         }
                         Text("Respect device brightness, rest breaks and accessibility settings. Dark mode does not prevent eye damage.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Text("Safety and community", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Only moderated studio-authored offline reels are available. Public comments, strangers, friend requests, direct messages, uploads and sharing are disabled.", color = secondaryTextColor)
+                        Text("Hidden stories: ${blockedMintClips.size} • Local reports: ${reportedMintClips.size} • Private reactions: ${reactedMintClips.size}", color = primaryTextColor)
+                        OutlinedButton(onClick = {
+                            blockedMintClips = emptySet()
+                            preferences.edit().remove("mint_hidden_clips").apply()
+                        }) { Text("Restore locally hidden studio stories") }
+                        Text("Local reports have not been submitted to moderators; no public social account has been created.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -1420,10 +1483,11 @@ fun PremiumSpeakUp() {
             }
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
-                listOf("Today", "Games", "Speak", "Review", "Profile").forEach { tab ->
+                listOf("Today", "Feed", "Games", "Speak", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
                         "Speak" -> "♫"
+                        "Feed" -> "▤"
                         "Games" -> "✦"
                         "Review" -> "▥"
                         else -> "◉"
