@@ -132,7 +132,7 @@ internal fun MintWelcomeFlow(
             Text("A level check is optional. Skipping it won't change existing learning history.",
                 style=MaterialTheme.typography.bodySmall,color=subtle)
         }
-        Button(onClick={if(step==3)({onFinish(false)}) else ({step++})},
+        Button(onClick={ if(step==3) onFinish(false) else step++ },
             modifier=Modifier.fillMaxWidth().heightIn(min=56.dp),
             shape=RoundedCornerShape(18.dp),
             colors=ButtonDefaults.buttonColors(containerColor=mint,contentColor=Color(0xFF073C2D))
@@ -144,7 +144,7 @@ internal fun MintWelcomeFlow(
         } else {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,
                 verticalAlignment=Alignment.CenterVertically) {
-                TextButton(onClick={if(step>0)({step--}) else ({})},enabled=step>0) {Text("← Back")}
+                TextButton(onClick={ if(step>0) step-- },enabled=step>0) {Text("← Back")}
                 TextButton(onClick={step=3}) {Text("Skip optional steps")}
             }
         }
