@@ -44,7 +44,7 @@ class OverlaySafetyTests(unittest.TestCase):
         old = {"RID-A1-0004": {"category": "riddles", "cefr_level": "A1"}}
         record = {"activity_id": "RID-A1-0004", "category": "riddles",
                   "cefr_level": "A1", "review_status": "approved"}
-        with self.assertRaisesRegex(ValueError, "review_status"):
+        with self.assertRaisesRegex(ValueError, "review status"):
             mint.validate_replacement(record, old)
 
     def test_rejects_missing_provenance(self):
