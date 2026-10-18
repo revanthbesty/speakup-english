@@ -629,6 +629,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         TextButton(onClick = { page = "FamilyPilot" }, modifier = Modifier.fillMaxWidth()) { Text("Teacher & Family · private pilot →") }
+                        OutlinedButton(onClick = { page = "AILifePilot" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("AI Life · private offline pilot →") }
                         TextButton(onClick = { page = "CreatorLab" }, modifier = Modifier.fillMaxWidth()) { Text("Creator Content Lab · private draft preview →") }
                         OutlinedButton(onClick = { page = "Professional" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                             Text("Explore Professional English →")
@@ -643,6 +644,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                     }
+                    "AILifePilot" -> { MintAiLifePilotScreen(onBack = { page = "Today" }) }
                     "FamilyPilot" -> {
                         Text("Teacher & Family Studio · private pilot", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("On-device sample activities only. No invitations, teacher accounts, student roster or access to another learner's records.", color = secondaryTextColor)
