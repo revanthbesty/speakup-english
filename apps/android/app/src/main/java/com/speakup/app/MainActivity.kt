@@ -318,6 +318,10 @@ fun PremiumSpeakUp() {
     var scenarioChecked by remember { mutableStateOf(false) }
     var scenarioMastered by remember { mutableStateOf((preferences.getStringSet("scenario_mastered", emptySet()) ?: emptySet()).toSet()) }
     var grammarIndex by remember { mutableIntStateOf(0) }
+    var grammarBookmarks by remember { mutableStateOf((preferences.getStringSet("mint_grammar_bookmarks", emptySet()) ?: emptySet()).toSet()) }
+    var grammarSavedOnly by remember { mutableStateOf(false) }
+    var grammarShowExplanation by remember { mutableStateOf(false) }
+
     var grammarChoice by remember { mutableStateOf("") }
     var grammarSetComplete by remember { mutableStateOf(false) }
     var grammarSetNewXp by remember { mutableIntStateOf(0) }
@@ -1509,6 +1513,27 @@ fun PremiumSpeakUp() {
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            Text("Grammar Hub · ${MintGrammarHub.packCount(grammarQuestions.size)} practice packs · ${MintGrammarHub.savedCount(grammarBookmarks, grammarQuestions.size)} bookmarked questions",
+                                color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                            Text("Pilot packs are not verified topic classifications or Easy/Medium/Hard assessments.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Show saved questions", color = primaryTextColor, modifier = Modifier.weight(1f))
+                                Switch(checked = grammarSavedOnly, onCheckedChange = { grammarSavedOnly = it })
+                            }
+                            if (grammarSavedOnly) {
+                                val savedIndices = grammarQuestions.indices.filter { MintGrammarHub.bookmarkId(it) in grammarBookmarks }
+                                if (savedIndices.isEmpty()) Text("No saved grammar questions yet. Open a practice pack and bookmark a question.", color = secondaryTextColor)
+                                else savedIndices.forEach { index ->
+                                    TextButton(onClick = {
+                                        grammarIndex = index
+                                        grammarSavedOnly = false
+                                        grammarChoice = ""; grammarChecked = false; grammarSetComplete = false
+                                        grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0
+                                        grammarHadError = false; grammarMissedNotes = emptyList()
+                                    }, modifier = Modifier.fillMaxWidth()) { Text("Open Q${index + 1}: ${grammarQuestions[index].prompt}") }
+                                }
+                            }
+
                             Text("Practice pack ${grammarSet + 1} of $grammarTotalSets · Six questions per pack", color = secondaryTextColor)
                             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 (0 until grammarTotalSets).forEach { pack ->
@@ -1527,6 +1552,20 @@ fun PremiumSpeakUp() {
                             }
                             LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                val savedKey = MintGrammarHub.bookmarkId(grammarIndex)
+                                Text(if (savedKey in grammarBookmarks) "Bookmarked" else "Save this question for review",
+                                    modifier = Modifier.weight(1f), color = secondaryTextColor)
+                                OutlinedButton(onClick = {
+                                    grammarBookmarks = if (savedKey in grammarBookmarks) grammarBookmarks - savedKey else grammarBookmarks + savedKey
+                                    preferences.edit().putStringSet("mint_grammar_bookmarks", grammarBookmarks).apply()
+                                }) { Text(if (savedKey in grammarBookmarks) "Remove ★" else "Save ☆") }
+                            }
+                            TextButton(onClick = { grammarShowExplanation = !grammarShowExplanation }) {
+                                Text(if (grammarShowExplanation) "Hide grammar explanation" else "Read grammar explanation")
+                            }
+                            if (grammarShowExplanation) Text(question.explanation, color = secondaryTextColor)
+
                             Text("Question ${grammarIndex - grammarSet * grammarSetSize + 1} of ${grammarSetEndExclusive - grammarSet * grammarSetSize}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             if (grammarSetComplete) {
                                 androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
