@@ -55,6 +55,15 @@ internal fun MintProfessionalHub(
                 OutlinedButton(onClick = { section = "Meetings" }, modifier = Modifier.fillMaxWidth()) { Text("Meetings & presentations pilot →") }
                 OutlinedButton(onClick = { section = "Writing" }, modifier = Modifier.fillMaxWidth()) { Text("Email & business writing pilot →") }
                 OutlinedButton(onClick = { section = "Negotiation" }, modifier = Modifier.fillMaxWidth()) { Text("Negotiation & problem-solving pilot →") }
+                Surface(shape = RoundedCornerShape(16.dp),color=MaterialTheme.colorScheme.surfaceVariant) {
+                    Column(Modifier.fillMaxWidth().padding(14.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                        Text("Your professional practice suggestion",fontWeight=FontWeight.Bold)
+                        Text("Based on your selected goal: $learningGoal. Suggestions are deterministic and are not AI proficiency ratings.")
+                        Text("Next original practice: ${MintProfessionalReview.next(emptySet(),null) ?: "No practice available"}")
+                        Text("Revision and badges will require verified, saved practice completions. This preview grants no rewards.",style=MaterialTheme.typography.bodySmall)
+                    }
+                }
+
                 OutlinedButton(onClick = { section = "AI Life" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Everyday real-life scenarios →") }
                 Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
