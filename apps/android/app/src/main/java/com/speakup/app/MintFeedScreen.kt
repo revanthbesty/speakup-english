@@ -65,9 +65,10 @@ internal fun MintFeedScreen(
         }
     }
 
+    Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Mint Reels", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-        Text("Short illustrated English stories, not an endless algorithmic feed. Watch, read, play, then speak.")
+        Text("Watch a short story, try its challenge, and speak when ready.")
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintClipLevel.entries.forEach { option ->
                 FilterChip(selected = level == option, onClick = { level = option; reset(0) },
@@ -144,14 +145,14 @@ internal fun MintFeedScreen(
             }
             if (showListening) ListeningAudio(frame.spokenLine)
             Text(clip.description, style = MaterialTheme.typography.bodyMedium)
-            Text("Studio-authored content • no public comments or strangers", style = MaterialTheme.typography.labelMedium)
+            Text("Private, studio-made story", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { onReact(clip.id) }) {
                     Text(if (clip.id in reactionIds) "♥ Saved reaction" else "♡ React privately")
                 }
                 OutlinedButton(onClick = { infoOpen = true }) { Text("Safety tools") }
             }
-            Text("Quick English challenge", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text("Your turn", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text(clip.challengePrompt)
             clip.choices.forEach { option ->
                 OutlinedButton(
@@ -204,5 +205,6 @@ internal fun MintFeedScreen(
             val localReports = reportedKeys.count { it.startsWith("${clip.id}:") }
             if (localReports > 0) Text("This story has $localReports locally saved report type(s). No moderation submission has occurred.")
         }
+    }
     }
 }
