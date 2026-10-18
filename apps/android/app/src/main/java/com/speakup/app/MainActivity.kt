@@ -1527,6 +1527,7 @@ fun PremiumSpeakUp() {
                             }
                             LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
+                            MintGrammarDraftReviewPanel()
                             Text("Question ${grammarIndex - grammarSet * grammarSetSize + 1} of ${grammarSetEndExclusive - grammarSet * grammarSetSize}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             if (grammarSetComplete) {
                                 androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
