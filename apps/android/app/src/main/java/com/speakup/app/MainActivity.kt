@@ -8,6 +8,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import java.util.Locale
 import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.BackHandler
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -33,12 +34,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 private val Navy = Color(0xFF102A33)
-private val Violet = Color(0xFF0E8F75)
-private val Cream = Color(0xFFF6FAFA)
+private val Violet = Color(0xFF059669)
+private val Cream = Color(0xFFF8FAFC)
 private val Soft = Color(0xFFE2F7ED)
-private val Night = Color(0xFF101923)
-private val NightCard = Color(0xFF192733)
-private val NightAccent = Color(0xFF72D9BA)
+private val Night = Color(0xFF0F172A)
+private val NightCard = Color(0xFF1E293B)
+private val NightAccent = Color(0xFF6EE7B7)
 
 private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
 private val learningPaths = listOf(
@@ -156,7 +157,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PremiumSpeakUp() {
-    var page by remember { mutableStateOf("Today") }
+    var page by remember { mutableStateOf(preferences.getString("mint_selected_tab", "Today").orEmpty().takeIf { it in setOf("Today", "Games", "Feed", "Speak", "Profile") } ?: "Today") }
+    LaunchedEffect(page) { if (page in setOf("Today", "Games", "Feed", "Speak", "Profile")) preferences.edit().putString("mint_selected_tab", page).apply() }
+    BackHandler(enabled = !showPathSetup && !showPlacement && page != "Today") { page = "Today" }
     var selected by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -501,14 +504,14 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(18.dp))
-                        Text("Explore when you like", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("Discover more", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp)) {
                             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                                 TextButton(onClick = { page = "Games" }, modifier = Modifier.fillMaxWidth()) { Text("🎮  Play a quick game →") }
                                 HorizontalDivider()
                                 TextButton(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("📖  Learn a phrase →") }
                                 HorizontalDivider()
-                                TextButton(onClick = { page = "Feed" }, modifier = Modifier.fillMaxWidth()) { Text("🎬  Watch a story →") }
+                                TextButton(onClick = { page = "Feed" }, modifier = Modifier.fillMaxWidth()) { Text("▶  Explore Clips →") }
                             }
                         }
                         Spacer(Modifier.height(16.dp))
@@ -1477,12 +1480,12 @@ fun PremiumSpeakUp() {
             }
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
-                listOf("Today", "Feed", "Games", "Speak", "Profile").forEach { tab ->
+                listOf("Today", "Games", "Feed", "Speak", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
-                        "Speak" -> "♫"
-                        "Feed" -> "▤"
-                        "Games" -> "✦"
+                        "Speak" -> "♩"
+                        "Feed" -> "▷"
+                        "Games" -> "♧"
                         "Review" -> "▥"
                         else -> "◉"
                     }
@@ -1495,12 +1498,12 @@ fun PremiumSpeakUp() {
                         selected = isActive,
                         onClick = { page = tab },
                         icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab navigation" }, color = iconColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                        label = { Text(when (tab) { "Today" -> "Home"; "Review" -> "Progress"; else -> tab }, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                        label = { Text(when (tab) { "Today" -> "Home"; "Feed" -> "Clips"; else -> tab }, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = accentTextColor,
                             selectedTextColor = accentTextColor,
-                            indicatorColor = softSurfaceColor,
+                            indicatorColor = if (darkAppearance) Color(0xFF134E4A) else Color(0xFFD1FAE5),
                             unselectedIconColor = secondaryTextColor,
                             unselectedTextColor = secondaryTextColor
                         )
