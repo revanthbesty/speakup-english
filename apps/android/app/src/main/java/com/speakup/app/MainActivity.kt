@@ -360,6 +360,7 @@ fun PremiumSpeakUp() {
                 dismissButton = { TextButton(onClick = { showSpeechConsent = false }) { Text("Not now") } }
             )
         }
+        CompositionLocalProvider(LocalContentColor provides primaryTextColor) {
         Column(Modifier.fillMaxSize().background(backgroundColor).windowInsetsPadding(WindowInsets.statusBars)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
@@ -1633,6 +1634,7 @@ fun PremiumSpeakUp() {
                 }
             }
             }
+        }
         }
     }
 }
