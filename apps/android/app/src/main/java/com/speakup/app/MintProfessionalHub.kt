@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import android.content.Context
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -31,6 +33,23 @@ internal fun MintProfessionalHub(
     var industryQuery by remember { mutableStateOf("") }
     var selectedAnswer by remember { mutableIntStateOf(-1) }
     var answerChecked by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val progressPreferences = remember(context) {
+        context.getSharedPreferences("speakup_learning", Context.MODE_PRIVATE)
+    }
+    var completedPracticeIds by remember(progressPreferences) {
+        mutableStateOf(
+            (progressPreferences.getStringSet(MintProfessionalReview.storageKey, emptySet()) ?: emptySet()).toSet()
+        )
+    }
+    val markVerified: (String) -> Unit = { id ->
+        val updated = MintProfessionalReview.recordVerified(completedPracticeIds, id, true)
+        if (updated != completedPracticeIds) {
+            completedPracticeIds = updated
+            progressPreferences.edit().putStringSet(MintProfessionalReview.storageKey, updated).apply()
+        }
+    }
+
     BackHandler(enabled = section != "Hub") {
         section = if (section == "Industry") "Industries" else "Hub"
     }
@@ -60,8 +79,9 @@ internal fun MintProfessionalHub(
                     Column(Modifier.fillMaxWidth().padding(14.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                         Text("Your professional practice suggestion",fontWeight=FontWeight.Bold)
                         Text("Based on your selected goal: $learningGoal. Suggestions are deterministic and are not AI proficiency ratings.")
-                        Text("Next original practice: ${MintProfessionalReview.next(emptySet(),null) ?: "No practice available"}")
-                        Text("Revision and badges will require verified, saved practice completions. This preview grants no rewards.",style=MaterialTheme.typography.bodySmall)
+                        Text("Verified original practice: ${MintProfessionalReview.completed(completedPracticeIds)} of ${MintProfessionalReview.validIds.size} items on this device.")
+                        Text("Suggested next: ${MintProfessionalReview.label(MintProfessionalReview.next(completedPracticeIds,null))}",style=MaterialTheme.typography.bodySmall)
+                        Text("Practice completion is recorded after checked-correct answers; workplace roleplays require all three turns. No XP, badges or certificates are granted.",style=MaterialTheme.typography.bodySmall)
                     }
                 }
 
@@ -79,11 +99,11 @@ internal fun MintProfessionalHub(
                 LinearProgressIndicator(progress = { completedLessons.toFloat() / totalLessons.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
                 TextButton(onClick = onReview) { Text("Review my learning →") }
             }
-            "Workplace" -> { MintWorkplaceRoleplayScreen() }
-            "Interviews" -> { MintInterviewPrepScreen() }
-            "Meetings" -> { MintMeetingPracticeScreen() }
-            "Writing" -> { MintBusinessWritingScreen() }
-            "Negotiation" -> { MintNegotiationScreen() }
+            "Workplace" -> { MintWorkplaceRoleplayScreen(onVerified = markVerified) }
+            "Interviews" -> { MintInterviewPrepScreen(onVerified = markVerified) }
+            "Meetings" -> { MintMeetingPracticeScreen(onVerified = markVerified) }
+            "Writing" -> { MintBusinessWritingScreen(onVerified = markVerified) }
+            "Negotiation" -> { MintNegotiationScreen(onVerified = markVerified) }
             "Industries" -> {
                 Text("Choose your industry", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text("Browse possible professional pathways. Only existing general lessons are playable today.", color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -109,7 +129,7 @@ internal fun MintProfessionalHub(
                                     Text("${if (selectedAnswer == index) "●" else "○"} ${index + 1}. $answer", modifier = Modifier.fillMaxWidth())
                                 }
                             }
-                            Button(onClick = { answerChecked = true }, enabled = selectedAnswer >= 0,
+                            Button(onClick = { answerChecked = true; if (selectedAnswer == pilotItem.correctIndex) markVerified(pilotItem.id) }, enabled = selectedAnswer >= 0,
                                 modifier = Modifier.fillMaxWidth()) { Text("Check answer") }
                             if (answerChecked) {
                                 Text(if (selectedAnswer == pilotItem.correctIndex) "Correct!" else "Try another reply.")
