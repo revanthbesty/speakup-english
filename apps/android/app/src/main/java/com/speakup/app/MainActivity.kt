@@ -200,6 +200,13 @@ fun PremiumSpeakUp() {
     var confidenceAttempts by remember { mutableIntStateOf(preferences.getInt("confidence_attempts", 0)) }
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
+    var speakingView by remember { mutableStateOf("Conversations") }
+    var guidedVoiceReceived by remember { mutableStateOf(false) }
+    var showSpeechConsent by remember { mutableStateOf(false) }
+    var pendingSpeechPrompt by remember { mutableStateOf("") }
+    var completedGuidedVoiceTurns by remember {
+        mutableStateOf((preferences.getStringSet("mint_guided_voice_turns", emptySet()) ?: emptySet()).toSet())
+    }
     var learnMode by remember { mutableStateOf("Lessons") }
     var skillPracticeIndex by remember { mutableIntStateOf(0) }
     var skillPracticeAnswer by remember { mutableStateOf("") }
@@ -275,12 +282,28 @@ fun PremiumSpeakUp() {
             val words = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
             if (!words.isNullOrBlank()) {
                 practiceResponse = words
+                guidedVoiceReceived = true
                 practiceChecked = false
                 speakingAttempts += 1
                 preferences.edit().putInt("speaking_attempts", speakingAttempts).apply()
                 speechStatus = "Speech captured. Review your words and check your reply."
-            } else speechStatus = "No words were recognized. Please try again."
-        } else speechStatus = "Speech recognition was cancelled or unavailable."
+            } else { guidedVoiceReceived = false; speechStatus = "No words were recognized. Please try again." }
+        } else { guidedVoiceReceived = false; speechStatus = "Speech recognition was cancelled or unavailable." }
+    }
+    val launchSpeechRecognition: (String) -> Unit = { prompt ->
+        speechStatus = ""
+        guidedVoiceReceived = false
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH.toLanguageTag())
+            putExtra(RecognizerIntent.EXTRA_PROMPT, prompt)
+        }
+        try { speechLauncher.launch(intent) }
+        catch (_: android.content.ActivityNotFoundException) {
+            speechStatus = "Speech recognition is unavailable on this device. Try quiet text practice."
+        } catch (_: SecurityException) {
+            speechStatus = "Microphone access was denied. You can still use quiet text practice."
+        }
     }
     val answer = lesson.answer
     val backgroundColor = if (darkAppearance) Night else Cream
@@ -290,6 +313,20 @@ fun PremiumSpeakUp() {
     val surfaceColor = if (darkAppearance) NightCard else Color.White
     val softSurfaceColor = if (darkAppearance) NightCard else Soft
     MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, background = Night, surface = NightCard, onSurface = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
+        if (showSpeechConsent) {
+            AlertDialog(
+                onDismissRequest = { showSpeechConsent = false },
+                title = { Text("Use your microphone?") },
+                text = { Text("Your device's speech recognition provider may process spoken audio. English Mint does not save raw recordings or upload them to its own server in this mode. You can cancel or use quiet text practice.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showSpeechConsent = false
+                        launchSpeechRecognition(pendingSpeechPrompt)
+                    }) { Text("Continue to speech") }
+                },
+                dismissButton = { TextButton(onClick = { showSpeechConsent = false }) { Text("Not now") } }
+            )
+        }
         Column(Modifier.fillMaxSize().background(backgroundColor)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
@@ -644,6 +681,42 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Speak" -> {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(selected = speakingView == "Conversations", onClick = {
+                                speakingView = "Conversations"
+                                practiceResponse = ""
+                                guidedVoiceReceived = false
+                            }, label = { Text("Conversation quests") })
+                            FilterChip(selected = speakingView == "Lessons", onClick = {
+                                speakingView = "Lessons"
+                                guidedVoiceReceived = false
+                                practiceResponse = ""
+                            }, label = { Text("Speaking lessons") })
+                        }
+                        if (speakingView == "Conversations") {
+                            val learnerMinimumAge = when (learnerAgeBand) {
+                                "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
+                            }
+                            MintGuidedConversation(
+                                difficulty = chosenDifficulty,
+                                learnerAge = learnerMinimumAge,
+                                response = practiceResponse,
+                                onResponseChange = { practiceResponse = it; guidedVoiceReceived = false },
+                                voiceReceived = guidedVoiceReceived,
+                                requestMicrophone = { prompt ->
+                                    pendingSpeechPrompt = prompt
+                                    showSpeechConsent = true
+                                },
+                                completedKeys = completedGuidedVoiceTurns,
+                                onVoiceTurnCompleted = { turnKey ->
+                                    if (turnKey !in completedGuidedVoiceTurns) {
+                                        completedGuidedVoiceTurns = completedGuidedVoiceTurns + turnKey
+                                        preferences.edit().putStringSet("mint_guided_voice_turns", completedGuidedVoiceTurns).apply()
+                                    }
+                                }
+                            )
+                            if (speechStatus.isNotBlank()) Text(speechStatus, color = secondaryTextColor)
+                        } else {
                         if (mintSpeakingMission.isNotBlank()) {
                             Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                 Column(Modifier.padding(16.dp)) {
@@ -673,16 +746,8 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(12.dp))
                         Button(
                             onClick = {
-                                speechStatus = ""
-                                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-                                    putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH.toLanguageTag())
-                                    putExtra(RecognizerIntent.EXTRA_PROMPT, if (mintSpeakingMission.isNotBlank()) mintSpeakingMission else "Speak your answer for ${lesson.title}")
-                                }
-                                try { speechLauncher.launch(intent) }
-                                catch (_: android.content.ActivityNotFoundException) {
-                                    speechStatus = "No speech recognition app is available on this device."
-                                }
+                                pendingSpeechPrompt = if (mintSpeakingMission.isNotBlank()) mintSpeakingMission else "Speak your answer for ${lesson.title}"
+                                showSpeechConsent = true
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("🎙 Speak my answer") }
@@ -690,7 +755,7 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(12.dp))
                         OutlinedTextField(
                             value = practiceResponse,
-                            onValueChange = { practiceResponse = it; practiceChecked = false },
+                            onValueChange = { practiceResponse = it; guidedVoiceReceived = false; practiceChecked = false },
                             label = { Text("Your spoken or typed response") },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 2
@@ -726,6 +791,7 @@ fun PremiumSpeakUp() {
                         ) { Text("Check my reply") }
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
+                        }
                     }
                     "Games" -> {
                         Text("Mint Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
