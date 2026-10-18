@@ -33,3 +33,11 @@ Local exported file: `English_Mint_500_Android_Draft_Bank.json` (500 draft quest
 - Parser instrumentation/unit test setup is outstanding (Android `org.json` is not supported reliably by plain JVM local unit tests without suitable test runners).
 
 To finish data ingestion after corrections: add the JSON through an approved file-transfer or source-commit workflow, test the actual Android asset read path, and secure independent editorial approval before enabling playable content.
+
+## Update — 500 draft records checked in
+
+The complete 500-record JSON asset is now committed at `apps/android/app/src/main/assets/grammar_arena_500_draft.json`. `MintGrammarDraftPreview.load(context)` reads it locally for authoring/review; `MintGrammarDraftPreview.playable(context)` enforces the approved-only gate and currently returns no questions because all 500 are drafts.
+
+**This supersedes earlier notes saying the JSON was not checked in.** No scored Grammar Arena screen or rewards were connected. This is staging integration, not a playable release.
+
+Outstanding: correct four repeated prompts and 15 missing examples; independent editorial review; UI preview integration, Android compilation/instrumentation, real-device accessibility and navigation tests. Do not merge or deploy.
