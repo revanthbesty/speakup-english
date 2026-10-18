@@ -1,30 +1,22 @@
-# English Mint Sprint 26 ↔ Activity Content Integration Staging
+# Sprint 26 — 288-content offline integration status
 
-## Branch relationship
-- Sprint 26 implementation base: `feature/english-mint-s26-family-teacher-pilot` (local-only Teacher/Family Studio).
-- Candidate content drafts: `feature/english-mint-4000-activity-content-foundation` (draft PR #35, **288** repair candidates at the time this bridge was created).
-- Branches are divergent, not automatically merged. Do not merge PR #35 into Sprint 26 or directly bundle those drafts.
+## Implemented and checked
+- All 288 candidate records from PR #35 are packaged in the Android assets as `english_mint/draft_replacements_288.json`.
+- Offline `MintDraftLibrary` checks the asset count, duplicate IDs, category distribution, levels and unapproved review labels.
+- `MintDraftLibraryPreview` provides a read-only editorial browser inside **Home → Teacher & Family Studio → Enable private activity preview**.
+- The APK, CI and release-gates workflows for commit `207a8710` completed successfully.
+- `MintApprovedGamesBridge` introduces a future Games integration gate with an **empty independent approval allowlist** and tests. Drafts cannot be submitted as playable Games questions or earn rewards.
 
-## What this integration actually adds
-- `MintFamilyContentGate`: a pure Kotlin, fail-closed boundary for future *offline approved* content activity IDs.
-- Word Builder and Reading are the only eligible content categories because those are the existing Sprint 26 family/teacher sample game routes.
-- Checks nonblank ID, supported CEFR level, verified source and **independent editorial approval**.
-- `shippedContentCandidates()` intentionally returns no records. All PR #35 activity samples are unapproved, and none is made live or assigned.
-- Unit tests check unapproved material stays inaccessible, unsupported categories/levels are denied and only verified/approved records are selected.
+## What is blocked
+The activities have not passed qualified human linguistic review or original-source import parity checks. The current preview is not an assessment engine. The existing Word Builder/Reading game engines still use their own established activity sets. The new bridge does not set scores, track progress, launch TTS or modify achievements; those are acceptance tasks only **after** approval.
 
-## What is **not** integrated or claimed
-- The 288 draft JSON records are **not** copied, approved, imported, visible in Sprint 26, or attached to learner progress.
-- A self-declared `review_status` in a JSON file does not constitute independent editorial approval.
-- Assignment completion remains evidence-gated in existing Sprint 26 code; no Bloom/reward mutation.
-- No account, roster, guardian relationship, child profile, shared progress, backend, notifications or external network.
-- This is an integration interface and test slice, not a completed runtime content import.
+## Educational review work still required
+- Check each sentence for grammar and meaningful context, distractor correctness, alternative accepted answers and CEFR difficulty.
+- Review reading/story word counts and listening transcripts for realistic length and suitable nuance.
+- Confirm that each original workbook ID, category and level matches its replacement.
+- Assess content repetition and accessibility.
+- Independently sign and version an approval manifest. Do **not** infer approval from `review_status` in the JSON.
+- After approval, map each approved record to the correct existing Games-specific question/answer format and reuse native device TTS and reward pathways. Avoid double-granting rewards.
 
-## Future safe content integration gate
-1. Complete educational review (CEFR, answers, naturalness, distinctness, age suitability, passage length) and record externally verified approval.
-2. Reconcile stable IDs against the source 4,000-record workbook and verify each replacement's category and level.
-3. Produce a deterministic *approved-only* offline content artifact; no dynamic paid API.
-4. Wire approved IDs into the existing `Games > Word Builder` and `Games > Reading` screens without duplicated rewards, preserving progress.
-5. Run Kotlin tests, Android build/lint, device UI/TTS and accessibility acceptance.
-6. Real family/teacher multi-user use remains gated by identity/consent/security work from Sprint 26 SRS.
-
-No merge or deploy in this branch.
+## Safety conditions
+No real teacher/guardian linking, roster, child progress sharing, score or reward creation, backend credentials, paid services, merge or deploy. Branch remains an unmerged draft PR.
