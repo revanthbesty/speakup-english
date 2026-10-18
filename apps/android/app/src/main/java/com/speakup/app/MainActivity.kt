@@ -742,9 +742,22 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
-                        Text("Play a game", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Choose the answer to begin.", color = secondaryTextColor)
-                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide game choices" else "Change game or difficulty") }
+                        Text("Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Play, learn, grow.", color = secondaryTextColor)
+                        if (!showGameFilters && gameMode == "Mint Quests") {
+                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text("🌟  Today's featured game", color = primaryTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                    Text("Mint Quests", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                    Text("A quick challenge from your existing game collection.", color = secondaryTextColor)
+                                }
+                            }
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = "" }, modifier = Modifier.weight(1f)) { Text("Grammar") }
+                            OutlinedButton(onClick = { page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
+                        }
+                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
                         if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
                         val suggestedModes = when (learningGoal) {
@@ -756,7 +769,7 @@ fun PremiumSpeakUp() {
                             else -> listOf("Vocabulary", "Situations", "Word Builder")
                         }
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
-                        Text("Choose a game world, challenge level or skill. Play at your pace and speak when you are ready.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("Mint Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
@@ -1032,12 +1045,16 @@ fun PremiumSpeakUp() {
                                 vocabularyChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
                         } else if (gameMode == "Grammar") {
+                            Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("${grammarQuestions.size} available practice questions", color = secondaryTextColor)
+                            LinearProgressIndicator(progress = { (grammarIndex + 1f) / grammarQuestions.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
                             Text("Grammar ${grammarIndex + 1} of ${grammarQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
-                            question.options.forEach { choice ->
-                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (grammarChoice == choice) "✓ " else "") + choice)
+                            question.options.forEachIndexed { index, choice ->
+                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (grammarChoice == choice) softSurfaceColor else surfaceColor)) {
+                                    Text("${"ABC"[index]}. $choice", color = primaryTextColor, modifier = Modifier.fillMaxWidth())
                                 }
                             }
                             if (grammarChecked) {
