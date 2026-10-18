@@ -22,13 +22,12 @@ internal fun MintFiveWordStoryScreen(age: Int, onBack: () -> Unit, onSpeaking: (
     val pack = packs.getOrNull(packIndex.coerceIn(0, (packs.size - 1).coerceAtLeast(0)))
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onBack) { Text("← Clips") }
-        Text("Five-Word Story", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        MintSectionHeading("Daily Stories", "Five words. Big learning. One adventure at a time.")
         if (pack == null) {
             Text("No age-appropriate stories are available yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
-            Text("${packIndex + 1} of ${packs.size} · ${pack.title}", style = MaterialTheme.typography.titleLarge)
-            Text("Today's five words", fontWeight = FontWeight.Bold)
-            Text(pack.words.joinToString(" • "), color = MaterialTheme.colorScheme.primary)
+            MintInfoBanner("Story ${packIndex + 1} of ${packs.size} · ${pack.title}",
+                "Today's five words: ${pack.words.joinToString(" · ")}",MintVisualTokens.mint)
             OutlinedButton(onClick = { showWords = !showWords }) { Text(if (showWords) "Hide word practice" else "Practise these words") }
             if (showWords) {
                 Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(16.dp)) {
@@ -41,10 +40,15 @@ internal fun MintFiveWordStoryScreen(age: Int, onBack: () -> Unit, onSpeaking: (
             val scene = pack.scenes[sceneIndex.coerceIn(0, pack.scenes.lastIndex)]
             Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(22.dp)) {
                 Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(scene.illustration, style = MaterialTheme.typography.displayLarge)
+                    Surface(color=MintVisualTokens.violet.copy(alpha=0.13f),
+                        shape=RoundedCornerShape(20.dp),modifier=Modifier.fillMaxWidth()) {
+                        Box(Modifier.fillMaxWidth().height(165.dp),contentAlignment=androidx.compose.ui.Alignment.Center) {
+                            Text(scene.illustration,style=MaterialTheme.typography.displayLarge)
+                        }
+                    }
                     Text(scene.caption, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                     Text(scene.narration, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                    LinearProgressIndicator(progress = { (sceneIndex + 1f) / pack.scenes.size }, modifier = Modifier.fillMaxWidth())
+                    MintProgressBar((sceneIndex + 1f) / pack.scenes.size)
                     Text("Scene ${sceneIndex + 1} of ${pack.scenes.size}", color = MaterialTheme.colorScheme.onPrimaryContainer)
                 }
             }
