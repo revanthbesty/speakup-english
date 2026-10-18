@@ -319,6 +319,8 @@ fun PremiumSpeakUp() {
     var scenarioMastered by remember { mutableStateOf((preferences.getStringSet("scenario_mastered", emptySet()) ?: emptySet()).toSet()) }
     var showHomeDetails by remember { mutableStateOf(false) }
     var showGrammarInsights by remember { mutableStateOf(false) }
+    var showSpeakingPassport by remember { mutableStateOf(false) }
+    var showReviewDetails by remember { mutableStateOf(false) }
     var grammarIndex by remember { mutableIntStateOf(0) }
     var grammarBookmarks by remember { mutableStateOf((preferences.getStringSet("mint_grammar_bookmarks", emptySet()) ?: emptySet()).toSet()) }
     var grammarRevisionMissed by remember { mutableStateOf((preferences.getStringSet("mint_grammar_revision_missed", emptySet()) ?: emptySet()).toSet()) }
@@ -777,6 +779,20 @@ fun PremiumSpeakUp() {
                     "Speak" -> {
                         Text("Speak with Mint Buddy", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Try a short, private English conversation.", color = secondaryTextColor)
+                        Surface(color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                                Text("🎤  Your speaking studio",style=MaterialTheme.typography.titleLarge,
+                                    fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.onPrimaryContainer)
+                                Text("Try a short conversation. Use your voice if you choose, or type instead.",
+                                    color=MaterialTheme.colorScheme.onPrimaryContainer)
+                            }
+                        }
+                        TextButton(onClick = { showSpeakingPassport = !showSpeakingPassport },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text(if(showSpeakingPassport)"Hide Speaking Passport and practice stats ↑" else "Speaking Passport and practice stats ↓")
+                        }
+                        if(showSpeakingPassport) {
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("📘 Speaking Growth Passport", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -826,6 +842,7 @@ fun PremiumSpeakUp() {
                                 Text("${completedGuidedVoiceTurns.size} guided speaking turns completed on this device", color = secondaryTextColor)
                                 Text("Voice recognition uses your device's speech provider. Quiet text is available without microphone permission.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             }
+                        }
                         }
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(selected = speakingView == "Conversations", onClick = {
@@ -1954,7 +1971,19 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
-                        Text("My learning space", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                        Surface(color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                            Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                                Text("🌿",style=MaterialTheme.typography.displayMedium)
+                                Column {
+                                    Text("My learning space",color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
+                                    Text("Your goals and achievements",color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style=MaterialTheme.typography.bodyMedium)
+                                }
+                            }
+                        }
                         Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
                         Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
                         Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
@@ -1966,6 +1995,10 @@ fun PremiumSpeakUp() {
                             }
                         }
                         OutlinedButton(onClick = { page = "Help" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Help & guidance →") }
+                        Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
+                        }
+                        if (showProfileSettings) {
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text("🛡 Beta readiness", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -1974,10 +2007,6 @@ fun PremiumSpeakUp() {
                                     color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             }
                         }
-                        Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
-                            Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
-                        }
-                        if (showProfileSettings) {
                         Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                             Column(Modifier.padding(14.dp)) {
                                 Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
