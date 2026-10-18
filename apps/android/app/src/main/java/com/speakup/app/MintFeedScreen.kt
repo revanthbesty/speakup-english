@@ -145,14 +145,14 @@ internal fun MintFeedScreen(
             }
             if (showListening) ListeningAudio(frame.spokenLine)
             Text(clip.description, style = MaterialTheme.typography.bodyMedium)
-            Text("Studio-authored content • no public comments or strangers", style = MaterialTheme.typography.labelMedium)
+            Text("Private, studio-made story", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { onReact(clip.id) }) {
                     Text(if (clip.id in reactionIds) "♥ Saved reaction" else "♡ React privately")
                 }
                 OutlinedButton(onClick = { infoOpen = true }) { Text("Safety tools") }
             }
-            Text("Quick English challenge", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text("Your turn", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text(clip.challengePrompt)
             clip.choices.forEach { option ->
                 OutlinedButton(
