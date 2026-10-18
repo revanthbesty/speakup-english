@@ -26,6 +26,7 @@ internal fun MintWelcomeFlow(
     onName: (String) -> Unit, onFinish: (Boolean) -> Unit
 ) {
     var step by rememberSaveable { mutableIntStateOf(0) }
+    // Preserve the selected step across configuration changes; onFinish owns persistence.
     val ink = MaterialTheme.colorScheme.onBackground
     val subtle = MaterialTheme.colorScheme.onSurfaceVariant
     val mint = Color(0xFF10B981)
@@ -142,6 +143,7 @@ internal fun MintWelcomeFlow(
         MintPrimaryAction(if (step == 0) "Let\'s begin →" else if (step == 3) "Start my adventure →" else "Continue →",
             onClick = { if (step == 3) onFinish(false) else step++ })
         if(step==3) {
+            Text("You can change your goal later in Profile.", style=MaterialTheme.typography.bodySmall, color=subtle)
             TextButton(onClick={onFinish(true)},modifier=Modifier.fillMaxWidth()) {
                 Text("Take the optional level check",color=purple)
             }
