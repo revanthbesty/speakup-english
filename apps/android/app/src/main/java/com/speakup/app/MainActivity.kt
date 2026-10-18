@@ -1278,6 +1278,8 @@ fun PremiumSpeakUp() {
                             preferences.edit().remove("mint_hidden_clips").apply()
                         }) { Text("Restore locally hidden studio stories") }
                         Text("Local reports have not been submitted to moderators; no public social account has been created.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { showProfileAdvanced = !showProfileAdvanced }) { Text(if (showProfileAdvanced) "Close learner details" else "Edit learner details") }
+                        if (showProfileAdvanced) {
                         Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -1319,6 +1321,7 @@ fun PremiumSpeakUp() {
                         }, modifier = Modifier.fillMaxWidth()) { Text("Save profile changes") }
                         if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
                         OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
+                        }
                         }
                     }
                     "Review" -> {
