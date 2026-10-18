@@ -41,6 +41,7 @@ internal fun MintProfessionalHub(
             "Hub" -> {
                 Text("Professional English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                 Text("Practice English for work, at your own pace.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Core text practice works without a paid AI account or internet. Optional audio availability depends on the installed device engine.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                 Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
                     Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text("Your next step", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
