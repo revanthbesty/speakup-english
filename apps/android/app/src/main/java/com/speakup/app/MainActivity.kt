@@ -317,6 +317,10 @@ fun PremiumSpeakUp() {
             speechStatus = "Microphone access was denied. You can still use quiet text practice."
         }
     }
+    var showDetailedHome by remember { mutableStateOf(false) }
+    var showGameBrowse by remember { mutableStateOf(false) }
+    var showProfileSettings by remember { mutableStateOf(false) }
+    var showEditProfile by remember { mutableStateOf(false) }
     val answer = lesson.answer
     val backgroundColor = if (darkAppearance) Night else Cream
     val primaryTextColor = if (darkAppearance) Color.White else Navy
@@ -324,7 +328,24 @@ fun PremiumSpeakUp() {
     val accentTextColor = if (darkAppearance) NightAccent else Violet
     val surfaceColor = if (darkAppearance) NightCard else Color.White
     val softSurfaceColor = if (darkAppearance) NightCard else Soft
-    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, background = Night, surface = NightCard, onSurface = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
+    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(
+        primary = NightAccent, onPrimary = Color(0xFF062B29),
+        background = Night, onBackground = Color(0xFFF2F5F8),
+        surface = NightCard, onSurface = Color(0xFFF2F5F8),
+        surfaceVariant = Color(0xFF273742), onSurfaceVariant = Color(0xFFD6E1EA),
+        surfaceContainer = Color(0xFF192B34), surfaceContainerLow = Color(0xFF142630),
+        primaryContainer = Color(0xFF17453E), onPrimaryContainer = Color(0xFFD5FFF1),
+        secondary = Color(0xFFAFD6D6), onSecondary = Color(0xFF10272C),
+        outline = Color(0xFF91A4B0)
+    ) else lightColorScheme(
+        primary = Color(0xFF007C68), onPrimary = Color.White,
+        background = Cream, onBackground = Navy,
+        surface = Color.White, onSurface = Navy,
+        surfaceContainer = Color(0xFFF1F6F4), surfaceContainerLow = Color(0xFFF7FAF8),
+        surfaceVariant = Color(0xFFE8F0ED), onSurfaceVariant = Color(0xFF344744),
+        secondary = Color(0xFF446A62), onSecondary = Color.White,
+        outline = Color(0xFF677C77)
+    )) {
         if (showSpeechConsent) {
             AlertDialog(
                 onDismissRequest = { showSpeechConsent = false },
@@ -339,7 +360,8 @@ fun PremiumSpeakUp() {
                 dismissButton = { TextButton(onClick = { showSpeechConsent = false }) { Text("Not now") } }
             )
         }
-        Column(Modifier.fillMaxSize().background(backgroundColor)) {
+        CompositionLocalProvider(LocalContentColor provides primaryTextColor) {
+        Column(Modifier.fillMaxSize().background(backgroundColor).windowInsetsPadding(WindowInsets.statusBars)) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
@@ -491,19 +513,29 @@ fun PremiumSpeakUp() {
                                     RoundedCornerShape(28.dp)
                                 ).padding(22.dp)
                             ) {
-                                Text(if (profileName.isBlank()) "Your learning journey" else "Welcome, $profileName!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+                                Text(if (profileName.isBlank()) "Ready to speak English?" else "Hi, $profileName 👋", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
                                 Text("${MintExperiencePolicy.selectedJourney(chosenPath)}  •  $chosenDifficulty", color = Color.White.copy(alpha = 0.90f))
-                                Text("Fresh Games. Fluent Voices.", color = Color.White.copy(alpha = 0.90f), style = MaterialTheme.typography.bodySmall)
+                                Text("A little practice every day builds confidence.", color = Color.White.copy(alpha = 0.90f), style = MaterialTheme.typography.bodyMedium)
                                 Spacer(Modifier.height(14.dp))
-                                Text("$xp XP   ✦   ${completedIds.size} lessons completed", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("$xp XP earned · ${completedIds.size} lessons complete", color = Color.White, fontWeight = FontWeight.Medium)
                                 Spacer(Modifier.height(12.dp))
                                 Button(
                                     onClick = { page = "Speak" },
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))
-                                ) { Text("Start speaking  →", fontWeight = FontWeight.Bold) }
-                                TextButton(onClick = { page = "Games" }) { Text("Explore games", color = Color.White) }
+                                ) { Text("Start my first conversation  →", fontWeight = FontWeight.Bold) }
+
                             }
                         }
+                        Spacer(Modifier.height(18.dp))
+                        Text("YOUR NEXT STEP", color = accentTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+                        Text("1. Have a short conversation", color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("2. Try a fun word game", color = secondaryTextColor)
+                        Text("3. Come back whenever you're ready", color = secondaryTextColor)
+                        OutlinedButton(onClick = { page = "Games" }, modifier = Modifier.fillMaxWidth()) { Text("Explore games") }
+                        TextButton(onClick = { showDetailedHome = !showDetailedHome }, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (showDetailedHome) "Hide detailed dashboard ↑" else "See progress and more options ↓")
+                        }
+                        if (showDetailedHome) {
                         Spacer(Modifier.height(16.dp))
                         TextButton(onClick = { page = "Membership" }) { Text("Explore Membership →") }
                         Text("Your 5-minute adventure", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -619,6 +651,7 @@ fun PremiumSpeakUp() {
                         FeatureCard("▣  My Learning Path", "Build practical everyday English", { page = "Learn" })
                         FeatureCard("↻  Smart Revision", "Revisit what you have learned", { page = "Review" })
                         FeatureCard("🧩  Word Builder Games", "Arrange words into useful English sentences", { page = "Games" })
+                        }
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
@@ -850,26 +883,21 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
-                        Text("Mint Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
-                        val suggestedModes = when (learningGoal) {
-                            "Start speaking" -> listOf("Dialogues", "Word Builder", "Listening")
-                            "School & exams" -> listOf("Grammar", "Reading", "Vocabulary")
-                            "Work & interviews" -> listOf("Dialogues", "Situations", "Vocabulary")
-                            "Reading & writing" -> listOf("Reading", "Grammar", "Word Builder")
-                            "Travel" -> listOf("Dialogues", "Situations", "Listening")
-                            else -> listOf("Vocabulary", "Situations", "Word Builder")
+                        Text("Play & learn", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("A quick challenge picked for your level. Just choose an answer.", color = secondaryTextColor)
+                        TextButton(onClick = { showGameBrowse = !showGameBrowse }) {
+                            Text(if (showGameBrowse) "Hide game choices ↑" else "Change game or category ↓")
                         }
-                        Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
-                        Text("Choose a game world, challenge level or skill. Play at your pace and speak when you are ready.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Mint Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
-                                FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
+                        if (showGameBrowse) {
+                            Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                listOf("Mint Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
+                                    FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
+                                }
                             }
                         }
                         if (gameMode == "Mint Quests") {
-                            Text("Mint Quest Arcade", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            Text("A curated challenge ends with an optional speaking mission. Your progress is saved on this device.", color = secondaryTextColor)
+                            Text("Your next challenge", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            if (showGameBrowse) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 MintDifficulty.entries.forEach { level ->
                                     FilterChip(selected = mintDifficulty == level, onClick = {
@@ -903,6 +931,7 @@ fun PremiumSpeakUp() {
                                         mintShowHint = false
                                     }, label = { Text(label) })
                                 }
+                            }
                             }
                             val learnerMinAge = when (learnerAgeBand) {
                                 "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
@@ -1314,6 +1343,17 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
+                        Text("Your space", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Text(if (profileName.isBlank()) "English learner" else profileName, color = primaryTextColor, style = MaterialTheme.typography.titleLarge)
+                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $xp XP", color = secondaryTextColor)
+                        OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.fillMaxWidth()) { Text("See my progress →") }
+                        Button(onClick = { showEditProfile = !showEditProfile }, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (showEditProfile) "Close learning preferences ↑" else "Edit learning preferences ↓")
+                        }
+                        OutlinedButton(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (showProfileSettings) "Hide app settings ↑" else "Appearance, privacy & membership ↓")
+                        }
+                        if (showProfileSettings) {
                         Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                             Column(Modifier.padding(14.dp)) {
                                 Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -1365,6 +1405,8 @@ fun PremiumSpeakUp() {
                             preferences.edit().remove("mint_hidden_clips").apply()
                         }) { Text("Restore locally hidden studio stories") }
                         Text("Local reports have not been submitted to moderators; no public social account has been created.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        }
+                        if (showEditProfile) {
                         Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -1401,11 +1443,12 @@ fun PremiumSpeakUp() {
                         Button(onClick = {
                             preferences.edit().putString("profile_name", profileName).putString("learner_age", learnerAge)
                                 .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty)
-                                .putString("learning_path", chosenPath).putInt("daily_goal", dailyGoal).apply()
+                                .putString("learning_path", chosenPath).putString("mint_age_band", learnerAgeBand).putInt("daily_goal", dailyGoal).apply()
                             profileFeedback = "Saved! Your recommendations are updated."
                         }, modifier = Modifier.fillMaxWidth()) { Text("Save profile changes") }
                         if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
                         OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
+                        }
                     }
                     "Review" -> {
                         val progressEvidence = MintProgressEvidence(
@@ -1591,6 +1634,7 @@ fun PremiumSpeakUp() {
                 }
             }
             }
+        }
         }
     }
 }
