@@ -662,6 +662,8 @@ fun PremiumSpeakUp() {
                                 }
                             }
                             Text("This preview does not share or track children's progress. Learning completion remains managed by existing activities.", color = secondaryTextColor)
+                            HorizontalDivider()
+                            MintDraftLibraryPreview()
                         } else Text("Preview off. No family or classroom access is active.", color = secondaryTextColor)
                         TextButton(onClick = { page = "Today" }) { Text("Back to Home") }
                     }
