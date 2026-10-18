@@ -40,7 +40,7 @@ internal fun MintActivityCompletion(
                 style = MaterialTheme.typography.titleMedium)
             Text(if (fresh) "Your learning garden is growing." else "Review is always welcome. No duplicate reward.",
                 color = MaterialTheme.colorScheme.onPrimaryContainer)
-            Button(onClick = onNext, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text(nextLabel) }
+            MintPrimaryAction(nextLabel, onClick = onNext)
             OutlinedButton(onClick = onDashboard, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text("View My Mint Garden")
             }
