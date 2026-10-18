@@ -1843,6 +1843,21 @@ fun PremiumSpeakUp() {
                                 OutlinedButton(onClick = { page = "Membership" }) { Text("Compare Free, Plus and Pro →") }
                             }
                         }
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("📴 Offline & low-data guide", style = MaterialTheme.typography.titleMedium,
+                                    color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text("Text-based learning continues without a connection. This list describes features available in this build, not a downloaded media library.",
+                                    color = secondaryTextColor)
+                                MintOfflineGuide.features.forEach { item ->
+                                    Text("${if (item.offline) "✓ Offline text" else "ⓘ Availability varies"} · ${item.title}",
+                                        color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                                    Text(item.fallback, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                }
+                                Text("Accessibility: use device text-size controls, turn on Reduce animations below, and use typed responses whenever voice isn't available.",
+                                    color = secondaryTextColor)
+                            }
+                        }
                         Text("Appearance", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("system" to "System", "light" to "Light", "dark" to "Dark", "night" to "Night").forEach { (mode, label) ->
