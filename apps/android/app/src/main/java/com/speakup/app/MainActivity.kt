@@ -1517,6 +1517,16 @@ fun PremiumSpeakUp() {
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            val grammarQualityIssues = remember {
+                                MintGrammarQuality.collectionIssues(grammarQuestions.map {
+                                    MintGrammarQuality.Item(it.prompt,it.options,it.correct,it.explanation)
+                                })
+                            }
+                            if (grammarQualityIssues.isNotEmpty()) {
+                                Text("Content integrity alert: ${grammarQualityIssues.size} structural issue(s) detected. This pilot needs review.",
+                                    color = MaterialTheme.colorScheme.error)
+                            }
+
                             val grammarAnalytics = MintGrammarAnalytics.snapshot(grammarQuestions.size,grammarMastered,grammarBookmarks,grammarRevisionMissed)
                             Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1664,7 +1674,10 @@ fun PremiumSpeakUp() {
                             question.options.forEachIndexed { index, choice ->
                                 OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, enabled = !(grammarChecked && grammarChoice == question.correct), modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                                     colors = ButtonDefaults.outlinedButtonColors(containerColor = if (grammarChoice == choice) softSurfaceColor else surfaceColor)) {
-                                    Text(MintGrammarUiContract.optionLabel(index, choice), color = primaryTextColor, modifier = Modifier.fillMaxWidth())
+                                    Text(MintGrammarUiContract.optionLabel(index, choice), color = primaryTextColor,
+                                        modifier = Modifier.fillMaxWidth().semantics {
+                                            contentDescription = "Option ${index + 1} of ${question.options.size}: $choice"
+                                        })
                                 }
                             }
                             if (grammarChecked) {
