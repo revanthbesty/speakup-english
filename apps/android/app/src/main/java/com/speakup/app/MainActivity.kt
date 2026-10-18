@@ -157,13 +157,12 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun PremiumSpeakUp() {
-    var page by remember { mutableStateOf(preferences.getString("mint_selected_tab", "Today").orEmpty().takeIf { it in setOf("Today", "Games", "Feed", "Speak", "Profile") } ?: "Today") }
-    LaunchedEffect(page) { if (page in setOf("Today", "Games", "Feed", "Speak", "Profile")) preferences.edit().putString("mint_selected_tab", page).apply() }
-    BackHandler(enabled = !showPathSetup && !showPlacement && page != "Today") { page = "Today" }
     var selected by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences(MintIdentity.legacyPreferencesFile, android.content.Context.MODE_PRIVATE) }
+    var page by remember { mutableStateOf(preferences.getString("mint_selected_tab", "Today").orEmpty().takeIf { it in setOf("Today", "Games", "Feed", "Speak", "Profile") } ?: "Today") }
+    LaunchedEffect(page) { if (page in setOf("Today", "Games", "Feed", "Speak", "Profile")) preferences.edit().putString("mint_selected_tab", page).apply() }
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
     var learnerAgeBand by remember { mutableStateOf(preferences.getString("mint_age_band", MintExperiencePolicy.initialAgeBand(learnerAge)) ?: MintExperiencePolicy.initialAgeBand(learnerAge)) }
@@ -195,6 +194,7 @@ fun PremiumSpeakUp() {
         MintPlacementBank.session(selectedPlacementLevel, placementAttempt)
     }
     var showPlacement by remember { mutableStateOf(false) }
+    BackHandler(enabled = !showPathSetup && !showPlacement && page != "Today") { page = "Today" }
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
     val lesson = lessons[lessonIndex]
