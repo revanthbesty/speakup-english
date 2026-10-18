@@ -563,16 +563,16 @@ fun PremiumSpeakUp() {
                         }) { Text(if (placementDone) "Retake starting assessment" else "Take starting assessment") }
                         TextButton(onClick = { page = "Profile" }) { Text("Manage my learning profile →") }
                         Spacer(Modifier.height(8.dp))
-                        val levels = listOf(0, 100, 300, 600, 1000, 1800, 3000, 5000, 8000, 12000)
-                        val level = levels.indexOfLast { xp >= it } + 1
-                        val levelNames = listOf("First Steps", "Word Explorer", "Sentence Builder", "Rising Speaker", "Confident Communicator", "Conversation Champion", "Fluent Explorer", "English Achiever", "Language Master", "Mint Legend")
-                        val currentFloor = levels[level - 1]
-                        val nextTarget = levels.getOrNull(level)
+                        val achievementLevel = MintRewards.level(xp)
+                        val level = achievementLevel.number
+                        val levelNames = listOf(achievementLevel.title)
+                        val currentFloor = achievementLevel.currentFloor
+                        val nextTarget = achievementLevel.nextTarget
                         Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp)) {
-                                Text("LEVEL $level • ${levelNames[level - 1]}", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text("LEVEL $level • ${achievementLevel.title}", color = primaryTextColor, fontWeight = FontWeight.Bold)
                                 if (nextTarget != null) {
-                                    LinearProgressIndicator(progress = { (xp - currentFloor).toFloat() / (nextTarget - currentFloor) }, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp))
+                                    LinearProgressIndicator(progress = { achievementLevel.progress(xp) }, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp))
                                     Text("${nextTarget - xp} XP to Level ${level + 1}", color = secondaryTextColor)
                                 } else Text("Maximum achievement level reached!", color = accentTextColor)
                             }
@@ -1268,6 +1268,20 @@ fun PremiumSpeakUp() {
                         OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
                     }
                     "Review" -> {
+                        val progressEvidence = MintProgressEvidence(
+                            xp = xp,
+                            completedLessons = completedIds.size,
+                            puzzlesMastered = puzzleAwarded.size + riddleAwards.size,
+                            mintQuestsMastered = MintRewards.uniqueMintEventKeys(mintRewardLedger).size,
+                            speakingAttempts = speakingAttempts,
+                            guidedVoiceTurns = completedGuidedVoiceTurns.size,
+                            revisionCorrect = revisionCorrect,
+                            listeningMastered = listeningMastered.size,
+                            readingMastered = readingMastered.size,
+                            independentReplies = independentReplies
+                        )
+                        val progressLevel = MintRewards.level(xp)
+                        val coins = MintRewards.cosmeticCoins(mintRewardLedger)
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(16.dp))
                         FeatureCard("✓  ${completedIds.size} of ${lessons.size} lessons completed", "Each new lesson earns 50 XP.", { page = "Learn" })
@@ -1286,22 +1300,51 @@ fun PremiumSpeakUp() {
                         Text("Quick revision", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("Correct revision answers: $revisionCorrect", color = accentTextColor)
                         Spacer(Modifier.height(16.dp))
-                        Text("Achievement badges", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        val badges = listOf(
-                            Triple("First Steps", completedIds.isNotEmpty(), "Complete your first lesson"),
-                            Triple("Lesson Explorer", completedIds.size >= 4, "Complete four lessons"),
-                            Triple("Brave Speaker", speakingAttempts >= 1, "Try microphone speaking"),
-                            Triple("Memory Starter", revisionCorrect >= 3, "Answer three revision questions correctly"),
-                            Triple("XP Collector", xp >= 300, "Earn 300 XP")
-                        )
-                        badges.forEach { (name, earned, description) ->
-                            Surface(color = if (earned) softSurfaceColor else surfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Level ${progressLevel.number} • ${progressLevel.title}", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                LinearProgressIndicator(progress = { progressLevel.progress(xp) }, modifier = Modifier.fillMaxWidth().semantics {
+                                    contentDescription = "Level ${progressLevel.number}, ${xp} total experience points"
+                                })
+                                Text(if (progressLevel.nextTarget == null) "You've reached the top participation level." else "${progressLevel.nextTarget!! - xp.coerceAtLeast(0)} XP to your next level", color = secondaryTextColor)
+                                Text("✦ ${xp} XP  •  ◈ ${coins} cosmetic coins", color = accentTextColor, fontWeight = FontWeight.Bold)
+                                Text("Coins are earned once for each unique Mint quest. They are not money or a paid wallet.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        Text("Your skill activity map", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        MintRewards.skills(progressEvidence).forEach { skill ->
+                            Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                                 Column(Modifier.padding(12.dp)) {
-                                    Text("${if (earned) "🏅" else "🔒"} $name", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                    Text(description, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                    Text(skill.name, color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                                    Text(skill.evidence, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
+                        Text("Activity counts are not CEFR levels, accuracy percentages or verified skill mastery.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(14.dp))
+                        Text("Achievement badges", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        val badges = MintRewards.badges(progressEvidence)
+                        Text("${badges.count { it.earned }} / ${badges.size} earned • badges never expire", color = accentTextColor)
+                        badges.forEach { badge ->
+                            Surface(color = if (badge.earned) softSurfaceColor else surfaceColor, shape = RoundedCornerShape(14.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                                Column(Modifier.padding(12.dp)) {
+                                    Text("${if (badge.earned) "🏅" else "🔒"} ${badge.name}", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                    Text(badge.description, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(14.dp))
+                        Text("Certificates and assessments", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        val certificate = MintRewards.certificate(progressEvidence)
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp)) {
+                                Text(if (certificate.eligibleForAssessment) "Assessment interest unlocked" else "Certificates locked", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                                Text(certificate.message, color = secondaryTextColor)
+                                Text("No platform-issued or externally accredited certificate is available yet.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        Spacer(Modifier.height(14.dp))
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         val now = System.currentTimeMillis()
                         val dueLessons = reviewable.filter { (revisionSchedule[it.toString()] ?: 0L) <= now }
