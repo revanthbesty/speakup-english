@@ -52,8 +52,6 @@ def audit(paths):
             # Lead text highlights repeated template structures; it is a heuristic.
             text = normalize(x.get("content", ""))
             signatures[re.sub(r"[^a-z# ]", "", text)[:38]] += 1
-            if x.get("review_status") != "approved":
-                pass
         leader, leader_count = signatures.most_common(1)[0]
         if leader_count >= 6 and leader_count / len(rows) >= .2:
             warnings.append(f"{category}: repeated opening in {leader_count}/{len(rows)} records: {leader!r}")
