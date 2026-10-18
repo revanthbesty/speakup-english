@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun MintWorkplaceRoleplayScreen() {
+internal fun MintWorkplaceRoleplayScreen(onVerified: (String) -> Unit = {}) {
     var scenario by remember { mutableIntStateOf(0) }
     var step by remember { mutableIntStateOf(0) }
     var choice by remember { mutableIntStateOf(-1) }
@@ -38,7 +38,11 @@ internal fun MintWorkplaceRoleplayScreen() {
                 enabled = choice >= 0,
                 onClick = {
                     if (checked && choice == turn.answer) {
-                        step = MintWorkplaceRoleplays.advance(story, step, choice)
+                        val nextStep = MintWorkplaceRoleplays.advance(story, step, choice)
+                        if (nextStep == story.turns.size && step == story.turns.lastIndex) {
+                            onVerified(story.id)
+                        }
+                        step = nextStep
                         choice = -1
                         checked = false
                     } else checked = true
