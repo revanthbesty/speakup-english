@@ -1108,6 +1108,42 @@ fun PremiumSpeakUp() {
                                 coopFeedback = ""
                             }, modifier = Modifier.fillMaxWidth()) { Text("Restart private story") }
                         } else if (gameMode == "Real-World Quests") {
+                            val approvedQuestCatalog = remember(context) { MintRealWorldQuestAssets.loadApproved(context) }
+                            var selectedCatalogQuest by remember { mutableIntStateOf(0) }
+                            if (approvedQuestCatalog.isNotEmpty()) {
+                                Text("Approved quest library · ${approvedQuestCatalog.size} available", color = secondaryTextColor)
+                                val active = approvedQuestCatalog[selectedCatalogQuest.coerceIn(0, approvedQuestCatalog.lastIndex)]
+                                var selectedAnswer by remember(active.id) { mutableStateOf("") }
+                                var answerChecked by remember(active.id) { mutableStateOf(false) }
+                                var learnerReply by remember(active.id) { mutableStateOf("") }
+                                var finished by remember(active.id) { mutableStateOf(false) }
+                                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    approvedQuestCatalog.forEachIndexed { ix, q ->
+                                        FilterChip(selected = ix == selectedCatalogQuest, onClick = { selectedCatalogQuest = ix }, label = { Text(q.title) })
+                                    }
+                                }
+                                Text(active.title, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
+                                Text(active.question, color = secondaryTextColor)
+                                active.choices.forEachIndexed { ix, choice ->
+                                    val answer = listOf("A", "B", "C")[ix]
+                                    OutlinedButton(onClick = { selectedAnswer = answer; answerChecked = false }, modifier = Modifier.fillMaxWidth()) {
+                                        Text("$answer. $choice")
+                                    }
+                                }
+                                Button(onClick = { answerChecked = true }, enabled = selectedAnswer.isNotBlank()) { Text("Check my reply") }
+                                if (answerChecked) {
+                                    Text(if (selectedAnswer == active.correctAnswer) "Correct!" else "Not quite", color = primaryTextColor)
+                                    Text(MintRealWorldQuestGate.answerExplanation(active, selectedAnswer), color = secondaryTextColor)
+                                    if (selectedAnswer == active.correctAnswer) {
+                                        Text(active.speakingPrompt, color = secondaryTextColor)
+                                        OutlinedTextField(value = learnerReply, onValueChange = { learnerReply = it }, label = { Text("Practise your answer (text fallback)") }, modifier = Modifier.fillMaxWidth())
+                                        Button(onClick = { finished = true }, enabled = learnerReply.isNotBlank() && !finished) { Text("Finish practice") }
+                                        if (finished) Text("Practice complete. Rewards are not enabled for imported quests until release verification.", color = secondaryTextColor)
+                                    }
+                                }
+                            } else {
+                                Text("The curated 100-quest collection is awaiting editorial approval. Try the two offline practice missions below.", color = secondaryTextColor)
+                            }
                             val scenario = MintRealWorldQuests.scenarios[rwQuestIndex]
                             val rewardKey = MintRealWorldQuests.rewardKey(scenario)
                             val alreadyFinished = rewardKey in rwCompleted
