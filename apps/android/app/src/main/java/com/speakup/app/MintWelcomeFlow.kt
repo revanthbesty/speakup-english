@@ -52,11 +52,26 @@ internal fun MintWelcomeFlow(
                     RoundedCornerShape(28.dp)),
                 contentAlignment=Alignment.Center
             ) {
-                Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                    Text("🌱",style=MaterialTheme.typography.displayLarge)
-                    Text("💬      🎮      🎧",style=MaterialTheme.typography.headlineLarge)
-                    Text("FRESH GAMES. FLUENT VOICES.",color=Color(0xFF164637),
-                        style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
+                Column(horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.92f),
+                        shadowElevation = 10.dp) {
+                        Box(Modifier.size(112.dp), contentAlignment = Alignment.Center) {
+                            Text("🌱", style = MaterialTheme.typography.displayLarge)
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        listOf("🎮", "💬", "🎧").forEach { symbol ->
+                            Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.8f)) {
+                                Box(Modifier.size(46.dp), contentAlignment = Alignment.Center) {
+                                    Text(symbol, style = MaterialTheme.typography.titleLarge)
+                                }
+                            }
+                        }
+                    }
+                    Text("FRESH GAMES. FLUENT VOICES.", color = Color(0xFF164637),
+                        style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                 }
             }
             Text("Play. Practice. Speak.",style=MaterialTheme.typography.headlineLarge,
