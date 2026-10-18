@@ -35,13 +35,13 @@ internal fun MintCreatorLab(onBack: () -> Unit) {
                     Text("Editorial state: ${draft.status.name.replace('_',' ')}")
                     when (draft.status) {
                         MintCreatorStatus.DRAFT -> {
-                            Checkbox(checked = confirmRights, onCheckedChange = { confirmRights = it }, label = { Text("I confirm rights and original authorship") })
+                            Row { Checkbox(checked = confirmRights, onCheckedChange = { confirmRights = it }); Text("I confirm rights and original authorship") }
                         }
                         MintCreatorStatus.RIGHTS_CHECKED -> {
-                            Checkbox(checked = confirmLanguage, onCheckedChange = { confirmLanguage = it }, label = { Text("Language reviewer has checked this draft (local demonstration)") })
+                            Row { Checkbox(checked = confirmLanguage, onCheckedChange = { confirmLanguage = it }); Text("Language reviewer has checked this draft (local demonstration)") }
                         }
                         MintCreatorStatus.LANGUAGE_REVIEWED -> {
-                            Checkbox(checked = confirmSafety, onCheckedChange = { confirmSafety = it }, label = { Text("Safety reviewer has checked this draft (local demonstration)") })
+                            Row { Checkbox(checked = confirmSafety, onCheckedChange = { confirmSafety = it }); Text("Safety reviewer has checked this draft (local demonstration)") }
                         }
                         else -> {}
                     }
