@@ -238,6 +238,7 @@ fun PremiumSpeakUp() {
         when {
             page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
+            page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
             else -> page = "Today"
         }
     }
