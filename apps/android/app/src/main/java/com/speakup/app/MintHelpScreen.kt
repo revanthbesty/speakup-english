@@ -12,15 +12,26 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun MintHelpScreen(onBack: () -> Unit, onGames: () -> Unit, onSpeak: () -> Unit, onClips: () -> Unit) {
     var topic by remember { mutableStateOf("Getting started") }
+    var search by remember { mutableStateOf("") }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onBack) { Text("← Profile") }
-        Text("Help & guidance", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("Simple answers for your learning journey.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        listOf("Getting started", "Using games", "Speaking privately", "Stories & offline", "Privacy & support").forEach { item ->
-            OutlinedButton(onClick = { topic = item }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (topic == item) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)) {
-                Text(item, modifier = Modifier.fillMaxWidth())
-            }
+        MintSectionHeading("We're here to help!", "Find your next step in English Mint")
+        OutlinedTextField(value=search,onValueChange={search=it.take(80)},
+            label={Text("Search help topics")},modifier=Modifier.fillMaxWidth(),singleLine=true)
+        val helpTopics=listOf(
+            Triple("Getting started","First steps in English Mint","🌟"),
+            Triple("Using games","Learn with short challenges","🎮"),
+            Triple("Speaking privately","Practise with text or speech","🎤"),
+            Triple("Stories & offline","Watch, read and learn","📚"),
+            Triple("Privacy & support","Your data and available support","🔒")
+        )
+        val matching=helpTopics.filter { it.first.contains(search.trim(),ignoreCase=true) ||
+            it.second.contains(search.trim(),ignoreCase=true) }
+        if(matching.isEmpty()) {
+            MintInfoBanner("No matching help topic","Try searching for games, speaking, stories or privacy.")
+        }
+        matching.forEach { (title,description,symbol) ->
+            MintChoiceTile(title,description,symbol,topic==title){topic=title}
         }
         Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
