@@ -2261,10 +2261,10 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(14.dp))
+                        }
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         val now = System.currentTimeMillis()
                         val dueLessons = reviewable.filter { (revisionSchedule[it.toString()] ?: 0L) <= now }
-                        }
                         Text("Quick revision",style=MaterialTheme.typography.titleLarge,
                             fontWeight=FontWeight.Bold,color=primaryTextColor)
                         Text("Due for review: ${dueLessons.size} of ${reviewable.size} completed lessons", color = accentTextColor, fontWeight = FontWeight.Bold)
