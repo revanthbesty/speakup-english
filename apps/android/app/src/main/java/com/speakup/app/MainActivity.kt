@@ -227,6 +227,8 @@ fun PremiumSpeakUp() {
     var showJourneyPicker by remember { mutableStateOf(false) }
     var showProfileAdvanced by remember { mutableStateOf(false) }
     var showHomeHelp by remember { mutableStateOf(false) }
+    var showHomeExtras by remember { mutableStateOf(false) }
+    var grammarLanding by remember { mutableStateOf(true) }
     var familyPilotEnabled by remember { mutableStateOf(preferences.getBoolean("mint_family_local_enabled", false)) }
     var passportConsent by remember { mutableStateOf(preferences.getBoolean("mint_passport_consent", false)) }
     var passportPrompt by remember { mutableStateOf("week") }
@@ -431,13 +433,7 @@ fun PremiumSpeakUp() {
         Surface(color = backgroundColor, contentColor = primaryTextColor) {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
-                Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                    Column {
-                        Text(MintIdentity.displayName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
-                        Text(MintIdentity.tagline, color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
-                    }
-
-                }
+                MintBrandHeader()
                 Spacer(Modifier.height(12.dp))
                 if (showPathSetup) {
                     MintWelcomeFlow(
@@ -537,6 +533,56 @@ fun PremiumSpeakUp() {
                         Text(if (profileName.isBlank()) "Good to see you! 👋" else "Hi, $profileName! 👋",
                             color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(MintExperiencePolicy.selectedJourney(chosenPath), color = secondaryTextColor)
+                        MintDashboardHero(
+                            kicker = "Today's adventure",
+                            title = "Learn a little. Speak a lot.",
+                            description = "Start with a quick game, then try a friendly speaking activity.",
+                            action = "Start today's adventure  →",
+                            onAction = {
+                                showGameFilters = false
+                                gameMode = "Mint Quests"
+                                page = "Games"
+                            }
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        OutlinedButton(onClick = {
+                            lessonIndex = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
+                            selected = ""
+                            checked = false
+                            page = if (completedIds.size >= lessons.size) "Review" else "Learn"
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            Text("Continue learning →")
+                        }
+                        Spacer(Modifier.height(14.dp))
+                        MintSectionHeading("Explore English", "Pick a quick learning activity")
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            MintDestinationTile("Games", "Fun challenges", "🎮", MintVisualTokens.violet,
+                                Modifier.weight(1f)) { page = "Games" }
+                            MintDestinationTile("Clips", "Watch & learn", "▶", MintVisualTokens.pink,
+                                Modifier.weight(1f)) { page = "Feed" }
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            MintDestinationTile("Speak", "Practise voices", "🎙", MintVisualTokens.blue,
+                                Modifier.weight(1f)) { page = "Speak" }
+                            MintDestinationTile("Professional", "English at work", "💼", MintVisualTokens.orange,
+                                Modifier.weight(1f)) { page = "Professional" }
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Your learning path", color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                Text("${completedIds.size} of ${lessons.size} lessons completed · $dailyGoal min daily goal", color = secondaryTextColor)
+                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                                TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
+                            }
+                        }
+                        OutlinedButton(
+                            onClick = { showHomeExtras = !showHomeExtras },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                        ) {
+                            Text(if (showHomeExtras) "Hide garden and coach" else "My garden & learning coach  →")
+                        }
+                        if (showHomeExtras) {
                         Surface(color = surfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Text("🌱 My Mint Garden", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -584,49 +630,7 @@ fun PremiumSpeakUp() {
                         }
                         Spacer(Modifier.height(14.dp))
                         Spacer(Modifier.height(14.dp))
-                        Surface(color = Color(0xFF087665), shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("TODAY'S ADVENTURE", color = Color.White.copy(alpha = 0.9f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
-                                Text("Speak about your day", style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Bold)
-                                Text("One short game, then a friendly conversation.", color = Color.White)
-                                Button(onClick = {
-                                    showGameFilters = false
-                                    gameMode = "Mint Quests"
-                                    page = "Games"
-                                }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))) {
-                                    Text("Start today's adventure →", fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
-                        Spacer(Modifier.height(14.dp))
-                        OutlinedButton(onClick = {
-                            lessonIndex = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
-                            selected = ""
-                            checked = false
-                            page = if (completedIds.size >= lessons.size) "Review" else "Learn"
-                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                            Text("Continue learning →")
-                        }
-                        Spacer(Modifier.height(14.dp))
-                        Text("Explore", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Games" to "Games", "Clips" to "Feed").forEach { (label, route) ->
-                                OutlinedButton(onClick = { page = route }, modifier = Modifier.weight(1f)) { Text(label) }
-                            }
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
-                            OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.weight(1f)) { Text("My progress") }
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Your learning path", color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                Text("${completedIds.size} of ${lessons.size} lessons completed · $dailyGoal min daily goal", color = secondaryTextColor)
-                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                                TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
-                            }
+
                         }
                         TextButton(onClick = { page = "FamilyPilot" }, modifier = Modifier.fillMaxWidth()) { Text("Teacher & Family · private pilot →") }
                         OutlinedButton(onClick = { page = "AILifePilot" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("AI Life · private offline pilot →") }
@@ -992,8 +996,7 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
-                        Text("Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Play, learn, grow.", color = secondaryTextColor)
+                        MintSectionHeading("Games Hub", "Play a quick game, learn something new")
                         if (!showGameFilters && gameMode == "Mint Quests") {
                             Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1004,7 +1007,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = ""; grammarSetComplete = false; grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0; grammarHadError = false; grammarMissedNotes = emptyList() }, modifier = Modifier.weight(1f)) { Text("Grammar") }
+                            OutlinedButton(onClick = { gameMode = "Grammar"; grammarLanding = true; showGameFilters = false; grammarChecked = false; grammarChoice = ""; grammarSetComplete = false; grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0; grammarHadError = false; grammarMissedNotes = emptyList() }, modifier = Modifier.weight(1f)) { Text("Grammar") }
                             OutlinedButton(onClick = { storyOpenedFromGames = true; page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
                         }
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
@@ -1513,6 +1516,23 @@ fun PremiumSpeakUp() {
                         } else if (gameMode == "Grammar Formats") {
                             MintGrammarFormatsScreen()
                         } else if (gameMode == "Grammar") {
+                            if (grammarLanding) {
+                                MintGrammarEntry(
+                                    mastered = MintGrammarRevision.masteredCount(grammarMastered, grammarQuestions.size),
+                                    total = grammarQuestions.size,
+                                    onStart = { pack ->
+                                        grammarIndex = pack * MintGrammarPilotEngine.setSize
+                                        grammarChoice = ""
+                                        grammarChecked = false
+                                        grammarSetComplete = false
+                                        grammarFirstTryCorrect = 0
+                                        grammarWrongCount = 0
+                                        grammarMissedNotes = emptyList()
+                                        grammarLanding = false
+                                    }
+                                )
+                            } else {
+
                             Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
                             val grammarSetSize = MintGrammarPilotEngine.setSize
                             val grammarTotalSets = (grammarQuestions.size + grammarSetSize - 1) / grammarSetSize
@@ -1727,6 +1747,7 @@ fun PremiumSpeakUp() {
                                 grammarChecked = false
                                 grammarHadError = false
                             }, enabled = grammarChecked && grammarChoice == question.correct, modifier = Modifier.fillMaxWidth()) { Text(if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Next grammar question →") }
+                            }
                             }
                         } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
