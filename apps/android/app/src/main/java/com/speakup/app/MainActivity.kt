@@ -2169,6 +2169,35 @@ fun PremiumSpeakUp() {
                         )
                         val progressLevel = MintRewards.level(xp)
                         val coins = MintRewards.cosmeticCoins(mintRewardLedger)
+                        Surface(shape = RoundedCornerShape(25.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.fillMaxWidth().padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("🌱  Your Learning Journey",
+                                    color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                    style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
+                                Text("${completedIds.size} of ${lessons.size} lessons completed",
+                                    color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                    style=MaterialTheme.typography.titleMedium)
+                                LinearProgressIndicator(
+                                    progress={completedIds.size.toFloat()/lessons.size.coerceAtLeast(1)},
+                                    modifier=Modifier.fillMaxWidth().height(8.dp))
+                                Row(Modifier.fillMaxWidth(),
+                                    horizontalArrangement=Arrangement.SpaceBetween) {
+                                    Text("✨ $xp XP",color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                        fontWeight=FontWeight.Bold)
+                                    Text("🎤 $speakingAttempts speaking attempts",
+                                        color=MaterialTheme.colorScheme.onPrimaryContainer)
+                                }
+                            }
+                        }
+                        TextButton(onClick = { showReviewDetails = !showReviewDetails },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text(if(showReviewDetails) "Hide detailed learning report ↑"
+                                else "View detailed progress and achievements ↓")
+                        }
+                        if(showReviewDetails) {
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(16.dp))
                         FeatureCard("✓  ${completedIds.size} of ${lessons.size} lessons completed", "Each new lesson earns 50 XP.", { page = "Learn" })
@@ -2235,6 +2264,9 @@ fun PremiumSpeakUp() {
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         val now = System.currentTimeMillis()
                         val dueLessons = reviewable.filter { (revisionSchedule[it.toString()] ?: 0L) <= now }
+                        }
+                        Text("Quick revision",style=MaterialTheme.typography.titleLarge,
+                            fontWeight=FontWeight.Bold,color=primaryTextColor)
                         Text("Due for review: ${dueLessons.size} of ${reviewable.size} completed lessons", color = accentTextColor, fontWeight = FontWeight.Bold)
                         if (reviewable.isEmpty()) {
                             Text("Finish a lesson to unlock revision questions.", color = secondaryTextColor)
