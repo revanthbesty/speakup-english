@@ -13,11 +13,14 @@ internal data class MintRealWorldQuestRecord(
     val choices: List<String>,
     val correctAnswer: String,
     val speakingPrompt: String,
-    val status: String,\n    val correctExplanation: String = "",\n    val wrongExplanations: List<String> = emptyList()\n)
+    val status: String,
+    val correctExplanation: String = "",
+    val wrongExplanations: List<String> = emptyList()
+)
 
 internal object MintRealWorldQuestGate {
     private val levels = setOf("EASY", "MEDIUM", "HARD")
-    private val answers = setOf("A", "B", "C")
+    private val answers = listOf("A", "B", "C")
     fun valid(q: MintRealWorldQuestRecord): Boolean =
         q.id.matches(Regex("RWQ-[0-9]{4}")) &&
         q.category.isNotBlank() && q.title.isNotBlank() && q.question.isNotBlank() &&
@@ -35,6 +38,12 @@ internal object MintRealWorldQuestGate {
         quests.count { it.difficulty == "HARD" } == 25 &&
         quests.all(::valid)
 
-    fun answerExplanation(q: MintRealWorldQuestRecord, answer: String): String {\n        val index = explanationIndex(answer) ?: return "Invalid answer"\n        return if (q.correctAnswer == answer) q.correctExplanation\n        else q.wrongExplanations.getOrNull(index).orEmpty()\n    }\n\n    fun explanationIndex(answer: String): Int? =
+    fun answerExplanation(q: MintRealWorldQuestRecord, answer: String): String {
+        val index = explanationIndex(answer) ?: return "Invalid answer"
+        return if (q.correctAnswer == answer) q.correctExplanation
+        else q.wrongExplanations.getOrNull(index).orEmpty()
+    }
+
+    fun explanationIndex(answer: String): Int? =
         answers.indexOf(answer).takeIf { it >= 0 }
 }
