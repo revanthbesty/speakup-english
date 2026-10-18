@@ -326,7 +326,7 @@ fun PremiumSpeakUp() {
     val accentTextColor = if (darkAppearance) NightAccent else Violet
     val surfaceColor = if (darkAppearance) NightCard else Color.White
     val softSurfaceColor = if (darkAppearance) NightCard else Soft
-    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, onPrimary = Color(0xFF062B24), background = Night, onBackground = Color.White, surface = NightCard, onSurface = Color.White, onSurfaceVariant = Color(0xFFD3DFE6), surfaceContainer = NightCard, surfaceContainerLow = NightCard, primaryContainer = Color(0xFF20534A), onPrimaryContainer = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
+    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, onPrimary = Color(0xFF062B24), background = Night, onBackground = Color(0xFFE8F3F3), surface = NightCard, onSurface = Color(0xFFE8F3F3), surfaceVariant = Color(0xFF253643), onSurfaceVariant = Color(0xFFB5CACF), surfaceContainer = NightCard, surfaceContainerLow = NightCard, primaryContainer = Color(0xFF20534A), onPrimaryContainer = Color.White, outline = Color(0xFF9DB9BE)) else lightColorScheme(primary = Violet, onPrimary = Color.White, background = Cream, onBackground = Navy, surface = Color.White, onSurface = Navy, surfaceVariant = Color(0xFFE5F0EF), onSurfaceVariant = Color(0xFF46606A), surfaceContainer = Color(0xFFF0F6F5), surfaceContainerLow = Color(0xFFF6FAFA), primaryContainer = Soft, onPrimaryContainer = Navy, outline = Color(0xFF607D82))) {
         if (showSpeechConsent) {
             AlertDialog(
                 onDismissRequest = { showSpeechConsent = false },
@@ -483,11 +483,11 @@ fun PremiumSpeakUp() {
                             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 Text("START HERE", color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold)
                                 Text("Let's speak English!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                                Text("A friendly conversation in three small steps.", color = Color.White)
-                                Button(onClick = { speakingView = "Conversations"; page = "Speak" },
+                                Text("Play one short game, then practise speaking. About five minutes.", color = Color.White)
+                                Button(onClick = { showGameFilters = false; gameMode = "Mint Quests"; page = "Games" },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))) {
-                                    Text("Start learning →", fontWeight = FontWeight.Bold)
+                                    Text("Start my 5-minute English adventure →", fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -743,7 +743,8 @@ fun PremiumSpeakUp() {
                     }
                     "Games" -> {
                         Text("Play a game", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Choose an answer and see how you did.", color = secondaryTextColor)
+                        Text("Step 1 of 2: Play a quick challenge. Then practise speaking.", color = secondaryTextColor)
+                        OutlinedButton(onClick = { speakingView = "Conversations"; page = "Speak" }, modifier = Modifier.fillMaxWidth()) { Text("Step 2: Practise speaking →") }
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide game choices" else "Change game or difficulty") }
                         if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
@@ -1465,7 +1466,7 @@ fun PremiumSpeakUp() {
                 }
             }
             if (!showPathSetup && !showPlacement) {
-            NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
+            NavigationBar(modifier = Modifier.navigationBarsPadding(), containerColor = surfaceColor, tonalElevation = 6.dp) {
                 listOf("Today", "Feed", "Games", "Speak", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
