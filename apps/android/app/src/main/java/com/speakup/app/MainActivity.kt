@@ -277,7 +277,7 @@ fun PremiumSpeakUp() {
             page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
             page == "FiveWord" -> page = "Feed"
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
-            page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
+            page == "Help" || page == "Privacy" || page == "Membership" || page == "Settings" -> page = "Profile"
             else -> page = "Today"
         }
     }
@@ -1957,18 +1957,29 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
-                        Text("My learning space", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                        Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
-                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Your progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                                Text("$xp XP earned · ${completedIds.size} of ${lessons.size} lessons completed", color = secondaryTextColor)
-                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                                OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("View progress & achievements →") }
-                            }
-                        }
+                        MintSectionHeading("My profile", "Your English learning journey")
+                        MintProfileHero(
+                            displayName = profileName, journey = MintExperiencePolicy.selectedJourney(chosenPath),
+                            lessons = completedIds.size, totalLessons = lessons.size, xp = xp
+                        )
+                        Text("$chosenDifficulty learning • $dailyGoal minute daily goal",
+                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        OutlinedButton(
+                            onClick = { page = "Review" },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)
+                        ) { Text("My progress & achievements  →") }
                         OutlinedButton(onClick = { page = "Help" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Help & guidance →") }
+                        OutlinedButton(
+                            onClick = { page = "Settings" },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)
+                        ) { Text("Settings, appearance & privacy  →") }
+                        MintInfoBanner("Your learning stays yours",
+                            "Privacy, optional speech, offline learning and accessibility controls are under Settings.",
+                            MintVisualTokens.blue)
+                    }
+                    "Settings" -> {
+                        TextButton(onClick = { page = "Profile" }) { Text("← Profile") }
+                        MintSectionHeading("Settings", "Personalise your English Mint experience")
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text("🛡 Beta readiness", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -1977,10 +1988,7 @@ fun PremiumSpeakUp() {
                                     color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             }
                         }
-                        Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
-                            Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
-                        }
-                        if (showProfileSettings) {
+
                         Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                             Column(Modifier.padding(14.dp)) {
                                 Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -2090,7 +2098,6 @@ fun PremiumSpeakUp() {
                         }, modifier = Modifier.fillMaxWidth()) { Text("Save profile changes") }
                         if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
                         OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
-                        }
                         }
                     }
                     "Review" -> {
