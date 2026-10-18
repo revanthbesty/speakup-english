@@ -16,7 +16,7 @@ internal fun MintBusinessWritingScreen(onVerified: (String) -> Unit = {}) {
  val items=MintBusinessWriting.items.filter{it.topic==topic}
  val item=items[index]
  Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-  Text("Email & Business Writing · offline pilot",style=MaterialTheme.typography.titleLarge)
+  MintScreenHeading("Email & Business Writing", "Practise professional written communication privately.", "PROFESSIONAL ENGLISH")
   Text("Practise clear written English. Your optional draft stays on this screen and is not sent or automatically graded.")
   Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
    listOf("Email","Business Writing").forEach { name ->
