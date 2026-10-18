@@ -39,7 +39,7 @@ internal fun MintGuidedConversation(
     val turn = scenario?.turns?.getOrNull(turnIndex)
     Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Speak with Mia", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("Step 2 · Speak with Mia", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("Listen, say your answer, and build confidence step by step.")
         TextButton(onClick = { showMoreChoices = !showMoreChoices }) { Text(if (showMoreChoices) "Hide conversation choices" else "Change level or topic") }
         if (showMoreChoices) {
