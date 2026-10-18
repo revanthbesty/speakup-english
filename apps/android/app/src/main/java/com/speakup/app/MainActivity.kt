@@ -1020,8 +1020,21 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
-                        Text("Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Play, learn, grow.", color = secondaryTextColor)
+                        Surface(shape=RoundedCornerShape(26.dp),modifier=Modifier.fillMaxWidth(),
+                            color=MaterialTheme.colorScheme.primaryContainer) {
+                            Row(Modifier.fillMaxWidth().padding(18.dp),
+                                verticalAlignment=Alignment.CenterVertically,
+                                horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+                                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                                    Text("Games Hub",style=MaterialTheme.typography.headlineMedium,
+                                        fontWeight=FontWeight.ExtraBold,color=MaterialTheme.colorScheme.onPrimaryContainer)
+                                    Text("Learn English through quick challenges.",
+                                        style=MaterialTheme.typography.bodyMedium,
+                                        color=MaterialTheme.colorScheme.onPrimaryContainer)
+                                }
+                                Text("🎮",style=MaterialTheme.typography.displayMedium)
+                            }
+                        }
                         if (!showGameFilters && gameMode == "Mint Quests") {
                             Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1031,11 +1044,33 @@ fun PremiumSpeakUp() {
                                 }
                             }
                         }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = ""; grammarSetComplete = false; grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0; grammarHadError = false; grammarMissedNotes = emptyList() }, modifier = Modifier.weight(1f)) { Text("Grammar") }
-                            OutlinedButton(onClick = { storyOpenedFromGames = true; page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Surface(onClick = {
+                                gameMode = "Grammar"; showGameFilters = false
+                                grammarChecked = false; grammarChoice = ""; grammarSetComplete = false
+                                grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0
+                                grammarHadError = false; grammarMissedNotes = emptyList()
+                            }, shape=RoundedCornerShape(22.dp),
+                                color=if(darkAppearance)Color(0xFF28354D) else Color(0xFFF0E7FF),
+                                modifier=Modifier.weight(1f)) {
+                                Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                                    Text("📖",style=MaterialTheme.typography.headlineMedium)
+                                    Text("Grammar",fontWeight=FontWeight.Bold,color=primaryTextColor)
+                                    Text("Quick practice",style=MaterialTheme.typography.bodySmall,color=secondaryTextColor)
+                                }
+                            }
+                            Surface(onClick = { storyOpenedFromGames = true; page = "Feed" },
+                                shape=RoundedCornerShape(22.dp),
+                                color=if(darkAppearance)Color(0xFF203D4B) else Color(0xFFE3F5FF),
+                                modifier=Modifier.weight(1f)) {
+                                Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                                    Text("📚",style=MaterialTheme.typography.headlineMedium)
+                                    Text("Stories",fontWeight=FontWeight.Bold,color=primaryTextColor)
+                                    Text("Watch and read",style=MaterialTheme.typography.bodySmall,color=secondaryTextColor)
+                                }
+                            }
                         }
-                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
+                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide all game categories ↑" else "Browse all games & levels →") }
                         if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
                         val suggestedModes = when (learningGoal) {
