@@ -442,7 +442,12 @@ fun PremiumSpeakUp() {
                 if (showPathSetup || page == "Today") {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text(MintIdentity.displayName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
+                        Row(verticalAlignment=Alignment.CenterVertically) {
+                            Text("English",style=MaterialTheme.typography.headlineMedium,
+                                fontWeight=FontWeight.ExtraBold,color=primaryTextColor)
+                            Text("Mint",style=MaterialTheme.typography.headlineMedium,
+                                fontWeight=FontWeight.ExtraBold,color=Color(0xFF10B981))
+                        }
                         Text(MintIdentity.tagline, color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     }
 
@@ -2344,14 +2349,6 @@ fun PremiumSpeakUp() {
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
                 MintUiNavigation.tabs.forEach { tab ->
-                    val symbol = when (tab) {
-                        "Today" -> "🏠"
-                        "Speak" -> "🎤"
-                        "Feed" -> "▶"
-                        "Games" -> "🎮"
-                        "Review" -> "▥"
-                        else -> "👤"
-                    }
                     val isActive = MintUiNavigation.mainTab(page) == tab
                     val iconColor by animateColorAsState(
                         targetValue = if (isActive) accentTextColor else secondaryTextColor,
@@ -2360,7 +2357,7 @@ fun PremiumSpeakUp() {
                     NavigationBarItem(
                         selected = isActive,
                         onClick = { page = tab },
-                        icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab navigation" }, color = iconColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
+                        icon = { MintBottomTabIcon(tab, iconColor) },
                         label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
