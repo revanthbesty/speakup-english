@@ -36,6 +36,7 @@ internal fun MintGuidedConversation(
     val options = MintConversationEngine.scenarios(chosenLevel, learnerAge)
     val scenario = options.firstOrNull { it.id == selectedScenarioId } ?: options.firstOrNull()
     val turn = scenario?.turns?.getOrNull(turnIndex)
+    Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("AI-style Conversation Quests", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("Private guided conversations, available offline. Responses use scripted coaching, not a live AI provider or pronunciation score.")
@@ -143,5 +144,6 @@ internal fun MintGuidedConversation(
                 }
             }
         }
+    }
     }
 }
