@@ -1,0 +1,98 @@
+package com.speakup.app
+
+/**
+ * Versioned, content-driven game definitions for English Mint.
+ *
+ * One engine powers many curated items. A variant represents an authored learning
+ * activity, not an artificial count of random permutations.
+ */
+internal enum class MintMechanic { CHOOSE_REPLY, MISSING_WORD, WORD_SCRAMBLE, SENTENCE_ORDER }
+internal enum class MintDifficulty { EASY, MEDIUM, HARD }
+internal enum class MintSkill { VOCABULARY, GRAMMAR, SPEAKING, READING }
+
+internal data class MintGameDefinition(
+    val id: String,
+    val version: Int,
+    val mechanic: MintMechanic,
+    val difficulty: MintDifficulty,
+    val skill: MintSkill,
+    val title: String,
+    val prompt: String,
+    val tokens: List<String>,
+    val answer: String,
+    val hint: String,
+    val explanation: String,
+    val speakingPrompt: String,
+    val minAge: Int = 4,
+    val locale: String = "en",
+) {
+    fun isValid(): Boolean =
+        id.isNotBlank() && version > 0 && title.isNotBlank() &&
+            prompt.isNotBlank() && answer.isNotBlank() && hint.isNotBlank() &&
+            explanation.isNotBlank() && speakingPrompt.isNotBlank() &&
+            tokens.size >= 2 && tokens.all { it.isNotBlank() } &&
+            when(mechanic) {
+                MintMechanic.CHOOSE_REPLY, MintMechanic.MISSING_WORD ->
+                    tokens.distinct().size == tokens.size && tokens.count { it == answer } == 1
+                MintMechanic.WORD_SCRAMBLE ->
+                    tokens.size == 1 + 1 && tokens.joinToString("") == answer
+                MintMechanic.SENTENCE_ORDER ->
+                    tokens.sorted() == answer.split(" ").sorted()
+            }
+
+    fun evaluate(response: String): Boolean {
+        val normalize: (String) -> String = { it.trim().replace(Regex("\\s+"), " ").lowercase() }
+        return normalize(response) == normalize(answer)
+    }
+}
+
+internal data class MintGameResult(val correct: Boolean, val xpAward: Int, val rewardKey: String?)
+
+/** Unique keyed rewards avoid awarding XP twice for the same authored activity. */
+internal object MintGameEngine {
+    fun reward(definition: MintGameDefinition, response: String, awardedIds: Set<String>): MintGameResult {
+        val correct = definition.evaluate(response)
+        val rewardKey = "mint_game_${definition.id}_v${definition.version}"
+        return MintGameResult(
+            correct = correct,
+            xpAward = if (correct && rewardKey !in awardedIds) 15 else 0,
+            rewardKey = if (correct && rewardKey !in awardedIds) rewardKey else null,
+        )
+    }
+}
+
+internal object MintGameCatalog {
+    val definitions: List<MintGameDefinition> = listOf(
+        MintGameDefinition("reply-greet",1,MintMechanic.CHOOSE_REPLY,MintDifficulty.EASY,MintSkill.SPEAKING,"Friendly hello","Someone says, 'Nice to meet you.' What do you say?",listOf("Nice to meet you too!","I am a sandwich.","Yesterday morning."),"Nice to meet you too!","Respond warmly to the greeting.","A natural response returns the greeting.","Say hello and introduce yourself."),
+        MintGameDefinition("reply-shop",1,MintMechanic.CHOOSE_REPLY,MintDifficulty.EASY,MintSkill.SPEAKING,"At the shop","The shopkeeper asks, 'Can I help you?' Choose a polite response.",listOf("Yes, I'm looking for a notebook.","Blue yesterday fast.","You must go."),"Yes, I'm looking for a notebook.","State what you need politely.","A clear request helps continue the conversation.","Ask the shopkeeper for something you need."),
+        MintGameDefinition("reply-meeting",1,MintMechanic.CHOOSE_REPLY,MintDifficulty.MEDIUM,MintSkill.SPEAKING,"Team meeting","A teammate suggests a new approach. How do you politely agree?",listOf("That sounds promising. Let's try it.","Your idea is bad.","Nobody asked."),"That sounds promising. Let's try it.","Support the idea constructively.","Acknowledge the suggestion and suggest an action.","Explain why you agree with a colleague."),
+        MintGameDefinition("reply-clarify",1,MintMechanic.CHOOSE_REPLY,MintDifficulty.MEDIUM,MintSkill.SPEAKING,"Clarify a point","A speaker used an unfamiliar term. What is a courteous question?",listOf("Could you explain what that means?","You make no sense.","Talk normal."),"Could you explain what that means?","A respectful request for clarification works.","Could you explain is a courteous way to seek clarity.","Ask a speaker to explain a new word."),
+        MintGameDefinition("reply-debate",1,MintMechanic.CHOOSE_REPLY,MintDifficulty.HARD,MintSkill.SPEAKING,"Debate politely","Choose the most nuanced way to disagree with an argument.",listOf("The evidence is valuable; however, it may not support that conclusion.","That's obviously wrong.","Everything here is nonsense."),"The evidence is valuable; however, it may not support that conclusion.","Recognize the evidence before questioning the claim.","Nuanced disagreement considers evidence and limits.","Challenge a conclusion using careful language."),
+        MintGameDefinition("reply-interview",1,MintMechanic.CHOOSE_REPLY,MintDifficulty.HARD,MintSkill.SPEAKING,"Interview follow-up","After an interview, choose an appropriately professional follow-up.",listOf("Thank you for your time; I appreciate the opportunity to discuss the role.","Give me the job.","Reply now."),"Thank you for your time; I appreciate the opportunity to discuss the role.","Express appreciation without demanding an outcome.","Respectful follow-ups are concise and professional.","Thank an interviewer and summarize your interest."),
+        MintGameDefinition("blank-am",1,MintMechanic.MISSING_WORD,MintDifficulty.EASY,MintSkill.GRAMMAR,"Introduce yourself","I ___ learning English.",listOf("am","is","are"),"am","I pairs with am.","Use am with I in the present continuous.","Say what you are learning today."),
+        MintGameDefinition("blank-does",1,MintMechanic.MISSING_WORD,MintDifficulty.EASY,MintSkill.GRAMMAR,"Daily habits","She ___ to school every day.",listOf("goes","go","going"),"goes","He and she usually take -s or -es in simple present.","Goes agrees with the singular subject she.","Describe a daily habit."),
+        MintGameDefinition("blank-since",1,MintMechanic.MISSING_WORD,MintDifficulty.MEDIUM,MintSkill.GRAMMAR,"Time expressions","I've known her ___ 2022.",listOf("since","for","during"),"since","Use since with a specific starting time.","Since marks a starting point; for marks duration.","Describe how long you have known someone."),
+        MintGameDefinition("blank-despite",1,MintMechanic.MISSING_WORD,MintDifficulty.MEDIUM,MintSkill.GRAMMAR,"Link ideas","___ the rain, the event continued.",listOf("Despite","Although","Because"),"Despite","A preposition can come before a noun phrase.","Despite is followed by the rain; although needs a clause.","Say what you did despite an obstacle."),
+        MintGameDefinition("blank-had",1,MintMechanic.MISSING_WORD,MintDifficulty.HARD,MintSkill.GRAMMAR,"Advanced conditionals","If I ___ known earlier, I would have helped.",listOf("had","have","will"),"had","Third conditionals use if plus past perfect.","Had known describes an unreal past condition.","Describe what you would have done differently."),
+        MintGameDefinition("blank-whom",1,MintMechanic.MISSING_WORD,MintDifficulty.HARD,MintSkill.GRAMMAR,"Formal relative clauses","The researcher to ___ I spoke shared useful findings.",listOf("whom","who's","whose"),"whom","After a formal preposition, the object form works.","To whom is the formal object construction.","Describe someone you consulted."),
+        MintGameDefinition("scramble-cat",1,MintMechanic.WORD_SCRAMBLE,MintDifficulty.EASY,MintSkill.VOCABULARY,"Find the animal","Unscramble the letters to name a household pet.",listOf("t","ca"),"cat","A three-letter pet that purrs.","CAT spells cat.","Describe an animal you like."),
+        MintGameDefinition("scramble-book",1,MintMechanic.WORD_SCRAMBLE,MintDifficulty.EASY,MintSkill.VOCABULARY,"Reading object","Unscramble the letters to name something you read.",listOf("ok","bo"),"book","It has pages.","BOOK is something you read.","Talk about a favorite book."),
+        MintGameDefinition("scramble-respect",1,MintMechanic.WORD_SCRAMBLE,MintDifficulty.MEDIUM,MintSkill.VOCABULARY,"Be considerate","Unscramble a word meaning polite regard for others.",listOf("spect","re"),"respect","It begins with re.","Respect means showing consideration.","Say how you show respect at work or school."),
+        MintGameDefinition("scramble-clarity",1,MintMechanic.WORD_SCRAMBLE,MintDifficulty.MEDIUM,MintSkill.VOCABULARY,"Speak clearly","Unscramble a word that means clearness.",listOf("ity","clar"),"clarity","It is valuable in communication.","Clarity makes speech easy to understand.","Explain an idea clearly."),
+        MintGameDefinition("scramble-perspective",1,MintMechanic.WORD_SCRAMBLE,MintDifficulty.HARD,MintSkill.VOCABULARY,"Points of view","Unscramble a word meaning a point of view.",listOf("tive","perspec"),"perspective","It starts with pers.","Perspective is a way of viewing an issue.","Share your perspective on a topic."),
+        MintGameDefinition("scramble-coherence",1,MintMechanic.WORD_SCRAMBLE,MintDifficulty.HARD,MintSkill.VOCABULARY,"Connected ideas","Unscramble a word meaning logical consistency.",listOf("ence","coher"),"coherence","It describes clear connections between ideas.","Coherence helps listeners follow a discussion.","Explain how two ideas connect."),
+        MintGameDefinition("order-hello",1,MintMechanic.SENTENCE_ORDER,MintDifficulty.EASY,MintSkill.READING,"Meet someone","Build a friendly introduction.",listOf("my","Hello,","is","name","Sam."),"Hello, my name is Sam.","Begin with Hello and introduce your name.","A short introduction begins a conversation.","Introduce yourself using your name."),
+        MintGameDefinition("order-water",1,MintMechanic.SENTENCE_ORDER,MintDifficulty.EASY,MintSkill.READING,"Ask politely","Build a polite request for water.",listOf("please?","water,","have","I","Could","some"),"Could I have some water, please?","Could I have makes a polite request.","Polite questions often end with please.","Request something politely."),
+        MintGameDefinition("order-reason",1,MintMechanic.SENTENCE_ORDER,MintDifficulty.MEDIUM,MintSkill.READING,"Explain a reason","Build a clear cause-and-effect sentence.",listOf("late","because","The","arrived","bus","was","I"),"I arrived late because the bus was","Start with I arrived late.","This sentence links an outcome to its reason.","Explain a delay clearly."),
+        MintGameDefinition("order-plan",1,MintMechanic.SENTENCE_ORDER,MintDifficulty.MEDIUM,MintSkill.READING,"Future plans","Build a sentence about a hypothetical trip.",listOf("travel","would","I","more","if","time.","I","had"),"I would travel if I had more time.","Start with I would.","Would introduces the hypothetical action.","Describe what you would do with extra time."),
+        MintGameDefinition("order-data",1,MintMechanic.SENTENCE_ORDER,MintDifficulty.HARD,MintSkill.READING,"Careful conclusions","Build a suitably cautious research statement.",listOf("possible","The","association.","suggest","a","findings"),"The findings suggest a possible association.","Begin with The findings.","Hedged claims acknowledge uncertainty.","Explain a finding without overclaiming."),
+        MintGameDefinition("order-policy",1,MintMechanic.SENTENCE_ORDER,MintDifficulty.HARD,MintSkill.READING,"Professional proposal","Build a measured policy recommendation.",listOf("reconsidering","the","worth","may","proposal.","It","be"),"It may be worth reconsidering the proposal.","Start with It may.","Hedging keeps constructive feedback diplomatic.","Recommend an improvement diplomatically.")
+    )
+
+    val mechanics: List<MintMechanic> = MintMechanic.entries
+
+    fun listFor(difficulty: MintDifficulty, minAge: Int = 4): List<MintGameDefinition> =
+        definitions.filter { it.difficulty == difficulty && it.minAge <= minAge }
+
+    fun byId(id: String): MintGameDefinition? = definitions.firstOrNull { it.id == id }
+}
