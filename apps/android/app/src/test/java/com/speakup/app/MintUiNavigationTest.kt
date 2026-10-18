@@ -16,6 +16,7 @@ class MintUiNavigationTest {
         assertEquals("Profile", MintUiNavigation.mainTab("Membership"))
         assertEquals("Profile", MintUiNavigation.mainTab("Help"))
         assertEquals("Feed", MintUiNavigation.mainTab("Feed"))
+        assertEquals("Feed", MintUiNavigation.mainTab("FiveWord"))
     }
 
     @Test fun invalidSavedRoutesSafelyReturnHome() {

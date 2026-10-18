@@ -237,6 +237,7 @@ fun PremiumSpeakUp() {
     BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
         when {
             page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
+            page == "FiveWord" -> page = "Feed"
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
             page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
             else -> page = "Today"
@@ -737,7 +738,26 @@ fun PremiumSpeakUp() {
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                         }
                     }
+                    "FiveWord" -> {
+                        val eligibleAge = when (learnerAgeBand) {
+                            "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
+                        }
+                        MintFiveWordStoryScreen(
+                            age = eligibleAge,
+                            onBack = { page = "Feed" },
+                            onSpeaking = { prompt ->
+                                mintSpeakingMission = prompt
+                                speakingView = "Lessons"
+                                practiceResponse = ""
+                                practiceChecked = false
+                                page = "Speak"
+                            }
+                        )
+                    }
                     "Feed" -> {
+                        OutlinedButton(onClick = { page = "FiveWord" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            Text("📖 Today's Five-Word Stories →")
+                        }
                         val learnerMinimumAge = when (learnerAgeBand) {
                             "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
                         }
