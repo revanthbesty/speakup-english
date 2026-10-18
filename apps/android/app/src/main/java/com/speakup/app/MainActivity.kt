@@ -1516,6 +1516,15 @@ fun PremiumSpeakUp() {
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            val grammarAnalytics = MintGrammarAnalytics.snapshot(grammarQuestions.size,grammarMastered,grammarBookmarks,grammarRevisionMissed)
+                            Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                    Text("📊 My grammar progress", color = primaryTextColor,fontWeight = FontWeight.Bold)
+                                    Text("${grammarAnalytics.mastered} of ${grammarAnalytics.total} questions mastered · ${grammarAnalytics.masteredPercent}%",color = primaryTextColor)
+                                    Text("${grammarAnalytics.notYetMastered} not yet mastered · ${grammarAnalytics.bookmarked} saved · ${grammarAnalytics.flaggedForRevision} flagged after mistakes",color = secondaryTextColor)
+                                    Text("Based only on saved activity progress on this device—not a grammar proficiency score or test accuracy rate.",color = secondaryTextColor,style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
                             val grammarReviewIndices = MintGrammarRevision.reviewIndices(grammarQuestions.size, grammarRevisionMissed, grammarBookmarks, grammarMastered)
                             val personalized = MintGrammarPersonalization.suggestedIndices(grammarQuestions.size,grammarRevisionMissed,grammarBookmarks,grammarMastered)
                             if (personalized.isNotEmpty()) {
