@@ -1518,7 +1518,7 @@ fun PremiumSpeakUp() {
                         } else if (gameMode == "Grammar") {
                             if (grammarLanding) {
                                 MintGrammarEntry(
-                                    mastered = MintGrammarRevision.masteredCount(grammarMastered, grammarQuestions.size),
+                                    mastered = MintGrammarRevision.masteredCount(grammarQuestions.size, grammarMastered),
                                     total = grammarQuestions.size,
                                     onStart = { pack ->
                                         grammarIndex = pack * MintGrammarPilotEngine.setSize
