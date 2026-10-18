@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun MintInterviewPrepScreen() {
+internal fun MintInterviewPrepScreen(onVerified: (String) -> Unit = {}) {
     var index by remember { mutableIntStateOf(0) }
     var choice by remember { mutableIntStateOf(-1) }
     var checked by remember { mutableStateOf(false) }
@@ -22,7 +22,7 @@ internal fun MintInterviewPrepScreen() {
                 Text("${if(choice==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
             }
         }
-        Button(onClick={checked=true},enabled=choice>=0,modifier=Modifier.fillMaxWidth()) {Text("Check reply")}
+        Button(onClick={checked=true;if(choice==item.best)onVerified(item.id)},enabled=choice>=0,modifier=Modifier.fillMaxWidth()) {Text("Check reply")}
         if(checked) {
             Text(if(choice==item.best) "Suitable response!" else "This could be improved. Try again.")
             Text(item.explanation)

@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun MintBusinessWritingScreen() {
+internal fun MintBusinessWritingScreen(onVerified: (String) -> Unit = {}) {
  var topic by remember { mutableStateOf("Email") }
  var index by remember { mutableIntStateOf(0) }
  var selected by remember { mutableIntStateOf(-1) }
@@ -30,7 +30,7 @@ internal fun MintBusinessWritingScreen() {
     Text("${if(selected==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
    }
   }
-  Button(onClick={checked=true},enabled=selected>=0,modifier=Modifier.fillMaxWidth()){Text("Check answer")}
+  Button(onClick={checked=true;if(selected==item.best)onVerified(item.id)},enabled=selected>=0,modifier=Modifier.fillMaxWidth()){Text("Check answer")}
   if(checked) { Text(if(selected==item.best)"Suitable response!" else "Try a clearer choice.");Text(item.explanation) }
   Text(item.draftPrompt,color=MaterialTheme.colorScheme.onSurfaceVariant)
   OutlinedTextField(value=draft,onValueChange={draft=it.take(600)},label={Text("Optional private writing practice")},modifier=Modifier.fillMaxWidth(),minLines=2)
