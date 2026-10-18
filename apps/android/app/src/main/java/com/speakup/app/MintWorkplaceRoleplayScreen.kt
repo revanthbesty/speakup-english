@@ -26,9 +26,8 @@ internal fun MintWorkplaceRoleplayScreen(onVerified: (String) -> Unit = {}) {
             Text("Turn ${step + 1} of ${story.turns.size}")
             Text("${turn.speaker}: ${turn.prompt}")
             turn.options.forEachIndexed { i, option ->
-                OutlinedButton(onClick = { choice = i; checked = false }, modifier = Modifier.fillMaxWidth()) {
-                    Text("${i + 1}. $option", modifier = Modifier.fillMaxWidth())
-                }
+                MintAnswerChoice(label = "${i + 1}. $option", selected = choice == i,
+                    onClick = { choice = i; checked = false })
             }
             if (checked) {
                 Text(if (choice == turn.answer) "Correct." else "Try another reply.")
