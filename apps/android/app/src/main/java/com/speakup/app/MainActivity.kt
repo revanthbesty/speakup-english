@@ -47,12 +47,6 @@ private val learningPaths = listOf(
     LearningPath("exams", "I am preparing for exams", "IELTS and other English exam pathways", "Practise reading and speaking while exam modules are developed.")
 )
 
-private data class PlacementQuestion(val prompt: String, val choices: List<String>, val correct: String)
-private val placementQuestions = listOf(
-    PlacementQuestion("Choose the correct greeting.", listOf("Hello, how are you?", "Hello, how you?", "Hello, you how?"), "Hello, how are you?"),
-    PlacementQuestion("Choose the correct past-tense sentence.", listOf("Yesterday I go to school.", "Yesterday I went to school.", "Yesterday I going school."), "Yesterday I went to school."),
-    PlacementQuestion("Choose the most natural formal request.", listOf("Give me your report now.", "I need report.", "Could you please send me the report by Friday?"), "Could you please send me the report by Friday?")
-)
 
 private data class Lesson(val title: String, val question: String, val answer: String, val choices: List<String>, val tip: String)
 private val lessons = listOf(
@@ -182,6 +176,13 @@ fun PremiumSpeakUp() {
     var placementIndex by remember { mutableIntStateOf(0) }
     var placementSelected by remember { mutableStateOf("") }
     var placementAnswers by remember { mutableStateOf(listOf<Boolean>()) }
+    var placementAttempt by remember { mutableIntStateOf(preferences.getInt("placement_attempt", 0)) }
+    var placementLevel by remember { mutableStateOf(preferences.getString("placement_level", "") ?: "") }
+    val suggestedPlacementLevel = MintPlacementBank.startingLevel(chosenPath, chosenDifficulty, learningGoal)
+    val selectedPlacementLevel = placementLevel.ifBlank { suggestedPlacementLevel }
+    val activePlacementQuestions = remember(selectedPlacementLevel, placementAttempt) {
+        MintPlacementBank.session(selectedPlacementLevel, placementAttempt)
+    }
     var showPlacement by remember { mutableStateOf(false) }
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
@@ -332,12 +333,27 @@ fun PremiumSpeakUp() {
                     }, enabled = chosenPath.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Start my learning journey →") }
                 } else if (showPlacement) {
                     Text("Find your starting point", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                    Text("Three quick questions help us suggest a starting point. This is not a certified language assessment.", color = secondaryTextColor)
+                    Text("Your questions match your preferred challenge. Change the level below at any time. This is a short, non-certified starting check.", color = secondaryTextColor)
+                    Text("Assessment level: $selectedPlacementLevel", color = accentTextColor, fontWeight = FontWeight.Bold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf("Easy", "Medium", "Hard", "Exam").forEach { level ->
+                            FilterChip(
+                                selected = selectedPlacementLevel == level,
+                                onClick = {
+                                    placementLevel = level
+                                    placementIndex = 0
+                                    placementSelected = ""
+                                    placementAnswers = emptyList()
+                                },
+                                label = { Text(level) }
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(12.dp))
-                    LinearProgressIndicator(progress = { placementIndex.toFloat() / placementQuestions.size }, modifier = Modifier.fillMaxWidth())
-                    Text("QUESTION ${placementIndex + 1} OF ${placementQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                    LinearProgressIndicator(progress = { placementIndex.toFloat() / activePlacementQuestions.size }, modifier = Modifier.fillMaxWidth())
+                    Text("QUESTION ${placementIndex + 1} OF ${activePlacementQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(12.dp))
-                    val placementQuestion = placementQuestions[placementIndex]
+                    val placementQuestion = activePlacementQuestions[placementIndex]
                     Text(placementQuestion.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                     placementQuestion.choices.forEach { choice ->
                         OutlinedButton(
@@ -352,22 +368,27 @@ fun PremiumSpeakUp() {
                             val updated = placementAnswers + (placementSelected == placementQuestion.correct)
                             placementAnswers = updated
                             placementSelected = ""
-                            if (placementIndex == placementQuestions.lastIndex) {
+                            if (placementIndex == activePlacementQuestions.lastIndex) {
                                 placementScore = updated.count { it }
+                                placementLevel = selectedPlacementLevel
                                 placementDone = true
                                 showPlacement = false
                                 preferences.edit().putBoolean("placement_done", true)
-                                    .putInt("placement_score", placementScore).apply()
+                                    .putInt("placement_score", placementScore)
+                                    .putString("placement_level", placementLevel)
+                                    .putInt("placement_attempt", placementAttempt + 1).apply()
+                                placementAttempt += 1
                             } else placementIndex += 1
                         },
                         enabled = placementSelected.isNotBlank(),
                         modifier = Modifier.fillMaxWidth()
-                    ) { Text(if (placementIndex == placementQuestions.lastIndex) "See my starting point" else "Next question →") }
+                    ) { Text(if (placementIndex == activePlacementQuestions.lastIndex) "See my starting point" else "Next question →") }
                     TextButton(onClick = {
                         showPlacement = false
                         placementDone = true
                         placementScore = -1
-                        preferences.edit().putBoolean("placement_done", true).putInt("placement_score", -1).apply()
+                        placementLevel = selectedPlacementLevel
+                        preferences.edit().putBoolean("placement_done", true).putInt("placement_score", -1).putString("placement_level", placementLevel).apply()
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
@@ -433,16 +454,11 @@ fun PremiumSpeakUp() {
                         Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = primaryTextColor)
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).semantics { contentDescription = "${completedIds.size} of ${lessons.size} lessons completed" })
                         if (placementDone && placementScore >= 0) {
-                            val recommendation = when (placementScore) {
-                                0 -> "Suggested start: first words and everyday phrases"
-                                1 -> "Suggested start: basic everyday conversations"
-                                2 -> "Suggested start: sentence building and speaking practice"
-                                else -> "Suggested start: speaking challenges and more advanced practice"
-                            }
+                            val recommendation = MintPlacementBank.recommendation(placementLevel.ifBlank { suggestedPlacementLevel }, placementScore)
                             Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                 Column(Modifier.padding(16.dp)) {
                                     Text("YOUR STARTING POINT", color = accentTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
-                                    Text(recommendation, color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                                    Text("${placementLevel.ifBlank { suggestedPlacementLevel }} · $recommendation", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                                     Spacer(Modifier.height(8.dp))
                                     Button(onClick = {
                                         page = if (placementScore >= 2) "Speak" else "Learn"
@@ -457,6 +473,7 @@ fun PremiumSpeakUp() {
                             placementIndex = 0
                             placementSelected = ""
                             placementAnswers = emptyList()
+                            placementLevel = suggestedPlacementLevel
                             showPlacement = true
                         }) { Text(if (placementDone) "Retake starting assessment" else "Take starting assessment") }
                         TextButton(onClick = { page = "Profile" }) { Text("Manage my learning profile →") }
