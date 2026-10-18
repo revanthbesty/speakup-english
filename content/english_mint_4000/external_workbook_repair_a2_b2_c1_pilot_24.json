@@ -215,10 +215,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
+      "option_a": "recipe",
       "option_b": "receipt",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_c": "discount",
+      "option_d": "refund",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -238,7 +238,7 @@
       "instructions": "Read or listen and answer.",
       "content": "The scientist ____ supported the claim because some measurements remained uncertain.",
       "question": "Which word correctly fills the blank?",
-      "correct_answer": "B",
+      "correct_answer": "C",
       "accepted_answers_json": [
         "cautiously"
       ],
@@ -247,10 +247,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "cautiously",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "definitively",
+      "option_b": "enthusiastically",
+      "option_c": "cautiously",
+      "option_d": "carelessly",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -270,7 +270,7 @@
       "instructions": "Read or listen and answer.",
       "content": "The policy was ____ neutral, although its effects varied considerably between groups.",
       "question": "Which word correctly fills the blank?",
-      "correct_answer": "B",
+      "correct_answer": "C",
       "accepted_answers_json": [
         "ostensibly"
       ],
@@ -279,10 +279,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "ostensibly",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "openly",
+      "option_b": "consistently",
+      "option_c": "ostensibly",
+      "option_d": "inevitably",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -311,10 +311,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
+      "option_a": "You should cancel every lesson.",
       "option_b": "Could I attend Thursday's class instead? I have an appointment on Tuesday.",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_c": "I have never studied English before.",
+      "option_d": "The class is full of students.",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -335,7 +335,7 @@
       "instructions": "Read or listen and answer.",
       "content": "A team member proposes a Friday release although critical testing remains unfinished. Respond constructively.",
       "question": "Choose the most appropriate response.",
-      "correct_answer": "B",
+      "correct_answer": "C",
       "accepted_answers_json": [
         "Could we assess the remaining testing work before committing to Friday?"
       ],
@@ -344,10 +344,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "Could we assess the remaining testing work before committing to Friday?",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "The team never meets deadlines.",
+      "option_b": "Launch anyway; the tests don't matter.",
+      "option_c": "Could we assess the remaining testing work before committing to Friday?",
+      "option_d": "Testing always finishes in a day.",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -368,7 +368,7 @@
       "instructions": "Read or listen and answer.",
       "content": "A manager suggests dropping accessibility tests to meet a deadline. Disagree diplomatically and offer an alternative.",
       "question": "Choose the most appropriate response.",
-      "correct_answer": "B",
+      "correct_answer": "D",
       "accepted_answers_json": [
         "I understand the deadline, but could we reduce nonessential scope rather than omit accessibility testing?"
       ],
@@ -377,10 +377,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "I understand the deadline, but could we reduce nonessential scope rather than omit accessibility testing?",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "Accessibility can be handled after launch without any risk.",
+      "option_b": "There is no reason to discuss the deadline.",
+      "option_c": "We should cancel the whole project immediately.",
+      "option_d": "I understand the deadline, but could we reduce nonessential scope rather than omit accessibility testing?",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -401,7 +401,7 @@
       "instructions": "Read or listen and answer.",
       "content": "The bus for Hill Street was due at eight fifteen, but it will now depart at eight thirty from stop four.",
       "question": "Which detail best answers the listening task?",
-      "correct_answer": "B",
+      "correct_answer": "C",
       "accepted_answers_json": [
         "eight thirty"
       ],
@@ -410,10 +410,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "eight thirty",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "eight fifteen",
+      "option_b": "eight twenty",
+      "option_c": "eight thirty",
+      "option_d": "nine o'clock",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -444,10 +444,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
+      "option_a": "to fix a failed performance test",
       "option_b": "to address accessibility feedback",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_c": "to hire more engineers",
+      "option_d": "to change the company name",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -469,7 +469,7 @@
       "instructions": "Read or listen and answer.",
       "content": "An economist says: 'Our projection assumes stable energy costs and trade conditions. Either could shift; treat this as a scenario, not a guarantee.'",
       "question": "Which detail best answers the listening task?",
-      "correct_answer": "B",
+      "correct_answer": "A",
       "accepted_answers_json": [
         "the forecast depends on changeable assumptions"
       ],
@@ -478,10 +478,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "the forecast depends on changeable assumptions",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "the forecast depends on changeable assumptions",
+      "option_b": "the forecast already proved false",
+      "option_c": "the economist has not seen any data",
+      "option_d": "the interviewer will decide the energy prices",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -503,7 +503,7 @@
       "instructions": "Read or listen and answer.",
       "content": "Sports Centre Notice: The swimming pool is closed on Tuesday and Wednesday for repairs. The gym remains open. The pool will reopen at 7 a.m. on Thursday.",
       "question": "Which conclusion or detail is supported by the passage?",
-      "correct_answer": "B",
+      "correct_answer": "C",
       "accepted_answers_json": [
         "thursday"
       ],
@@ -512,10 +512,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "thursday",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "tuesday",
+      "option_b": "wednesday",
+      "option_c": "thursday",
+      "option_d": "friday",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -543,10 +543,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
+      "option_a": "the council will permanently ban cars immediately",
       "option_b": "the council will trial lanes and evaluate their impact",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_c": "the council will ignore local businesses",
+      "option_d": "the cycle lanes will open without any data collection",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -565,7 +565,7 @@
       "instructions": "Read or listen and answer.",
       "content": "An observational study found higher job satisfaction among employees with flexible hours. Although researchers adjusted for occupation and age, they could not rule out unmeasured factors such as managerial trust. Consequently, the results warrant further research but cannot establish a causal effect.",
       "question": "Which conclusion or detail is supported by the passage?",
-      "correct_answer": "B",
+      "correct_answer": "D",
       "accepted_answers_json": [
         "the study finds association but does not prove causation"
       ],
@@ -574,10 +574,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "the study finds association but does not prove causation",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "the study proves a causal benefit for everyone",
+      "option_b": "age alone explains the result",
+      "option_c": "flexible work has no correlation with satisfaction",
+      "option_d": "the study finds association but does not prove causation",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -596,7 +596,7 @@
       "instructions": "Read or listen and answer.",
       "content": "Visitor: 'I left my blue scarf in the reading room.' Receptionist: 'Someone handed it in. It's here at reception.' Visitor: 'Thank you!'",
       "question": "What do the speakers mean or decide?",
-      "correct_answer": "B",
+      "correct_answer": "A",
       "accepted_answers_json": [
         "at the reception desk"
       ],
@@ -605,25 +605,25 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "at the reception desk",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "at the reception desk",
+      "option_b": "at the bus stop",
+      "option_c": "in the café",
+      "option_d": "outside the gym",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
       "dialogue_turns_json": [
         {
           "speaker": "Visitor",
-          "text": "'I left my blue scarf in the reading room.'"
+          "text": "I left my blue scarf in the reading room."
         },
         {
           "speaker": "Receptionist",
-          "text": "'Someone handed it in. It's here at reception.'"
+          "text": "Someone handed it in. It's here at reception."
         },
         {
           "speaker": "Visitor",
-          "text": "'Thank you!'"
+          "text": "Thank you!"
         }
       ],
       "speaker_count": 2
@@ -640,7 +640,7 @@
       "instructions": "Read or listen and answer.",
       "content": "Asha: 'We should rehearse the entire presentation.' Ben: 'We only have twenty minutes. What if we practise the difficult questions first?' Asha: 'Good idea, and we can review the opening if time allows.'",
       "question": "What do the speakers mean or decide?",
-      "correct_answer": "B",
+      "correct_answer": "C",
       "accepted_answers_json": [
         "they will rehearse the hardest section first"
       ],
@@ -649,25 +649,25 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "they will rehearse the hardest section first",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "they will cancel the presentation",
+      "option_b": "they will practise only the opening",
+      "option_c": "they will rehearse the hardest section first",
+      "option_d": "they will ask for a longer meeting",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
       "dialogue_turns_json": [
         {
           "speaker": "Asha",
-          "text": "'We should rehearse the entire presentation.'"
+          "text": "We should rehearse the entire presentation."
         },
         {
           "speaker": "Ben",
-          "text": "'We only have twenty minutes. What if we practise the difficult questions first?'"
+          "text": "We only have twenty minutes. What if we practise the difficult questions first?"
         },
         {
           "speaker": "Asha",
-          "text": "'Good idea, and we can review the opening if time allows.'"
+          "text": "Good idea, and we can review the opening if time allows."
         }
       ],
       "speaker_count": 2
@@ -684,7 +684,7 @@
       "instructions": "Read or listen and answer.",
       "content": "Applicant: 'Would you recommend funding?' Reviewer: 'The aim is worthwhile, but the evaluation measures are weak.' Applicant: 'So is it rejected?' Reviewer: 'Not necessarily. Strengthen the evaluation plan, and I would be inclined to recommend it.'",
       "question": "What do the speakers mean or decide?",
-      "correct_answer": "B",
+      "correct_answer": "D",
       "accepted_answers_json": [
         "support depends on strengthening the evaluation plan"
       ],
@@ -693,29 +693,29 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "support depends on strengthening the evaluation plan",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "funding is already guaranteed",
+      "option_b": "the proposal has been rejected permanently",
+      "option_c": "no evaluation is necessary",
+      "option_d": "support depends on strengthening the evaluation plan",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
       "dialogue_turns_json": [
         {
           "speaker": "Applicant",
-          "text": "'Would you recommend funding?'"
+          "text": "Would you recommend funding?"
         },
         {
           "speaker": "Reviewer",
-          "text": "'The aim is worthwhile, but the evaluation measures are weak.'"
+          "text": "The aim is worthwhile, but the evaluation measures are weak."
         },
         {
           "speaker": "Applicant",
-          "text": "'So is it rejected?'"
+          "text": "So is it rejected?"
         },
         {
           "speaker": "Reviewer",
-          "text": "'Not necessarily. Strengthen the evaluation plan, and I would be inclined to recommend it.'"
+          "text": "Not necessarily. Strengthen the evaluation plan, and I would be inclined to recommend it."
         }
       ],
       "speaker_count": 2
@@ -732,7 +732,7 @@
       "instructions": "Read or listen and answer.",
       "content": "After school, Arun found a message asking him to visit Mrs Green next door. When he arrived, she gave him a library book. Arun had left it on a garden bench that morning. He thanked her and put it in his bag.",
       "question": "What happened or what decision was made?",
-      "correct_answer": "B",
+      "correct_answer": "A",
       "accepted_answers_json": [
         "to return a library book"
       ],
@@ -741,10 +741,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "to return a library book",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "to return a library book",
+      "option_b": "to borrow his bicycle",
+      "option_c": "to ask about a school trip",
+      "option_d": "to invite him to a birthday party",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -763,7 +763,7 @@
       "instructions": "Read or listen and answer.",
       "content": "Maya noticed that a food bank assigned the same volunteers to late shifts every weekend. Several had quietly stopped attending. She brought the schedule to a team meeting without blaming the coordinator. The volunteers agreed to publish the shifts and use an open sign-up sheet, reviewing the assignments monthly to keep them fair.",
       "question": "What happened or what decision was made?",
-      "correct_answer": "B",
+      "correct_answer": "C",
       "accepted_answers_json": [
         "they introduced a transparent volunteer sign-up system"
       ],
@@ -772,10 +772,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
-      "option_b": "they introduced a transparent volunteer sign-up system",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_a": "they dismissed every volunteer",
+      "option_b": "they kept the late shifts unchanged",
+      "option_c": "they introduced a transparent volunteer sign-up system",
+      "option_d": "they stopped working weekends",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
@@ -803,10 +803,10 @@
       "content_version": "1.2-draft",
       "review_status": "needs_human_review",
       "source_type": "original_ai_draft_rewrite",
-      "option_a": "An unrelated interpretation of the scene",
+      "option_a": "she hid the letter from the museum",
       "option_b": "she disclosed the uncertainty alongside the evidence",
-      "option_c": "The opposite of the intended meaning",
-      "option_d": "A claim not supported by the material",
+      "option_c": "she declared the attribution proven",
+      "option_d": "she discarded the document without consulting specialists",
       "hint": "",
       "questions_json": [],
       "metadata_json": {},
