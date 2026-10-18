@@ -46,8 +46,10 @@ def validate(path):
             if prompt in seen_prompts:
                 error("prompt", "duplicate normalized prompt")
             seen_prompts.add(prompt)
-            options = [normalize(row.get("option_" + option)) for option in "abc"]
-            if len(set(options)) != 3 or any(not x for x in options):
+            options = [re.sub(r"\s+", " ", (row.get("option_" + option) or "").strip()) for option in "abc"]
+            # Letter case is meaningful in capitalization assessment items.
+            compare = options if row.get("topic_id") == "GRAMMAR-22" else [x.casefold() for x in options]
+            if len(set(compare)) != 3 or any(not x for x in options):
                 error("options", "must have three distinct nonblank options")
             if row.get("correct_key") not in ("A", "B", "C"):
                 error("correct_key", "must be A, B or C")
