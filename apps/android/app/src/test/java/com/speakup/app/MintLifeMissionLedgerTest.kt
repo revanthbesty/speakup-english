@@ -22,6 +22,18 @@ class MintLifeMissionLedgerTest {
         assertEquals(0, MintLifeMissionLedger.completedMissionCount(second, "2026-10-20"))
     }
 
+    @Test fun weeklyCountExcludesFutureAndExpiredRecords() {
+        val missionKeys = setOf(
+            "2026-10-13|$mission",
+            "2026-10-19|$mission",
+            "2026-10-20|$mission",
+            "2026-10-12|$mission",
+            "bad|$mission"
+        )
+        assertEquals(2, MintLifeMissionLedger.daysPractised(missionKeys, day))
+        assertEquals(0, MintLifeMissionLedger.daysPractised(missionKeys, "invalid"))
+    }
+
     @Test fun storageFiltersInvalidOrUnknownEntries() {
         val result = MintLifeMissionLedger.recordVerified(
             setOf("junk", "$day|unapproved-item", "2026-02-30|$mission"),
