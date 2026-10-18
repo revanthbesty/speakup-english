@@ -29,6 +29,8 @@ internal fun MintProfessionalHub(
     var section by remember { mutableStateOf("Hub") }
     var industry by remember { mutableStateOf("Business") }
     var industryQuery by remember { mutableStateOf("") }
+    var selectedAnswer by remember { mutableIntStateOf(-1) }
+    var answerChecked by remember { mutableStateOf(false) }
     BackHandler(enabled = section != "Hub") {
         section = if (section == "Industry") "Industries" else "Hub"
     }
@@ -69,12 +71,35 @@ internal fun MintProfessionalHub(
                 val matchingIndustries = industries.filter { it.contains(industryQuery.trim(), ignoreCase = true) }
                 if (matchingIndustries.isEmpty()) Text("No matching industries. Try another search.", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 matchingIndustries.forEach { name ->
-                    OutlinedButton(onClick = { industry = name; section = "Industry" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("$name →", modifier = Modifier.fillMaxWidth()) }
+                    OutlinedButton(onClick = { industry = name; section = "Industry"; selectedAnswer = -1; answerChecked = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("$name →", modifier = Modifier.fillMaxWidth()) }
                 }
             }
             "Industry" -> {
                 Text(industry, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text("A dedicated $industry course is not published yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                val pilotItem = MintProfessionalPilot.items.firstOrNull { it.industry == industry }
+                if (pilotItem != null) {
+                    Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+                        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("Original offline practice · ${pilotItem.situation}", fontWeight = FontWeight.Bold)
+                            Text(pilotItem.prompt)
+                            pilotItem.answers.forEachIndexed { index, answer ->
+                                OutlinedButton(onClick = { selectedAnswer = index; answerChecked = false },
+                                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                                    Text("${if (selectedAnswer == index) "●" else "○"} ${index + 1}. $answer", modifier = Modifier.fillMaxWidth())
+                                }
+                            }
+                            Button(onClick = { answerChecked = true }, enabled = selectedAnswer >= 0,
+                                modifier = Modifier.fillMaxWidth()) { Text("Check answer") }
+                            if (answerChecked) {
+                                Text(if (selectedAnswer == pilotItem.correctIndex) "Correct!" else "Try another reply.")
+                                Text(pilotItem.explanation)
+                            }
+                            Text("Preview only. No XP, certificate or new Mint Bloom is awarded.", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+
                 Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Available now", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
