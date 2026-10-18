@@ -10,6 +10,8 @@ import java.util.Locale
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -40,11 +42,11 @@ private val NightAccent = Color(0xFF72D9BA)
 
 private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
 private val learningPaths = listOf(
-    LearningPath("zero", "Start from zero", "Letters, everyday words and first sentences", "Begin with friendly introductions and simple phrases."),
-    LearningPath("basic", "I know a little English", "Build vocabulary, grammar and daily conversation", "Practise the four beginner conversation lessons."),
-    LearningPath("speaking", "I understand but cannot speak", "Gain confidence through guided speaking", "Open Speaking Studio and practise one short response."),
-    LearningPath("advanced", "I want advanced English", "Fluency, presentations and precise vocabulary", "Start with speaking practice while advanced courses are developed."),
-    LearningPath("exams", "I am preparing for exams", "IELTS and other English exam pathways", "Practise reading and speaking while exam modules are developed.")
+    LearningPath("zero", "English Explorer", "Letters, everyday words and first sentences", "Begin with friendly introductions and simple phrases."),
+    LearningPath("basic", "Confidence Builder", "Build vocabulary, grammar and daily conversation", "Practise the four beginner conversation lessons."),
+    LearningPath("speaking", "Speaking Accelerator", "Gain confidence through guided speaking", "Open Speaking Studio and practise one short response."),
+    LearningPath("advanced", "English Pro", "Fluency, presentations and precise vocabulary", "Start with speaking practice while advanced courses are developed."),
+    LearningPath("exams", "Exam Champion", "IELTS and other English exam pathways", "Practise reading and speaking while exam modules are developed.")
 )
 
 
@@ -161,6 +163,7 @@ fun PremiumSpeakUp() {
     val preferences = remember(context) { context.getSharedPreferences(MintIdentity.legacyPreferencesFile, android.content.Context.MODE_PRIVATE) }
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
+    var learnerAgeBand by remember { mutableStateOf(preferences.getString("mint_age_band", MintExperiencePolicy.initialAgeBand(learnerAge)) ?: MintExperiencePolicy.initialAgeBand(learnerAge)) }
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
     var learningGoal by remember { mutableStateOf(preferences.getString("learning_goal", "Everyday conversation") ?: "Everyday conversation") }
     var chosenDifficulty by remember { mutableStateOf(preferences.getString("learning_difficulty", "Easy") ?: "Easy") }
@@ -169,7 +172,12 @@ fun PremiumSpeakUp() {
     val learningGoals = listOf("Start speaking", "Everyday conversation", "School & exams", "Work & interviews", "Reading & writing", "Travel")
     val followSystemDark = isSystemInDarkTheme()
     var themePreference by remember { mutableStateOf(preferences.getString("mint_theme_mode", if (preferences.getBoolean("dark_appearance", false)) "dark" else "system") ?: "system") }
-    val darkAppearance = when (themePreference) { "dark" -> true; "light" -> false; else -> followSystemDark }
+    var reduceMotion by remember { mutableStateOf(preferences.getBoolean("mint_reduce_motion", false)) }
+    var eyeComfort by remember { mutableStateOf(preferences.getBoolean("mint_eye_comfort", false)) }
+    val accessibilityScale = android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+    val motionReduced = MintExperiencePolicy.reducedMotion(reduceMotion, accessibilityScale == 0f)
+    val localHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    val darkAppearance = MintExperiencePolicy.nightModeEnabled(themePreference, followSystemDark, localHour)
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
     var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", -1)) }
@@ -286,16 +294,33 @@ fun PremiumSpeakUp() {
                 }
                 Spacer(Modifier.height(12.dp))
                 if (showPathSetup) {
+                    Surface(color = softSurfaceColor, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(18.dp)) {
+                            Text("🌿  Welcome to English Mint", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("Fresh Games. Fluent Voices. Choose your journey; speak from day one.", color = secondaryTextColor)
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
                     Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                     Text("Choose the path that fits you. You can change it any time.", color = secondaryTextColor)
                     Spacer(Modifier.height(16.dp))
                     Text("Your name (optional)", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                     OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                     Text("Who is learning?", fontWeight = FontWeight.SemiBold, color = primaryTextColor)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf("Kids", "Teen", "Adult").forEach { age ->
-                            FilterChip(selected = learnerAge == age, onClick = { learnerAge = age }, label = { Text(age) })
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        MintExperiencePolicy.ageBands.forEach { band ->
+                            FilterChip(
+                                selected = learnerAgeBand == band,
+                                onClick = {
+                                    learnerAgeBand = band
+                                    learnerAge = MintExperiencePolicy.legacyAge(band)
+                                },
+                                label = { Text(band) }
+                            )
                         }
+                    }
+                    if (MintExperiencePolicy.childSafetyEnabled(learnerAgeBand)) {
+                        Text("Child and teen accounts stay private. Public chat and sharing are not enabled.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                     }
                     Spacer(Modifier.height(10.dp))
                     Text("Why are you learning English?", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
@@ -326,7 +351,8 @@ fun PremiumSpeakUp() {
                     }
                     Spacer(Modifier.height(12.dp))
                     Button(onClick = {
-                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putInt("daily_goal", dailyGoal).putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty).putString("profile_name", profileName).apply()
+                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putString("mint_age_band", learnerAgeBand).putInt("daily_goal", dailyGoal).putString("mint_age_band", learnerAgeBand)
+                                .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty).putString("profile_name", profileName).apply()
                         showPathSetup = false
                         showPlacement = !placementDone
                         page = "Today"
@@ -399,20 +425,31 @@ fun PremiumSpeakUp() {
                         ) {
                             Column(
                                 modifier = Modifier.background(
-                                    Brush.linearGradient(listOf(Color(0xFF4935B8), Color(0xFF8A5CF6), Color(0xFFB269CF))),
+                                    Brush.linearGradient(if (eyeComfort || darkAppearance)
+                                        listOf(Color(0xFF123E43), Color(0xFF166457), Color(0xFF1B7168))
+                                        else listOf(Color(0xFF087B67), Color(0xFF0EAF8A), Color(0xFF58A6A5))),
                                     RoundedCornerShape(28.dp)
                                 ).padding(22.dp)
                             ) {
                                 Text(if (profileName.isBlank()) "Your learning journey" else "Welcome, $profileName!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-                                Text("$learningGoal  •  $chosenDifficulty", color = Color.White.copy(alpha = 0.90f))
+                                Text("${MintExperiencePolicy.selectedJourney(chosenPath)}  •  $chosenDifficulty", color = Color.White.copy(alpha = 0.90f))
+                                Text("Fresh Games. Fluent Voices.", color = Color.White.copy(alpha = 0.90f), style = MaterialTheme.typography.bodySmall)
                                 Spacer(Modifier.height(14.dp))
                                 Text("$xp XP   ✦   ${completedIds.size} lessons completed", color = Color.White, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(12.dp))
                                 Button(
-                                    onClick = { page = "Learn" },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF4935B8))
-                                ) { Text("Continue learning  →", fontWeight = FontWeight.Bold) }
+                                    onClick = { page = "Speak" },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))
+                                ) { Text("Start speaking  →", fontWeight = FontWeight.Bold) }
+                                TextButton(onClick = { page = "Games" }) { Text("Explore games", color = Color.White) }
                             }
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        Text("Your 5-minute adventure", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("One game, one spoken sentence, and a natural stopping point.", color = secondaryTextColor)
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            Button(onClick = { page = "Games" }, modifier = Modifier.weight(1f)) { Text("Play") }
+                            OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
                         }
                         Spacer(Modifier.height(20.dp))
                         Text("Your progress", style = MaterialTheme.typography.headlineSmall, color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -421,13 +458,13 @@ fun PremiumSpeakUp() {
                         val masteredGames = puzzleAwarded.size + riddleAwards.size + vocabularyMastered.size + grammarMastered.size + scenarioMastered.size + listeningMastered.size + readingMastered.size
                         val availableGames = lessons.size + riddles.size + vocabularyCards.size + grammarQuestions.size + conversationScenarios.size + listeningChecks.size + readingPassages.size
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            ProgressTile("Lessons", "${completedIds.size} / ${lessons.size}", completedIds.size.toFloat() / lessons.size.coerceAtLeast(1), Color(0xFF7456EF), Color(0xFFAC83FA), Modifier.weight(1f))
-                            ProgressTile("Games", "$masteredGames / $availableGames", masteredGames.toFloat() / availableGames.coerceAtLeast(1), Color(0xFFFF6A70), Color(0xFFFFB267), Modifier.weight(1f))
+                            ProgressTile("Lessons", "${completedIds.size} / ${lessons.size}", completedIds.size.toFloat() / lessons.size.coerceAtLeast(1), Color(0xFF7456EF), Color(0xFFAC83FA), Modifier.weight(1f), motionReduced)
+                            ProgressTile("Games", "$masteredGames / $availableGames", masteredGames.toFloat() / availableGames.coerceAtLeast(1), Color(0xFFFF6A70), Color(0xFFFFB267), Modifier.weight(1f), motionReduced)
                         }
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            ProgressTile("Reading", "${readingMastered.size} / ${readingPassages.size}", readingMastered.size.toFloat() / readingPassages.size.coerceAtLeast(1), Color(0xFF178D8D), Color(0xFF50CDB7), Modifier.weight(1f))
-                            ProgressTile("Listening", "${listeningMastered.size} / ${listeningChecks.size}", listeningMastered.size.toFloat() / listeningChecks.size.coerceAtLeast(1), Color(0xFF2770D5), Color(0xFF66A9FA), Modifier.weight(1f))
+                            ProgressTile("Reading", "${readingMastered.size} / ${readingPassages.size}", readingMastered.size.toFloat() / readingPassages.size.coerceAtLeast(1), Color(0xFF178D8D), Color(0xFF50CDB7), Modifier.weight(1f), motionReduced)
+                            ProgressTile("Listening", "${listeningMastered.size} / ${listeningChecks.size}", listeningMastered.size.toFloat() / listeningChecks.size.coerceAtLeast(1), Color(0xFF2770D5), Color(0xFF66A9FA), Modifier.weight(1f), motionReduced)
                         }
                         Spacer(Modifier.height(10.dp))
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
@@ -951,7 +988,7 @@ fun PremiumSpeakUp() {
                     "Profile" -> {
                         Text("Appearance", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("system" to "System", "light" to "Light", "dark" to "Dark").forEach { (mode, label) ->
+                            listOf("system" to "System", "light" to "Light", "dark" to "Dark", "night" to "Night").forEach { (mode, label) ->
                                 FilterChip(
                                     selected = themePreference == mode,
                                     onClick = {
@@ -962,14 +999,33 @@ fun PremiumSpeakUp() {
                                 )
                             }
                         }
-                        Text("Night-friendly colors reduce glare for some users; take regular screen breaks.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Text("Scheduled Night: 8 PM–6 AM device time. Light and Dark overrides remain available.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Eye comfort: softer hero colors", color = primaryTextColor, modifier = Modifier.weight(1f))
+                            Switch(checked = eyeComfort, onCheckedChange = {
+                                eyeComfort = it
+                                preferences.edit().putBoolean("mint_eye_comfort", it).apply()
+                            })
+                        }
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Reduce animations", color = primaryTextColor, modifier = Modifier.weight(1f))
+                            Switch(checked = reduceMotion, onCheckedChange = {
+                                reduceMotion = it
+                                preferences.edit().putBoolean("mint_reduce_motion", it).apply()
+                            })
+                        }
+                        Text("Respect device brightness, rest breaks and accessibility settings. Dark mode does not prevent eye damage.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                         Text("Age group", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("Kids", "Teen", "Adult").forEach { age ->
-                                FilterChip(selected = learnerAge == age, onClick = { learnerAge = age; profileFeedback = "" }, label = { Text(age) })
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            MintExperiencePolicy.ageBands.forEach { band ->
+                                FilterChip(selected = learnerAgeBand == band, onClick = {
+                                    learnerAgeBand = band
+                                    learnerAge = MintExperiencePolicy.legacyAge(band)
+                                    profileFeedback = ""
+                                }, label = { Text(band) })
                             }
                         }
                         Text("Learning purpose", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -1111,18 +1167,18 @@ fun PremiumSpeakUp() {
             }
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
-                listOf("Today", "Learn", "Games", "Review", "Profile").forEach { tab ->
+                listOf("Today", "Games", "Speak", "Review", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
-                        "Learn" -> "▣"
+                        "Speak" -> "♫"
                         "Games" -> "✦"
                         "Review" -> "▥"
                         else -> "◉"
                     }
-                    val isActive = page == tab || (page == "Speak" && tab == "Learn")
+                    val isActive = page == tab || (page == "Learn" && tab == "Today")
                     val iconColor by animateColorAsState(
                         targetValue = if (isActive) accentTextColor else secondaryTextColor,
-                        animationSpec = tween(durationMillis = 220), label = "nav-$tab"
+                        animationSpec = tween(durationMillis = if (motionReduced) 0 else 200), label = "nav-$tab"
                     )
                     NavigationBarItem(
                         selected = isActive,
@@ -1147,8 +1203,8 @@ fun PremiumSpeakUp() {
 
 
 @Composable
-private fun ProgressTile(title: String, amount: String, progress: Float, first: Color, second: Color, modifier: Modifier = Modifier) {
-    val animated by animateFloatAsState(targetValue = progress.coerceIn(0f, 1f), animationSpec = tween(durationMillis = 650), label = "progress-$title")
+private fun ProgressTile(title: String, amount: String, progress: Float, first: Color, second: Color, modifier: Modifier = Modifier, reducedMotion: Boolean = false) {
+    val animated by animateFloatAsState(targetValue = progress.coerceIn(0f, 1f), animationSpec = tween(durationMillis = if (reducedMotion) 0 else 500), label = "progress-$title")
     Column(
         modifier = modifier.background(Brush.linearGradient(listOf(first, second)), RoundedCornerShape(20.dp)).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
