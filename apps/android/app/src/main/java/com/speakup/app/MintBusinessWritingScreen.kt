@@ -26,9 +26,8 @@ internal fun MintBusinessWritingScreen(onVerified: (String) -> Unit = {}) {
   Text("Question ${index+1} of ${items.size}")
   Text(item.context,style=MaterialTheme.typography.titleMedium)
   item.options.forEachIndexed { i,answer ->
-   OutlinedButton(onClick={selected=i;checked=false},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
-    Text("${if(selected==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
-   }
+   MintAnswerChoice(label = "${i+1}. $answer", selected = selected == i,
+                onClick = { selected = i; checked = false })
   }
   Button(onClick={checked=true;if(selected==item.best)onVerified(item.id)},enabled=selected>=0,modifier=Modifier.fillMaxWidth()){Text("Check answer")}
   if(checked) { Text(if(selected==item.best)"Suitable response!" else "Try a clearer choice.");Text(item.explanation) }
