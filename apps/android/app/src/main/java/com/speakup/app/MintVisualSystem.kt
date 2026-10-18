@@ -31,6 +31,21 @@ internal object MintVisualTokens {
 }
 
 @Composable
+internal fun MintBrandHeader() {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Image(painter = painterResource(id = R.drawable.mint_mark),
+            contentDescription = "English Mint logo", modifier = Modifier.size(44.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            Text("English Mint", style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground)
+            Text("Fresh Games. Fluent Voices.", style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
+        }
+    }
+}
+
+@Composable
 internal fun MintSectionHeading(title: String, description: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold,
