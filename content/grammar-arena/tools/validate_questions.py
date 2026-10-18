@@ -2,7 +2,6 @@
 """Offline, standard-library-only Grammar Arena CSV draft validator."""
 import argparse
 import csv
-import hashlib
 import json
 import re
 from collections import Counter
