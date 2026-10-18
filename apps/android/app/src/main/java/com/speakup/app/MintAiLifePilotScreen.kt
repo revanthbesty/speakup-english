@@ -46,30 +46,41 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
  }
  Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(10.dp)) {
   TextButton(onClick={if(section=="Home")onBack() else section="Home"}) {Text("← "+if(section=="Home")"Home" else "AI Life")}
-  Text("AI Life · offline pilot",style=MaterialTheme.typography.headlineSmall)
-  Text("Private, original scripted learning. No local LLM installed, no paid AI, no camera capture or public family groups.")
+  MintSectionHeading("AI Life", "Real-world English practice • Private and offline")
   when(section) {
    "Home" -> {
-    Text("Today's verified mission: ${MintLifeMissionLedger.completedMissionCount(missionEvidence,today)} of 1 original café conversation",style=MaterialTheme.typography.bodyMedium)
-    Text("Finish all three correct dialogue turns to record a private daily completion. Opening an activity does not count.",style=MaterialTheme.typography.bodySmall)
-    Text("Café practice recorded on ${MintLifeMissionLedger.daysPractised(missionEvidence,today)} of the last 7 days (this device only).",
-      style=MaterialTheme.typography.bodySmall)
-    if(missionEvidence.isNotEmpty()) {
-     TextButton(onClick={showClearMissionPrompt=true}){Text("Delete AI Life daily mission history")}
+    MintDashboardHero(
+     kicker="Virtual City • Everyday English",
+     title="Learn English for real life",
+     description="Start with a café conversation. The scenarios use reviewed local scripts, not a live AI chat service.",
+     action="Enter the café  →",
+     onAction={section="City";cityTurn=0;cityChoice=-1;cityFeedback=false}
+    )
+    MintInfoBanner("Today's practice",
+     "${MintLifeMissionLedger.completedMissionCount(missionEvidence,today)} of 1 café mission completed • ${MintLifeMissionLedger.daysPractised(missionEvidence,today)} of the last 7 days practiced.",
+     MintVisualTokens.mint)
+    MintSectionHeading("Choose an activity","All activities work without paid AI")
+    Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+     MintDestinationTile("Branching story","Choose what happens","📖",MintVisualTokens.violet,Modifier.weight(1f)){
+      section="Story";storyId="start"
+     }
+     MintDestinationTile("Mint Buddy","Text conversation","🎤",MintVisualTokens.blue,Modifier.weight(1f)){
+      section="Buddy"
+     }
     }
-
-    Button(onClick={section="City";cityTurn=0;cityChoice=-1;cityFeedback=false},modifier=Modifier.fillMaxWidth()){Text("Virtual City · café dialogue")}
-    OutlinedButton(onClick={section="Story";storyId="start"},modifier=Modifier.fillMaxWidth()){Text("Branching story · library")}
-    OutlinedButton(onClick={section="Words"},modifier=Modifier.fillMaxWidth()){Text("Camera Words · manual fallback")}
-    OutlinedButton(onClick={section="Buddy"},modifier=Modifier.fillMaxWidth()){Text("Mint Buddy · offline text practice")}
-    Text("Speaking Passport recording, learner history, daily plans and child collaboration need further privacy and device integration.",style=MaterialTheme.typography.bodySmall)
+    MintDestinationTile("Words around you","Manual vocabulary, no camera needed","📷",
+      MintVisualTokens.orange,Modifier.fillMaxWidth()){section="Words"}
+    if(missionEvidence.isNotEmpty()) {
+     TextButton(onClick={showClearMissionPrompt=true}){Text("Delete daily mission history")}
+    }
+    Text("Voice recording, automatic camera recognition and family sharing are not enabled in this pilot.",
+      color=MaterialTheme.colorScheme.onSurfaceVariant,style=MaterialTheme.typography.bodySmall)
    }
    "Buddy" -> { MintBuddyOfflineScreen() }
    "City" -> {
     if(cityTurn<MintLifeVirtualCity.cafe.size) {
      val turn=MintLifeVirtualCity.cafe[cityTurn]
-     Text("Café · turn ${cityTurn+1}/3")
-     Text(turn.prompt,style=MaterialTheme.typography.titleMedium)
+     MintInfoBanner("Café conversation · turn ${cityTurn+1}/3",turn.prompt,MintVisualTokens.blue)
      turn.options.forEachIndexed { i,answer ->
       OutlinedButton(onClick={cityChoice=i;cityFeedback=false},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {Text("${i+1}. $answer")}
      }
@@ -110,9 +121,9 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
     if(node.choices.isEmpty()) Button(onClick={storyId="start"}){Text("Read again")}
    }
    else -> {
-    Text("Manual word practice",style=MaterialTheme.typography.titleMedium)
+    MintSectionHeading("Words around you", "Manual practice. Camera permission is not needed.")
     MintLifeCameraWords.manualWords.forEach{item->
-     Text("${item.label}: ${item.example}")
+     MintInfoBanner(item.label,item.example,MintVisualTokens.orange)
     }
     Text("This demo does not request the camera or transmit images.")
    }
