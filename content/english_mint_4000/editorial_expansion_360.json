@@ -25,7 +25,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 1",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that hands and a face but no arms?",
+      "content": "Clue: hands and a face but no arms?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "clock"
@@ -196,7 +196,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 2",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that reflects the person looking at it?",
+      "content": "Clue: reflects the person looking at it?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "mirror"
@@ -367,7 +367,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 3",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that becomes shorter while writing?",
+      "content": "Clue: becomes shorter while writing?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "pencil"
@@ -538,7 +538,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 4",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that steps without walking?",
+      "content": "Clue: steps without walking?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "ladder"
@@ -709,7 +709,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 5",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that carries a mailed letter?",
+      "content": "Clue: carries a mailed letter?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "envelope"
@@ -880,7 +880,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 6",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that opens a locked door?",
+      "content": "Clue: opens a locked door?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "key"
@@ -1051,7 +1051,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 7",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that carries books on shoulders?",
+      "content": "Clue: carries books on shoulders?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "backpack"
@@ -1222,7 +1222,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 8",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that measures temperature?",
+      "content": "Clue: measures temperature?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "thermometer"
@@ -1393,7 +1393,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 9",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that points toward north?",
+      "content": "Clue: points toward north?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "compass"
@@ -1564,7 +1564,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 10",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that shows roads without having roads?",
+      "content": "Clue: shows roads without having roads?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "map"
@@ -1735,7 +1735,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 11",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that saves the page in a book?",
+      "content": "Clue: saves the page in a book?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "bookmark"
@@ -1906,7 +1906,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 12",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that explains the meaning of words?",
+      "content": "Clue: explains the meaning of words?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "dictionary"
@@ -2077,7 +2077,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 13",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that shows the dates of a year?",
+      "content": "Clue: shows the dates of a year?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "calendar"
@@ -2248,7 +2248,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 14",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that controls traffic using red amber green?",
+      "content": "Clue: controls traffic using red amber green?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "traffic light"
@@ -2419,7 +2419,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 15",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that a secret that unlocks an account?",
+      "content": "Clue: a secret that unlocks an account?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "password"
@@ -2590,7 +2590,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 16",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that records what a customer paid?",
+      "content": "Clue: records what a customer paid?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "receipt"
@@ -2761,7 +2761,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 17",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that lists departure and arrival times?",
+      "content": "Clue: lists departure and arrival times?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "timetable"
@@ -2932,7 +2932,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 18",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that shelters you from rain?",
+      "content": "Clue: shelters you from rain?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "umbrella"
@@ -3103,7 +3103,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 19",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that lets people cross a river?",
+      "content": "Clue: lets people cross a river?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "bridge"
@@ -3274,7 +3274,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 20",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that stores energy for devices?",
+      "content": "Clue: stores energy for devices?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "battery"
@@ -3445,7 +3445,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 21",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that requests payment for goods?",
+      "content": "Clue: requests payment for goods?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "invoice"
@@ -3616,7 +3616,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 22",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that plans how money is spent?",
+      "content": "Clue: plans how money is spent?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "budget"
@@ -3787,7 +3787,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 23",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that latest acceptable completion time?",
+      "content": "Clue: latest acceptable completion time?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "deadline"
@@ -3958,7 +3958,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 24",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that reserved time for a meeting?",
+      "content": "Clue: reserved time for a meeting?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "appointment"
@@ -4129,7 +4129,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 25",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that short version retaining key points?",
+      "content": "Clue: short version retaining key points?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "summary"
@@ -4300,7 +4300,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 26",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that support for a factual claim?",
+      "content": "Clue: support for a factual claim?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "evidence"
@@ -4471,7 +4471,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 27",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that tentative testable explanation?",
+      "content": "Clue: tentative testable explanation?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "hypothesis"
@@ -4642,7 +4642,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 28",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that case not following the usual rule?",
+      "content": "Clue: case not following the usual rule?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "exception"
@@ -4813,7 +4813,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 29",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that agreement reached through concessions?",
+      "content": "Clue: agreement reached through concessions?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "compromise"
@@ -4984,7 +4984,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 30",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that approximate rather than exact value?",
+      "content": "Clue: approximate rather than exact value?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "estimate"
@@ -5155,7 +5155,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 31",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that broad agreement among people?",
+      "content": "Clue: broad agreement among people?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "consensus"
@@ -5326,7 +5326,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 32",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that surrounding details giving meaning?",
+      "content": "Clue: surrounding details giving meaning?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "context"
@@ -5497,7 +5497,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 33",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that comparison that explains an idea?",
+      "content": "Clue: comparison that explains an idea?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "analogy"
@@ -5668,7 +5668,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 34",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that something taken as true without proof?",
+      "content": "Clue: something taken as true without proof?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "assumption"
@@ -5839,7 +5839,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 35",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that credit showing the source of an idea?",
+      "content": "Clue: credit showing the source of an idea?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "citation"
@@ -6010,7 +6010,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 36",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that wording with multiple interpretations?",
+      "content": "Clue: wording with multiple interpretations?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "ambiguity"
@@ -6181,7 +6181,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 37",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that logical relationship among ideas?",
+      "content": "Clue: logical relationship among ideas?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "coherence"
@@ -6352,7 +6352,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 38",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that conclusion inferred from clues?",
+      "content": "Clue: conclusion inferred from clues?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "inference"
@@ -6523,7 +6523,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 39",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that unfair influence on judgment?",
+      "content": "Clue: unfair influence on judgment?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "bias"
@@ -6694,7 +6694,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 40",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that independent supporting evidence?",
+      "content": "Clue: independent supporting evidence?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "corroboration"
@@ -6865,7 +6865,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 41",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that action reducing the harm from a risk?",
+      "content": "Clue: action reducing the harm from a risk?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "mitigation"
@@ -7036,7 +7036,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 42",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that assessment of practical possibility?",
+      "content": "Clue: assessment of practical possibility?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "feasibility"
@@ -7207,7 +7207,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 43",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that obligation to account for actions?",
+      "content": "Clue: obligation to account for actions?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "accountability"
@@ -7378,7 +7378,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 44",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that openness about processes?",
+      "content": "Clue: openness about processes?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "transparency"
@@ -7549,7 +7549,7 @@
       "review_status": "needs_human_review",
       "title": "Riddle 45",
       "objective": "Use descriptive language to infer a noun",
-      "content": "I am something that limitation attached to a claim?",
+      "content": "Clue: limitation attached to a claim?",
       "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "qualification"
