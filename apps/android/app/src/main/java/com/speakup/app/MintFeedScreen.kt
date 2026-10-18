@@ -50,7 +50,7 @@ internal fun MintFeedScreen(
     var speakMomentOpen by remember { mutableStateOf(false) }
     var suggestedReplyVisible by remember { mutableStateOf(false) }
     val visibleClips = MintFeedCatalog.visible(learnerAge, level, blockedIds)
-    val currentIndex = clipIndex.coerceIn(0, (visibleClips.size - 1).coerceAtLeast(0))
+    val currentIndex = MintClipsPlayback.safeIndex(clipIndex, visibleClips.size)
     val clip = visibleClips.getOrNull(currentIndex)
 
     fun reset(next: Int) {
@@ -65,10 +65,10 @@ internal fun MintFeedScreen(
         suggestedReplyVisible = false
     }
 
-    LaunchedEffect(clip?.id, frameIndex, playing, reducedMotion) {
-        if (playing && !reducedMotion && clip != null && !wordSheetOpen && !speakMomentOpen) {
+    LaunchedEffect(clip?.id, frameIndex, playing, reducedMotion, wordSheetOpen, speakMomentOpen, infoOpen, reportOpen) {
+        if (clip != null && MintClipsPlayback.mayAutoAdvance(playing, reducedMotion, wordSheetOpen || speakMomentOpen || infoOpen || reportOpen)) {
             delay(2800L)
-            if (frameIndex < clip.frames.lastIndex) frameIndex += 1 else playing = false
+            if (frameIndex < clip.frames.lastIndex) frameIndex = MintClipsPlayback.next(frameIndex, clip.frames.size) else playing = false
         }
     }
 
@@ -88,7 +88,7 @@ internal fun MintFeedScreen(
         } else {
             Text("STORY ${currentIndex + 1} / ${visibleClips.size} · ${clip.title}", fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary)
-            val frame = clip.frames[frameIndex.coerceIn(0, clip.frames.lastIndex)]
+            val frame = clip.frames[MintClipsPlayback.safeIndex(frameIndex, clip.frames.size)]
             var dragDistance by remember(clip.id) { mutableFloatStateOf(0f) }
             Surface(
                 color = Color.Transparent,
@@ -96,8 +96,8 @@ internal fun MintFeedScreen(
                     detectVerticalDragGestures(
                         onVerticalDrag = { _, dragAmount -> dragDistance += dragAmount },
                         onDragEnd = {
-                            if (dragDistance < -70f && currentIndex < visibleClips.lastIndex) reset(currentIndex + 1)
-                            if (dragDistance > 70f && currentIndex > 0) reset(currentIndex - 1)
+                            val target = MintClipsPlayback.swipeTarget(currentIndex, visibleClips.size, dragDistance)
+                            if (target != currentIndex) reset(target)
                             dragDistance = 0f
                         },
                         onDragCancel = { dragDistance = 0f }
@@ -120,14 +120,14 @@ internal fun MintFeedScreen(
                     Text(if (captionVisible) frame.caption else "Captions hidden",
                         color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(frame.spokenLine, color = Color.White.copy(alpha = 0.9f))
-                    LinearProgressIndicator(progress = { (frameIndex + 1).toFloat() / clip.frames.size },
+                    LinearProgressIndicator(progress = { MintClipsPlayback.progress(frameIndex, clip.frames.size) },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFF7FE5C8))
                     Text("Scene ${frameIndex + 1} of ${clip.frames.size}", color = Color.White)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Button(onClick = { frameIndex = (frameIndex - 1).coerceAtLeast(0); playing = false },
+                        Button(onClick = { frameIndex = MintClipsPlayback.previous(frameIndex, clip.frames.size); playing = false },
                             enabled = frameIndex > 0) { Text("Back") }
                         Button(onClick = { if (frameIndex < clip.frames.lastIndex) {
-                            frameIndex += 1; playing = false
+                            frameIndex = MintClipsPlayback.next(frameIndex, clip.frames.size); playing = false
                         } else playing = false }, enabled = frameIndex < clip.frames.lastIndex) {
                             Text("Next scene")
                         }
@@ -138,7 +138,7 @@ internal fun MintFeedScreen(
                             playing = !playing
                         }) { Text(if (playing) "Pause scenes" else "Play scenes") }
                     } else Text("Reduced motion: manual scene controls are enabled.", color = Color.White)
-                    Text("Use Next Story to explore more", color = Color.White.copy(alpha = 0.75f),
+                    Text("Swipe up for next story or use Next Story", color = Color.White.copy(alpha = 0.75f),
                         style = MaterialTheme.typography.labelSmall)
                 }
             }
@@ -146,7 +146,7 @@ internal fun MintFeedScreen(
                 OutlinedButton(onClick = { captionVisible = !captionVisible }) {
                     Text(if (captionVisible) "Hide captions" else "Show captions")
                 }
-                OutlinedButton(onClick = { showListening = !showListening }) {
+                OutlinedButton(onClick = { playing = false; showListening = !showListening }) {
                     Text(if (showListening) "Hide audio" else "Listen to line")
                 }
             }
@@ -168,10 +168,10 @@ internal fun MintFeedScreen(
             Text(clip.description, style = MaterialTheme.typography.bodyMedium)
             Text("Original offline story · no public chat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { onReact(clip.id) }) {
+                OutlinedButton(onClick = { playing = false; onReact(clip.id) }) {
                     Text(if (clip.id in reactionIds) "♥ Saved reaction" else "♡ React privately")
                 }
-                OutlinedButton(onClick = { infoOpen = true }) { Text("Safety tools") }
+                OutlinedButton(onClick = { playing = false; infoOpen = true }) { Text("Safety tools") }
             }
             Text("Story Challenge", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text(clip.challengePrompt)
@@ -223,8 +223,8 @@ internal fun MintFeedScreen(
                 }
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { reset(currentIndex - 1) }, enabled = currentIndex > 0) { Text("Previous story") }
-                OutlinedButton(onClick = { reset(currentIndex + 1) }, enabled = currentIndex < visibleClips.lastIndex) { Text("Next story") }
+                OutlinedButton(onClick = { reset(MintClipsPlayback.previous(currentIndex, visibleClips.size)) }, enabled = currentIndex > 0) { Text("Previous story") }
+                OutlinedButton(onClick = { reset(MintClipsPlayback.next(currentIndex, visibleClips.size)) }, enabled = currentIndex < visibleClips.lastIndex) { Text("Next story") }
             }
             if (currentIndex == visibleClips.lastIndex) {
                 Text("You're all caught up! Take a break, or revisit a story. No infinite autoplay.",
