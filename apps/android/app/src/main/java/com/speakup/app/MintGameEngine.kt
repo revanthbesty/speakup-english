@@ -6,9 +6,9 @@ package com.speakup.app
  * One engine powers many curated items. A variant represents an authored learning
  * activity, not an artificial count of random permutations.
  */
-internal enum class MintMechanic { CHOOSE_REPLY, MISSING_WORD, WORD_SCRAMBLE, SENTENCE_ORDER }
+internal enum class MintMechanic { CHOOSE_REPLY, MISSING_WORD, WORD_SCRAMBLE, SENTENCE_ORDER, LISTEN_AND_CHOOSE, STORY_DECISION, WORD_CONNECT, PICTURE_MATCH }
 internal enum class MintDifficulty { EASY, MEDIUM, HARD }
-internal enum class MintSkill { VOCABULARY, GRAMMAR, SPEAKING, READING }
+internal enum class MintSkill { VOCABULARY, GRAMMAR, SPEAKING, READING, LISTENING }
 
 internal data class MintGameDefinition(
     val id: String,
@@ -25,6 +25,7 @@ internal data class MintGameDefinition(
     val speakingPrompt: String,
     val minAge: Int = when(difficulty) { MintDifficulty.EASY -> 4; MintDifficulty.MEDIUM -> 8; MintDifficulty.HARD -> 13 },
     val locale: String = "en",
+    val listeningLine: String? = null,
 ) {
     fun isValid(): Boolean =
         id.isNotBlank() && version > 0 && title.isNotBlank() &&
@@ -32,8 +33,11 @@ internal data class MintGameDefinition(
             explanation.isNotBlank() && speakingPrompt.isNotBlank() &&
             tokens.size >= 2 && tokens.all { it.isNotBlank() } &&
             when(mechanic) {
-                MintMechanic.CHOOSE_REPLY, MintMechanic.MISSING_WORD ->
+                MintMechanic.CHOOSE_REPLY, MintMechanic.MISSING_WORD, MintMechanic.STORY_DECISION,
+                MintMechanic.WORD_CONNECT, MintMechanic.PICTURE_MATCH ->
                     tokens.distinct().size == tokens.size && tokens.count { it == answer } == 1
+                MintMechanic.LISTEN_AND_CHOOSE ->
+                    !listeningLine.isNullOrBlank() && tokens.distinct().size == tokens.size && tokens.count { it == answer } == 1
                 MintMechanic.WORD_SCRAMBLE ->
                     tokens.size == 1 + 1 && tokens.joinToString("").toList().sorted() == answer.toList().sorted()
                 MintMechanic.SENTENCE_ORDER ->

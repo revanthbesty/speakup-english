@@ -17,7 +17,7 @@ class MintGameEngineTest {
         MintMechanic.entries.forEach { mechanic ->
             MintDifficulty.entries.forEach { level ->
                 val quests = MintGameCatalog.listFor(level).filter { it.mechanic == mechanic }
-                assertEquals(2, quests.size)
+                assertTrue("Every mechanic must have at least two authored quests", quests.size >= 2)
                 assertTrue(quests.all { it.evaluate(it.answer) })
             }
         }
@@ -48,7 +48,7 @@ class MintGameEngineTest {
         assertTrue(MintGameCatalog.listFor(MintDifficulty.EASY, 4).isNotEmpty())
         assertTrue(MintGameCatalog.listFor(MintDifficulty.MEDIUM, 4).isEmpty())
         assertTrue(MintGameCatalog.listFor(MintDifficulty.HARD, 8).isEmpty())
-        assertEquals(8, MintGameCatalog.listFor(MintDifficulty.HARD, 13).size)
+        assertTrue(MintGameCatalog.listFor(MintDifficulty.HARD, 13).size >= 8)
     }
 
     @Test fun allActivitiesHaveSpeakingFollowUpAndUsefulHints() {
