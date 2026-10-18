@@ -15,7 +15,7 @@ internal fun MintMeetingPracticeScreen(onVerified: (String) -> Unit = {}) {
  val items=MintMeetingPractice.items.filter { it.category==category }
  val item=items[index]
  Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-  Text("Meetings & Presentations · offline pilot",style=MaterialTheme.typography.titleLarge)
+  MintScreenHeading("Meetings & Presentations", "Build workplace communication confidence.", "PROFESSIONAL ENGLISH")
   Text("Original communication practice, not a certified presentation score.")
   Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
    listOf("Meeting","Presentation").forEach { name ->
