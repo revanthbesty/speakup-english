@@ -1808,7 +1808,7 @@ fun PremiumSpeakUp() {
                                     modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)
                                         .semantics {
                                             contentDescription = "Option ${index + 1} of ${question.options.size}: $choice"
-                                            selected = selected
+                                            this.selected = selected
                                         }
                                 ) {
                                     Row(Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
