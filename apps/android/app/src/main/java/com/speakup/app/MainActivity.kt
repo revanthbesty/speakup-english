@@ -1017,7 +1017,7 @@ fun PremiumSpeakUp() {
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
                         Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Mint Quests", "Real-World Quests", "Co-op Stories", "Career & Exam", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
+                            listOf("Mint Quests", "Real-World Quests", "Co-op Stories", "Career & Exam", "Grammar Formats", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
@@ -1506,6 +1506,8 @@ fun PremiumSpeakUp() {
                                 vocabularyChoice = ""
                                 vocabularyChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
+                        } else if (gameMode == "Grammar Formats") {
+                            MintGrammarFormatsScreen()
                         } else if (gameMode == "Grammar") {
                             Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
                             val grammarSetSize = MintGrammarPilotEngine.setSize
