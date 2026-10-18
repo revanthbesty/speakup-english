@@ -79,7 +79,7 @@ internal fun MintWelcomeFlow(
             Button(onClick = { onFinish(false) }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Start today's adventure") }
             TextButton(onClick = { onFinish(true) }, modifier = Modifier.fillMaxWidth()) { Text("Take optional level check") }
         } else {
-            Button(onClick = { step++ }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text(if (step == 0) "Next →" else "Continue →") }
+            if (step > 0) Button(onClick = { step++ }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)) { Text("Continue →") }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 TextButton(onClick = { if (step > 0) step-- }, enabled = step > 0) { Text("Back") }
                 TextButton(onClick = { step = 3 }) { Text("Skip optional steps") }
