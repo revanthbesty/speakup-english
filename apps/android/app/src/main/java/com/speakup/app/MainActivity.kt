@@ -891,6 +891,8 @@ fun PremiumSpeakUp() {
                                         MintMechanic.SENTENCE_ORDER -> "Sentence Builder"
                                         MintMechanic.LISTEN_AND_CHOOSE -> "Listening Quest"
                                         MintMechanic.STORY_DECISION -> "Story Decisions"
+                                        MintMechanic.WORD_CONNECT -> "Word Connect"
+                                        MintMechanic.PICTURE_MATCH -> "Picture Match"
                                     }
                                     FilterChip(selected = mintMechanic == mechanic, onClick = {
                                         mintMechanic = mechanic
@@ -940,6 +942,9 @@ fun PremiumSpeakUp() {
                                 Surface(color = surfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                                     Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                         Text(activeQuest.title, color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                        if (activeQuest.mechanic == MintMechanic.PICTURE_MATCH) {
+                                            Text(activeQuest.prompt.substringBefore(" "), style = MaterialTheme.typography.displayLarge)
+                                        }
                                         Text(activeQuest.prompt, color = primaryTextColor)
                                         if (activeQuest.mechanic == MintMechanic.LISTEN_AND_CHOOSE) {
                                             val listeningLine = activeQuest.listeningLine
