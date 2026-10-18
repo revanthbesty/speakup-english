@@ -19,7 +19,7 @@ internal object MintRealWorldQuestJson {
                 choices = listOf(q.getString("option_a"), q.getString("option_b"), q.getString("option_c")),
                 correctAnswer = q.getString("correct_answer"),
                 speakingPrompt = q.getString("speaking_prompt"),
-                status = q.getString("content_status")
+                status = q.getString("content_status"),\n                correctExplanation = q.getString("correct_explanation"),\n                wrongExplanations = listOf(q.getString("wrong_a_explanation"), q.getString("wrong_b_explanation"), q.getString("wrong_c_explanation"))
             )
         }
         require(MintRealWorldQuestGate.readyForImport(result)) { "Incomplete or malformed 100-quest catalog" }
