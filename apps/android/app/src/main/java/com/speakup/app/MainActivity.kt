@@ -318,6 +318,7 @@ fun PremiumSpeakUp() {
     var scenarioChecked by remember { mutableStateOf(false) }
     var scenarioMastered by remember { mutableStateOf((preferences.getStringSet("scenario_mastered", emptySet()) ?: emptySet()).toSet()) }
     var showHomeDetails by remember { mutableStateOf(false) }
+    var showGrammarInsights by remember { mutableStateOf(false) }
     var grammarIndex by remember { mutableIntStateOf(0) }
     var grammarBookmarks by remember { mutableStateOf((preferences.getStringSet("mint_grammar_bookmarks", emptySet()) ?: emptySet()).toSet()) }
     var grammarRevisionMissed by remember { mutableStateOf((preferences.getStringSet("mint_grammar_revision_missed", emptySet()) ?: emptySet()).toSet()) }
@@ -432,6 +433,7 @@ fun PremiumSpeakUp() {
         Surface(color = backgroundColor, contentColor = primaryTextColor) {
         Column(Modifier.fillMaxSize().statusBarsPadding()) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
+                if (showPathSetup || page == "Today") {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
                         Text(MintIdentity.displayName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
@@ -439,7 +441,8 @@ fun PremiumSpeakUp() {
                     }
 
                 }
-                Spacer(Modifier.height(12.dp))
+                }
+                Spacer(Modifier.height(if (showPathSetup || page == "Today") 12.dp else 4.dp))
                 if (showPathSetup) {
                     MintWelcomeFlow(
                         ageBand = learnerAgeBand,
@@ -1527,8 +1530,7 @@ fun PremiumSpeakUp() {
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                            Text("Release readiness: NOT APPROVED · independently reviewed content, accessibility, migrations and owner sign-off still required.",
-                                color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+
 
                             val grammarQualityIssues = remember {
                                 MintGrammarQuality.collectionIssues(grammarQuestions.map {
@@ -1541,6 +1543,13 @@ fun PremiumSpeakUp() {
                             }
 
                             val grammarAnalytics = MintGrammarAnalytics.snapshot(grammarQuestions.size,grammarMastered,grammarBookmarks,grammarRevisionMissed)
+                            TextButton(onClick = { showGrammarInsights = !showGrammarInsights },
+                                modifier = Modifier.fillMaxWidth()) {
+                                Text(if (showGrammarInsights) "Hide progress and challenge details ↑" else "View progress, review and rewards ↓")
+                            }
+                            if (showGrammarInsights) {
+                                Text("Development preview · curriculum and device accessibility review pending.",
+                                    color=secondaryTextColor,style=MaterialTheme.typography.bodySmall)
                             Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Text("🏅 ${MintGrammarChallenges.title}",color = primaryTextColor,fontWeight = FontWeight.Bold)
@@ -1596,6 +1605,7 @@ fun PremiumSpeakUp() {
                                 grammarHadError = false; grammarWrongCount = 0; grammarFirstTryCorrect = 0
                                 grammarSetNewXp = 0; grammarMissedNotes = emptyList()
                             }, modifier = Modifier.fillMaxWidth()) { Text("Review first question →") }
+                            }
                             Text("Grammar Hub · ${MintGrammarHub.packCount(grammarQuestions.size)} practice packs · ${MintGrammarHub.savedCount(grammarBookmarks, grammarQuestions.size)} bookmarked questions",
                                 color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                             Text("Pilot packs are not verified topic classifications or Easy/Medium/Hard assessments.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
