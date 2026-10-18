@@ -1,6 +1,12 @@
 package com.speakup.app
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -154,5 +160,62 @@ internal fun MintGrammarEntry(
         Text("Practice results show learning activity, not certified grammar proficiency.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+internal fun MintTabGlyph(tab: String, color: Color) {
+    Canvas(Modifier.size(25.dp)) {
+        val u = size.minDimension / 24f
+        val outline = Stroke(width = 2.2f*u, cap = StrokeCap.Round)
+        when(tab) {
+            "Today" -> {
+                val house = Path().apply {
+                    moveTo(3*u,11*u); lineTo(12*u,3*u); lineTo(21*u,11*u)
+                    lineTo(21*u,21*u); lineTo(14*u,21*u); lineTo(14*u,15*u)
+                    lineTo(10*u,15*u); lineTo(10*u,21*u); lineTo(3*u,21*u); close()
+                }
+                drawPath(house, color, style = outline)
+            }
+            "Games" -> {
+                drawRoundRect(color, topLeft=Offset(2*u,7*u),
+                    size=androidx.compose.ui.geometry.Size(20*u,13*u),
+                    cornerRadius=CornerRadius(5*u), style=outline)
+                drawLine(color,Offset(7*u,10*u),Offset(7*u,16*u),strokeWidth=2*u,cap=StrokeCap.Round)
+                drawLine(color,Offset(4*u,13*u),Offset(10*u,13*u),strokeWidth=2*u,cap=StrokeCap.Round)
+                drawCircle(color,1.3f*u,Offset(16*u,12*u))
+                drawCircle(color,1.3f*u,Offset(19*u,15*u))
+            }
+            "Feed" -> {
+                drawRoundRect(color,topLeft=Offset(2*u,4*u),
+                    size=androidx.compose.ui.geometry.Size(20*u,16*u),
+                    cornerRadius=CornerRadius(3*u), style=outline)
+                val play=Path().apply {
+                    moveTo(10*u,8*u);lineTo(16*u,12*u);lineTo(10*u,16*u);close()
+                }
+                drawPath(play,color)
+            }
+            "Speak" -> {
+                drawRoundRect(color, topLeft=Offset(8*u,3*u),
+                    size=androidx.compose.ui.geometry.Size(8*u,13*u),
+                    cornerRadius=CornerRadius(4*u),style=outline)
+                val stand=Path().apply {
+                    moveTo(5*u,12*u);lineTo(5*u,14*u)
+                    cubicTo(5*u,20*u,19*u,20*u,19*u,14*u)
+                    lineTo(19*u,12*u)
+                }
+                drawPath(stand,color,style=outline)
+                drawLine(color,Offset(12*u,20*u),Offset(12*u,23*u),strokeWidth=2*u)
+                drawLine(color,Offset(8*u,23*u),Offset(16*u,23*u),strokeWidth=2*u)
+            }
+            else -> {
+                drawCircle(color,4.3f*u,Offset(12*u,8*u),style=outline)
+                val shoulders=Path().apply {
+                    moveTo(3*u,21*u)
+                    cubicTo(3*u,12*u,21*u,12*u,21*u,21*u)
+                }
+                drawPath(shoulders,color,style=outline)
+            }
+        }
     }
 }
