@@ -83,7 +83,19 @@ private val grammarQuestions = listOf(
     GrammarQuestion("Choose the correct question.", listOf("Where you are going?", "Where are you going?", "Where going you?"), "Where are you going?", "In present continuous questions, put are before the subject."),
     GrammarQuestion("Which sentence uses an article correctly?", listOf("I saw a elephant.", "I saw an elephant.", "I saw elephant."), "I saw an elephant.", "Use an before a vowel sound, as in elephant."),
     GrammarQuestion("Choose the polite request.", listOf("Can you help me, please?", "You helping me?", "Help me you."), "Can you help me, please?", "Can you ... please? is a natural, polite request."),
-    GrammarQuestion("Which sentence uses the comparative correctly?", listOf("This book is more easy.", "This book is easiest than that.", "This book is easier than that."), "This book is easier than that.", "Use easier than when comparing two things.")
+    GrammarQuestion("Which sentence uses the comparative correctly?", listOf("This book is more easy.", "This book is easiest than that.", "This book is easier than that."), "This book is easier than that.", "Use easier than when comparing two things."),
+    GrammarQuestion("Choose the correct future plan.", listOf("I am going to study tonight.", "I going study tonight.", "I am go study tonight."), "I am going to study tonight.", "Use be going to plus the base verb for a future plan."),
+    GrammarQuestion("Choose the correct negative form.", listOf("She don't like tea.", "She doesn't like tea.", "She not likes tea."), "She doesn't like tea.", "Use doesn't with she and the base verb like."),
+    GrammarQuestion("Which is a correct past question?", listOf("Did you visited the park?", "Do you visited the park?", "Did you visit the park?"), "Did you visit the park?", "After did, use the base form of the verb."),
+    GrammarQuestion("Choose the correct preposition.", listOf("The class starts at nine.", "The class starts in nine.", "The class starts on nine."), "The class starts at nine.", "Use at for specific clock times."),
+    GrammarQuestion("Choose the correct present continuous sentence.", listOf("They is playing outside.", "They are playing outside.", "They playing outside."), "They are playing outside.", "Use are plus the verb ending in -ing with they."),
+    GrammarQuestion("Choose the correct plural.", listOf("Two childs are reading.", "Two children are reading.", "Two childrens are reading."), "Two children are reading.", "Children is the irregular plural of child."),
+    GrammarQuestion("Which sentence uses the present perfect correctly?", listOf("I have finished my homework.", "I has finished my homework.", "I have finish my homework."), "I have finished my homework.", "Use have plus the past participle with I."),
+    GrammarQuestion("Choose the correct conditional.", listOf("If it rains, we will stay inside.", "If it will rain, we stay inside.", "If it rains, we staying inside."), "If it rains, we will stay inside.", "In a first conditional, use present simple after if and will in the result clause."),
+    GrammarQuestion("Which sentence uses a relative pronoun correctly?", listOf("The person which called is my teacher.", "The person who called is my teacher.", "The person where called is my teacher."), "The person who called is my teacher.", "Use who to refer to a person."),
+    GrammarQuestion("Choose the correct reported speech.", listOf("She said she was tired.", "She said she is tired yesterday.", "She said she tired."), "She said she was tired.", "Was is commonly used when reporting a past statement."),
+    GrammarQuestion("Choose the correct modal of advice.", listOf("You should drink some water.", "You should to drink water.", "You should drinking water."), "You should drink some water.", "Use should followed by the base form of the verb."),
+    GrammarQuestion("Which sentence uses the superlative correctly?", listOf("This is the most tall building.", "This is the tallest building.", "This is the taller building of all."), "This is the tallest building.", "Use tallest with the for the highest degree among a group.")
 )
 private data class ConversationScenario(val situation: String, val prompt: String, val options: List<String>, val correct: String, val explanation: String)
 private val conversationScenarios = listOf(
@@ -278,6 +290,8 @@ fun PremiumSpeakUp() {
     var scenarioMastered by remember { mutableStateOf((preferences.getStringSet("scenario_mastered", emptySet()) ?: emptySet()).toSet()) }
     var grammarIndex by remember { mutableIntStateOf(0) }
     var grammarChoice by remember { mutableStateOf("") }
+    var grammarSetComplete by remember { mutableStateOf(false) }
+    var grammarSetNewXp by remember { mutableIntStateOf(0) }
     var grammarChecked by remember { mutableStateOf(false) }
     var grammarMastered by remember { mutableStateOf((preferences.getStringSet("grammar_mastered", emptySet()) ?: emptySet()).toSet()) }
     var vocabularyIndex by remember { mutableIntStateOf(0) }
@@ -817,7 +831,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = "" }, modifier = Modifier.weight(1f)) { Text("Grammar") }
+                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = ""; grammarSetComplete = false; grammarSetNewXp = 0 }, modifier = Modifier.weight(1f)) { Text("Grammar") }
                             OutlinedButton(onClick = { storyOpenedFromGames = true; page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
                         }
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
@@ -1112,10 +1126,30 @@ fun PremiumSpeakUp() {
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
                         } else if (gameMode == "Grammar") {
                             Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            Text("${grammarQuestions.size} available practice questions", color = secondaryTextColor)
-                            LinearProgressIndicator(progress = { (grammarIndex + 1f) / grammarQuestions.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                            val grammarSetSize = 6
+                            val grammarTotalSets = (grammarQuestions.size + grammarSetSize - 1) / grammarSetSize
+                            val grammarSet = grammarIndex / grammarSetSize
+                            val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
+                            Text("Set ${grammarSet + 1} of $grammarTotalSets · Six questions per set", color = secondaryTextColor)
+                            LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
-                            Text("Grammar ${grammarIndex + 1} of ${grammarQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            Text("Question ${grammarIndex - grammarSet * grammarSetSize + 1} of ${grammarSetEndExclusive - grammarSet * grammarSetSize}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            if (grammarSetComplete) {
+                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Text("🎉 Set ${grammarSet + 1} completed!", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                        Text("Reward earned in this set: +$grammarSetNewXp XP", color = accentTextColor)
+                                        Text("Previously mastered answers do not earn XP again.", color = secondaryTextColor)
+                                        Button(onClick = {
+                                            grammarIndex = if (grammarSetEndExclusive < grammarQuestions.size) grammarSetEndExclusive else 0
+                                            grammarSetComplete = false
+                                            grammarSetNewXp = 0
+                                            grammarChoice = ""
+                                            grammarChecked = false
+                                        }, modifier = Modifier.fillMaxWidth()) { Text(if (grammarSetEndExclusive < grammarQuestions.size) "Start next set →" else "Review from Set 1 →") }
+                                    }
+                                }
+                            } else {
                             Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                             question.options.forEachIndexed { index, choice ->
                                 OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
@@ -1139,15 +1173,17 @@ fun PremiumSpeakUp() {
                                 if (grammarChoice == question.correct && id !in grammarMastered) {
                                     grammarMastered = grammarMastered + id
                                     xp += 10
+                                    grammarSetNewXp += 10
                                     preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
                                 }
                             }, enabled = grammarChoice.isNotBlank()) { Text("Check grammar") }
                             Text("Mastered ${grammarMastered.size} of ${grammarQuestions.size} · XP once per new correct answer", color = accentTextColor)
                             OutlinedButton(onClick = {
-                                grammarIndex = (grammarIndex + 1) % grammarQuestions.size
+                                if (grammarIndex + 1 >= grammarSetEndExclusive) grammarSetComplete = true else grammarIndex += 1
                                 grammarChoice = ""
                                 grammarChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next grammar question →") }
+                            }, modifier = Modifier.fillMaxWidth()) { Text(if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Next grammar question →") }
+                            }
                         } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
                             Text("Situation ${scenarioIndex + 1} of ${conversationScenarios.size}: ${scenario.situation}", color = accentTextColor, fontWeight = FontWeight.Bold)
