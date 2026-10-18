@@ -228,6 +228,7 @@ fun PremiumSpeakUp() {
     var showProfileAdvanced by remember { mutableStateOf(false) }
     var showHomeHelp by remember { mutableStateOf(false) }
     var showHomeExtras by remember { mutableStateOf(false) }
+    var showProgressDetails by remember { mutableStateOf(false) }
     var grammarLanding by remember { mutableStateOf(true) }
     var familyPilotEnabled by remember { mutableStateOf(preferences.getBoolean("mint_family_local_enabled", false)) }
     var passportConsent by remember { mutableStateOf(preferences.getBoolean("mint_passport_consent", false)) }
@@ -699,7 +700,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         if (learnMode == "Lessons") {
-                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
+                        MintProgressBar(completedIds.size.toFloat() / lessons.size.coerceAtLeast(1))
                         Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = accentTextColor, fontWeight = FontWeight.Bold)
                         Text("Finish one lesson to unlock the next. Previously completed lessons stay unlocked.", color = secondaryTextColor)
                         lessons.forEachIndexed { index, item ->
@@ -2115,14 +2116,27 @@ fun PremiumSpeakUp() {
                         )
                         val progressLevel = MintRewards.level(xp)
                         val coins = MintRewards.cosmeticCoins(mintRewardLedger)
-                        Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        MintSectionHeading("My Progress", "A real view of your completed learning")
                         Spacer(Modifier.height(16.dp))
-                        FeatureCard("✓  ${completedIds.size} of ${lessons.size} lessons completed", "Each new lesson earns 50 XP.", { page = "Learn" })
+                        MintInfoBanner("Continue your learning path",
+                            "${completedIds.size} of ${lessons.size} lessons completed · ${xp} XP earned",
+                            MintVisualTokens.mint)
+                        Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth().heightIn(min=50.dp)) {
+                            Text("Continue learning  →")
+                        }
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Spacer(Modifier.height(12.dp))
-                        Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = accentTextColor, fontWeight = FontWeight.Bold)
+                        Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                            MintDestinationTile("XP", "$xp earned", "⭐", MintVisualTokens.orange,Modifier.weight(1f)) { showProgressDetails = true }
+                            MintDestinationTile("Speaking", "$speakingAttempts attempts", "🎤", MintVisualTokens.blue,Modifier.weight(1f)) { page = "Speak" }
+                        }
                         Text("Reading passages mastered: ${readingMastered.size} of ${readingPassages.size}", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
+                        OutlinedButton(
+                            onClick = { showProgressDetails = !showProgressDetails },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
+                        ) { Text(if (showProgressDetails) "Hide skill details & badges" else "See skill details & earned badges  →") }
+                        if (showProgressDetails) {
                         Text("Speaking confidence practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("$independentReplies of $confidenceAttempts checked replies attempted without the example", color = secondaryTextColor)
                         if (confidenceAttempts > 0) {
@@ -2178,6 +2192,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(14.dp))
+                        }
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         val now = System.currentTimeMillis()
                         val dueLessons = reviewable.filter { (revisionSchedule[it.toString()] ?: 0L) <= now }
