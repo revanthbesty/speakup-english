@@ -15,7 +15,7 @@ internal fun MintNegotiationScreen(onVerified: (String) -> Unit = {}) {
  val items=MintNegotiationPilot.items.filter{it.category==category}
  val item=items[index]
  Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-  Text("Negotiation & Problem-Solving · offline pilot",style=MaterialTheme.typography.titleLarge)
+  MintScreenHeading("Negotiation & Problem-Solving", "Practise respectful workplace communication.", "PROFESSIONAL ENGLISH")
   Text("Original practice for respectful workplace communication. Not professional certification.")
   Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
    listOf("Negotiation","Problem-Solving").forEach { name ->
