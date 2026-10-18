@@ -905,6 +905,28 @@ fun PremiumSpeakUp() {
                             val learnerMinAge = when (learnerAgeBand) {
                                 "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
                             }
+                            val suggestedQuest = MintDailyQuest.select(
+                                mintDifficulty, learnerMinAge,
+                                java.time.LocalDate.now().toEpochDay(), mintRewardLedger
+                            )
+                            if (suggestedQuest != null) {
+                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(12.dp)) {
+                                        Text("Fresh daily pick: ${suggestedQuest.title}", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                        Text("An age-appropriate suggestion. No streak penalty or pressure to finish.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                        TextButton(onClick = {
+                                            mintDifficulty = suggestedQuest.difficulty
+                                            mintMechanic = suggestedQuest.mechanic
+                                            mintGameId = suggestedQuest.id
+                                            mintChoice = ""
+                                            mintSelectedTokens = emptyList()
+                                            mintChecked = false
+                                            mintShowHint = false
+                                            mintGameFeedback = ""
+                                        }) { Text("Play today's suggestion →") }
+                                    }
+                                }
+                            }
                             val availableQuests = remember(mintDifficulty, mintMechanic, learnerMinAge) {
                                 MintGameCatalog.listFor(mintDifficulty, learnerMinAge).filter { it.mechanic == mintMechanic }
                             }
@@ -924,6 +946,13 @@ fun PremiumSpeakUp() {
                                             if (!listeningLine.isNullOrBlank()) {
                                                 Text("Listen to the spoken line, then choose the best answer.", color = secondaryTextColor)
                                                 ListeningAudio(listeningLine)
+                                                var revealAudioText by remember(activeQuest.id) { mutableStateOf(false) }
+                                                TextButton(onClick = { revealAudioText = !revealAudioText }) {
+                                                    Text(if (revealAudioText) "Hide transcript" else "Read accessible transcript")
+                                                }
+                                                if (revealAudioText) {
+                                                    Text("Transcript: $listeningLine", color = secondaryTextColor)
+                                                }
                                             }
                                         }
                                         if (activeQuest.mechanic == MintMechanic.STORY_DECISION) {
