@@ -206,6 +206,16 @@ fun PremiumSpeakUp() {
     var skillPracticeChecked by remember { mutableStateOf(false) }
     var skillMastered by remember { mutableStateOf((preferences.getStringSet("skill_practice_mastered", emptySet()) ?: emptySet()).toSet()) }
     var gameMode by remember { mutableStateOf("Word Builder") }
+    var mintDifficulty by remember { mutableStateOf(when (chosenDifficulty) { "Hard" -> MintDifficulty.HARD; "Medium" -> MintDifficulty.MEDIUM; else -> MintDifficulty.EASY }) }
+    var mintMechanic by remember { mutableStateOf(MintMechanic.CHOOSE_REPLY) }
+    var mintGameId by remember { mutableStateOf("") }
+    var mintChoice by remember { mutableStateOf("") }
+    var mintSelectedTokens by remember { mutableStateOf(listOf<String>()) }
+    var mintChecked by remember { mutableStateOf(false) }
+    var mintShowHint by remember { mutableStateOf(false) }
+    var mintRewardLedger by remember { mutableStateOf((preferences.getStringSet("mint_game_awards", emptySet()) ?: emptySet()).toSet()) }
+    var mintGameFeedback by remember { mutableStateOf("") }
+
     var dialogueIndex by remember { mutableIntStateOf(0) }
     var dialogueChoice by remember { mutableStateOf("") }
     var dialogueChecked by remember { mutableStateOf(false) }
@@ -716,11 +726,124 @@ fun PremiumSpeakUp() {
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
                         Text("Browse all games below. Difficulty changes your learning preference; graded question filtering is being expanded.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
+                            listOf("Mint Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
-                        if (gameMode == "Word Builder") {
+                        if (gameMode == "Mint Quests") {
+                            Text("Mint Quest Arcade", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("A curated challenge ends with an optional speaking mission. Your progress is saved on this device.", color = secondaryTextColor)
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                MintDifficulty.entries.forEach { level ->
+                                    FilterChip(selected = mintDifficulty == level, onClick = {
+                                        mintDifficulty = level
+                                        mintGameId = ""
+                                        mintChoice = ""
+                                        mintSelectedTokens = emptyList()
+                                        mintChecked = false
+                                        mintShowHint = false
+                                    }, label = { Text(level.name.lowercase().replaceFirstChar { it.uppercase() }) })
+                                }
+                            }
+                            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                MintMechanic.entries.forEach { mechanic ->
+                                    val label = when(mechanic) {
+                                        MintMechanic.CHOOSE_REPLY -> "Choose Reply"
+                                        MintMechanic.MISSING_WORD -> "Missing Word"
+                                        MintMechanic.WORD_SCRAMBLE -> "Word Scramble"
+                                        MintMechanic.SENTENCE_ORDER -> "Sentence Builder"
+                                    }
+                                    FilterChip(selected = mintMechanic == mechanic, onClick = {
+                                        mintMechanic = mechanic
+                                        mintGameId = ""
+                                        mintChoice = ""
+                                        mintSelectedTokens = emptyList()
+                                        mintChecked = false
+                                        mintShowHint = false
+                                    }, label = { Text(label) })
+                                }
+                            }
+                            val availableQuests = MintGameCatalog.listFor(mintDifficulty).filter { it.mechanic == mintMechanic }
+                            val activeQuest = availableQuests.firstOrNull { it.id == mintGameId } ?: availableQuests.firstOrNull()
+                            if (activeQuest == null) {
+                                Text("No curated quests yet for this selection.", color = secondaryTextColor)
+                            } else {
+                                val completed = availableQuests.count { "mint_game_${it.id}_v${it.version}" in mintRewardLedger }
+                                LinearProgressIndicator(progress = { completed.toFloat() / availableQuests.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                                Text("$completed of ${availableQuests.size} quests mastered", color = accentTextColor)
+                                Surface(color = surfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                    Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        Text(activeQuest.title, color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                        Text(activeQuest.prompt, color = primaryTextColor)
+                                        val isTapOrder = activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE || activeQuest.mechanic == MintMechanic.SENTENCE_ORDER
+                                        if (isTapOrder) {
+                                            val composed = if (activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE) mintSelectedTokens.joinToString("") else mintSelectedTokens.joinToString(" ")
+                                            Text(if (composed.isBlank()) "Tap the pieces to build your answer." else composed, color = accentTextColor, style = MaterialTheme.typography.titleMedium)
+                                            val availableTokens = activeQuest.tokens.toMutableList()
+                                            mintSelectedTokens.forEach { availableTokens.remove(it) }
+                                            availableTokens.forEach { token ->
+                                                OutlinedButton(onClick = { mintSelectedTokens = mintSelectedTokens + token; mintChecked = false; mintGameFeedback = "" }, modifier = Modifier.fillMaxWidth()) {
+                                                    Text(token, color = primaryTextColor)
+                                                }
+                                            }
+                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                OutlinedButton(onClick = { mintSelectedTokens = mintSelectedTokens.dropLast(1); mintChecked = false }, enabled = mintSelectedTokens.isNotEmpty()) { Text("Undo") }
+                                                OutlinedButton(onClick = { mintSelectedTokens = emptyList(); mintChecked = false; mintGameFeedback = "" }) { Text("Reset") }
+                                            }
+                                        } else {
+                                            activeQuest.tokens.forEach { option ->
+                                                OutlinedButton(onClick = { mintChoice = option; mintChecked = false; mintGameFeedback = "" },
+                                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (mintChoice == option) softSurfaceColor else surfaceColor),
+                                                    modifier = Modifier.fillMaxWidth()) {
+                                                    Text("${if (mintChoice == option) "✓ " else ""}$option", color = primaryTextColor, modifier = Modifier.fillMaxWidth())
+                                                }
+                                            }
+                                        }
+                                        TextButton(onClick = { mintShowHint = !mintShowHint }) { Text(if (mintShowHint) "Hide hint" else "Show a hint") }
+                                        if (mintShowHint) Text(activeQuest.hint, color = secondaryTextColor)
+                                        Button(
+                                            onClick = {
+                                                val response = if (isTapOrder) {
+                                                    if (activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE) mintSelectedTokens.joinToString("") else mintSelectedTokens.joinToString(" ")
+                                                } else mintChoice
+                                                val result = MintGameEngine.reward(activeQuest, response, mintRewardLedger)
+                                                mintChecked = true
+                                                mintGameFeedback = if (result.correct) "Correct! ${activeQuest.explanation}" else "Not quite. Try again or reveal a hint."
+                                                if (result.xpAward > 0 && result.rewardKey != null) {
+                                                    mintRewardLedger = mintRewardLedger + result.rewardKey
+                                                    xp += result.xpAward
+                                                    preferences.edit().putStringSet("mint_game_awards", mintRewardLedger).putInt("total_xp", xp).apply()
+                                                }
+                                            },
+                                            enabled = if (isTapOrder) mintSelectedTokens.isNotEmpty() else mintChoice.isNotBlank(),
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) { Text("Check answer") }
+                                        if (mintChecked) {
+                                            Text(mintGameFeedback, color = primaryTextColor)
+                                            if (activeQuest.evaluate(if (isTapOrder) {
+                                                    if (activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE) mintSelectedTokens.joinToString("") else mintSelectedTokens.joinToString(" ")
+                                                } else mintChoice)) {
+                                                Text("+15 XP on first mastery • replay any time", color = accentTextColor)
+                                                Text("Speak next: ${activeQuest.speakingPrompt}", color = primaryTextColor)
+                                                OutlinedButton(onClick = {
+                                                    page = "Speak"
+                                                    showSpeakingHint = false
+                                                }, modifier = Modifier.fillMaxWidth()) { Text("Try the speaking mission →") }
+                                            }
+                                        }
+                                        OutlinedButton(onClick = {
+                                            val nextIndex = (availableQuests.indexOf(activeQuest) + 1) % availableQuests.size
+                                            mintGameId = availableQuests[nextIndex].id
+                                            mintChoice = ""
+                                            mintSelectedTokens = emptyList()
+                                            mintChecked = false
+                                            mintShowHint = false
+                                            mintGameFeedback = ""
+                                        }, modifier = Modifier.fillMaxWidth()) { Text("Next curated quest →") }
+                                    }
+                                }
+                            }
+                        } else if (gameMode == "Word Builder") {
                         Text("Word Builder", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("Build a natural English sentence by tapping the words in order.", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
