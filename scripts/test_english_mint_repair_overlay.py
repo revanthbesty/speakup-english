@@ -33,12 +33,26 @@ class OverlaySafetyTests(unittest.TestCase):
     def test_rejects_empty_reading_passage(self):
         old = {"REA-001": {"category": "reading", "cefr_level": "A1"}}
         rec = {"activity_id": "REA-001", "category": "reading", "cefr_level": "A1",
-               "review_status": "needs_human_review", "content": "A note",
+               "review_status": "needs_human_review", "source_type": "original_ai_draft_rewrite", "content": "A note",
                "question": "What happened?", "explanation": "It is in the text.",
                "correct_answer": "B", "option_a": "no", "option_b": "yes",
                "option_c": "maybe", "accepted_answers_json": ["yes"]}
         with self.assertRaisesRegex(ValueError, "reading_passage"):
             mint.validate_replacement(rec, old)
+
+    def test_rejects_claimed_approval(self):
+        old = {"RID-A1-0004": {"category": "riddles", "cefr_level": "A1"}}
+        record = {"activity_id": "RID-A1-0004", "category": "riddles",
+                  "cefr_level": "A1", "review_status": "approved"}
+        with self.assertRaisesRegex(ValueError, "review_status"):
+            mint.validate_replacement(record, old)
+
+    def test_rejects_missing_provenance(self):
+        old = {"RID-A1-0004": {"category": "riddles", "cefr_level": "A1"}}
+        record = {"activity_id": "RID-A1-0004", "category": "riddles",
+                  "cefr_level": "A1", "review_status": "needs_human_review"}
+        with self.assertRaisesRegex(ValueError, "provenance"):
+            mint.validate_replacement(record, old)
 
 if __name__ == "__main__":
     unittest.main()
