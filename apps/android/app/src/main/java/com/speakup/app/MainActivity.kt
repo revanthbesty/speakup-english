@@ -341,7 +341,7 @@ fun PremiumSpeakUp() {
         grammar = grammarMastered,
         riddles = riddleAwards,
         vocabulary = vocabularyMastered,
-        reading = readingMastered,
+        reading = readingMastered + if (coopAwarded) setOf(MintCoopStory.rewardKey) else emptySet(),
         listening = listeningMastered,
         scenarios = scenarioMastered,
         puzzles = puzzleAwarded,
