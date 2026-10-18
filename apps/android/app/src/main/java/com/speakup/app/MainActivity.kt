@@ -208,6 +208,11 @@ fun PremiumSpeakUp() {
     }
     var showPlacement by remember { mutableStateOf(false) }
     var storyOpenedFromGames by remember { mutableStateOf(false) }
+    var coopTurns by remember { mutableStateOf(emptyList<MintStoryTurn>()) }
+    var coopChoice by remember { mutableIntStateOf(-1) }
+    var coopFeedback by remember { mutableStateOf("") }
+    var coopAwarded by remember { mutableStateOf(preferences.getBoolean("mint_coop_library_completed", false)) }
+
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
     val lesson = lessons[lessonIndex]
@@ -971,12 +976,55 @@ fun PremiumSpeakUp() {
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
                         Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Mint Quests", "Real-World Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
+                            listOf("Mint Quests", "Real-World Quests", "Co-op Stories", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
                         }
-                        if (gameMode == "Real-World Quests") {
+                        if (gameMode == "Co-op Stories") {
+                            Text("📖 Co-op Stories · Library Adventure", style = MaterialTheme.typography.titleLarge,
+                                color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("Private pass-the-device story. Take turns as Explorer and Helper, or play both roles yourself. No online rooms, chat or sharing.",
+                                color = secondaryTextColor)
+                            val stage = coopTurns.size
+                            if (stage < MintCoopStory.prompts.size) {
+                                Text("Turn ${stage + 1} of 3 · ${MintCoopStory.roles[stage % 2]}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                                Text(MintCoopStory.prompts[stage], color = primaryTextColor)
+                                MintCoopStory.choices[stage].forEachIndexed { i, option ->
+                                    OutlinedButton(onClick = { coopChoice = i; coopFeedback = "" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(containerColor = if (coopChoice == i) softSurfaceColor else surfaceColor)) {
+                                        Text("${listOf("A", "B", "C")[i]}. $option", color = primaryTextColor, modifier = Modifier.fillMaxWidth())
+                                    }
+                                }
+                                if (coopFeedback.isNotBlank()) Text(coopFeedback, color = primaryTextColor)
+                                Button(onClick = {
+                                    val nextTurns = MintCoopStory.next(coopTurns, coopChoice)
+                                    if (nextTurns.size > coopTurns.size) {
+                                        coopTurns = nextTurns
+                                        coopFeedback = ""
+                                    } else {
+                                        coopFeedback = "Try another response. ${MintCoopStory.explanations[stage]}"
+                                    }
+                                    coopChoice = -1
+                                }, enabled = coopChoice >= 0, modifier = Modifier.fillMaxWidth()) { Text("Continue story") }
+                                Text("Tip: ${MintCoopStory.explanations[stage]}", color = secondaryTextColor)
+                            } else {
+                                Text("🎉 Story completed! Great teamwork.", color = primaryTextColor,
+                                    style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                if (!coopAwarded && MintCoopStory.complete(coopTurns)) {
+                                    Button(onClick = {
+                                        coopAwarded = true
+                                        preferences.edit().putBoolean("mint_coop_library_completed", true).apply()
+                                    }, modifier = Modifier.fillMaxWidth()) { Text("Collect your Story Flower 🌺") }
+                                } else Text("🌺 Your Story Flower is saved in My Mint Garden.", color = primaryTextColor)
+                                OutlinedButton(onClick = { page = "Today" }, modifier = Modifier.fillMaxWidth()) { Text("View My Mint Garden") }
+                            }
+                            OutlinedButton(onClick = {
+                                coopTurns = emptyList()
+                                coopChoice = -1
+                                coopFeedback = ""
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Restart private story") }
+                        } else if (gameMode == "Real-World Quests") {
                             val scenario = MintRealWorldQuests.scenarios[rwQuestIndex]
                             val rewardKey = MintRealWorldQuests.rewardKey(scenario)
                             val alreadyFinished = rewardKey in rwCompleted
