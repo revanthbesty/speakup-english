@@ -17,7 +17,7 @@ ALLOWED_LEVELS = {"Easy", "Medium", "Hard"}
 ALLOWED_STATUSES = {"draft", "validated", "in_review", "approved", "published", "rejected", "retired"}
 
 def normalize(value):
-    return re.sub(r"\\s+", " ", str(value or "").strip().casefold())
+    return re.sub(r"\s+", " ", str(value or "").strip().casefold())
 
 def validate(path):
     failures = []
