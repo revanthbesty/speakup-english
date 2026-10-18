@@ -505,6 +505,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(16.dp))
+                        TextButton(onClick = { page = "Membership" }) { Text("Explore Membership →") }
                         Text("Your 5-minute adventure", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text("One game, one spoken sentence, and a natural stopping point.", color = secondaryTextColor)
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
@@ -1250,7 +1251,17 @@ fun PremiumSpeakUp() {
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next conversation →") }
                         }
                     }
+                    "Membership" -> {
+                        MintMembershipScreen(onReturn = { page = "Profile" })
+                    }
                     "Profile" -> {
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                            Column(Modifier.padding(16.dp)) {
+                                Text("English Mint Free", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
+                                Text("Core games, speaking and progress stay free.", color = secondaryTextColor)
+                                OutlinedButton(onClick = { page = "Membership" }) { Text("Compare Free, Plus and Pro →") }
+                            }
+                        }
                         Text("Appearance", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("system" to "System", "light" to "Light", "dark" to "Dark", "night" to "Night").forEach { (mode, label) ->
