@@ -68,7 +68,7 @@ internal fun MintFeedScreen(
     Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Mint Reels", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-        Text("Short illustrated English stories, not an endless algorithmic feed. Watch, read, play, then speak.")
+        Text("Watch a short story, try its challenge, and speak when ready.")
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintClipLevel.entries.forEach { option ->
                 FilterChip(selected = level == option, onClick = { level = option; reset(0) },
