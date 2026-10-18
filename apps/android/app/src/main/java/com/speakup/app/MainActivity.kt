@@ -292,6 +292,11 @@ fun PremiumSpeakUp() {
     var grammarChoice by remember { mutableStateOf("") }
     var grammarSetComplete by remember { mutableStateOf(false) }
     var grammarSetNewXp by remember { mutableIntStateOf(0) }
+    var grammarFirstTryCorrect by remember { mutableIntStateOf(0) }
+    var grammarWrongCount by remember { mutableIntStateOf(0) }
+    var grammarHadError by remember { mutableStateOf(false) }
+    var grammarMissedNotes by remember { mutableStateOf(listOf<String>()) }
+    var grammarBloomEarned by remember { mutableStateOf(false) }
     var latestActivityXp by remember { mutableIntStateOf(0) }
     var grammarChecked by remember { mutableStateOf(false) }
     var grammarMastered by remember { mutableStateOf((preferences.getStringSet("grammar_mastered", emptySet()) ?: emptySet()).toSet()) }
@@ -854,7 +859,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = ""; grammarSetComplete = false; grammarSetNewXp = 0 }, modifier = Modifier.weight(1f)) { Text("Grammar") }
+                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = ""; grammarSetComplete = false; grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0; grammarHadError = false; grammarMissedNotes = emptyList() }, modifier = Modifier.weight(1f)) { Text("Grammar") }
                             OutlinedButton(onClick = { storyOpenedFromGames = true; page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
                         }
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
@@ -1192,13 +1197,27 @@ fun PremiumSpeakUp() {
                             if (grammarSetComplete) {
                                 Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        Text("🎉 Set ${grammarSet + 1} completed!", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                        Text("Reward earned in this set: +$grammarSetNewXp XP", color = accentTextColor)
-                                        Text("Previously mastered answers do not earn XP again.", color = secondaryTextColor)
+                                        MintGrammarCelebration(
+                                            setNumber = grammarSet + 1,
+                                            firstTryCorrect = grammarFirstTryCorrect,
+                                            questionsWithMistakes = grammarWrongCount,
+                                            newBloom = grammarBloomEarned,
+                                            reduceMotion = motionReduced
+                                        )
+                                        if (grammarMissedNotes.isNotEmpty()) {
+                                            Text("Your revision garden", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                            grammarMissedNotes.forEach { note -> Text("• $note", color = primaryTextColor) }
+                                        } else {
+                                            Text("No mistakes this round. Keep growing!", color = secondaryTextColor)
+                                        }
                                         Button(onClick = {
                                             grammarIndex = if (grammarSetEndExclusive < grammarQuestions.size) grammarSetEndExclusive else 0
                                             grammarSetComplete = false
                                             grammarSetNewXp = 0
+                                            grammarFirstTryCorrect = 0
+                                            grammarWrongCount = 0
+                                            grammarHadError = false
+                                            grammarMissedNotes = emptyList()
                                             grammarChoice = ""
                                             grammarChecked = false
                                         }, modifier = Modifier.fillMaxWidth()) { Text(if (grammarSetEndExclusive < grammarQuestions.size) "Start next set →" else "Review from Set 1 →") }
@@ -1223,6 +1242,12 @@ fun PremiumSpeakUp() {
                                 }
                             }
                             Button(onClick = {
+                                if (!grammarChecked && grammarChoice != question.correct && !grammarHadError) {
+                                    grammarHadError = true
+                                    grammarWrongCount += 1
+                                    grammarMissedNotes = grammarMissedNotes + "${question.prompt} — ${question.explanation}"
+                                }
+                                if (!grammarChecked && grammarChoice == question.correct && !grammarHadError) grammarFirstTryCorrect += 1
                                 grammarChecked = true
                                 val id = grammarIndex.toString()
                                 if (grammarChoice == question.correct && id !in grammarMastered) {
@@ -1232,11 +1257,15 @@ fun PremiumSpeakUp() {
                                     preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
                                 }
                             }, enabled = grammarChoice.isNotBlank()) { Text("Check grammar") }
-                            Text("Mastered ${grammarMastered.size} of ${grammarQuestions.size} · XP once per new correct answer", color = accentTextColor)
+                            Text("🌸 ${grammarMastered.size} of ${grammarQuestions.size} grammar blooms growing", color = accentTextColor)
                             OutlinedButton(onClick = {
-                                if (grammarIndex + 1 >= grammarSetEndExclusive) grammarSetComplete = true else grammarIndex += 1
+                                if (grammarIndex + 1 >= grammarSetEndExclusive) {
+                                    grammarBloomEarned = grammarSetNewXp > 0
+                                    grammarSetComplete = true
+                                } else grammarIndex += 1
                                 grammarChoice = ""
                                 grammarChecked = false
+                                grammarHadError = false
                             }, enabled = grammarChecked && grammarChoice == question.correct, modifier = Modifier.fillMaxWidth()) { Text(if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Next grammar question →") }
                             }
                         } else if (gameMode == "Situations") {
