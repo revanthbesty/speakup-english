@@ -1517,6 +1517,9 @@ fun PremiumSpeakUp() {
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            Text("Release readiness: NOT APPROVED · independently reviewed content, accessibility, migrations and owner sign-off still required.",
+                                color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+
                             val grammarQualityIssues = remember {
                                 MintGrammarQuality.collectionIssues(grammarQuestions.map {
                                     MintGrammarQuality.Item(it.prompt,it.options,it.correct,it.explanation)
