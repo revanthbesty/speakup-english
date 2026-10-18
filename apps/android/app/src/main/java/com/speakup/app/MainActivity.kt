@@ -1608,12 +1608,11 @@ fun PremiumSpeakUp() {
                         } else if (gameMode == "Grammar Formats") {
                             MintGrammarFormatsScreen()
                         } else if (gameMode == "Grammar") {
-                            Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            MintScreenHeading("Grammar Arena", "One question at a time. Learn why every answer works.", "GAMES • GRAMMAR")
                             val grammarSetSize = MintGrammarPilotEngine.setSize
                             val grammarTotalSets = (grammarQuestions.size + grammarSetSize - 1) / grammarSetSize
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
-                            Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
 
 
                             val grammarQualityIssues = remember {
@@ -1632,6 +1631,7 @@ fun PremiumSpeakUp() {
                                 Text(if (showGrammarInsights) "Hide progress and challenge details ↑" else "View progress, review and rewards ↓")
                             }
                             if (showGrammarInsights) {
+                                Text("Offline pilot: ${grammarQuestions.size} authored questions; the planned larger bank is not included.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                                 Text("Development preview · curriculum and device accessibility review pending.",
                                     color=secondaryTextColor,style=MaterialTheme.typography.bodySmall)
                             Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
