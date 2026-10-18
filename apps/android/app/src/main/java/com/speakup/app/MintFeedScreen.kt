@@ -67,8 +67,8 @@ internal fun MintFeedScreen(
 
     Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Mint Reels", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-        Text("Watch a short story, try its challenge, and speak when ready.")
+        Text("Animated Stories", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+        Text("Watch · Read · Play", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintClipLevel.entries.forEach { option ->
                 FilterChip(selected = level == option, onClick = { level = option; reset(0) },
@@ -131,7 +131,7 @@ internal fun MintFeedScreen(
                             playing = !playing
                         }) { Text(if (playing) "Pause scenes" else "Play scenes") }
                     } else Text("Reduced motion: manual scene controls are enabled.", color = Color.White)
-                    Text("Swipe up for next story · swipe down for previous story", color = Color.White.copy(alpha = 0.75f),
+                    Text("Use Next Story to explore more", color = Color.White.copy(alpha = 0.75f),
                         style = MaterialTheme.typography.labelSmall)
                 }
             }
@@ -145,14 +145,14 @@ internal fun MintFeedScreen(
             }
             if (showListening) ListeningAudio(frame.spokenLine)
             Text(clip.description, style = MaterialTheme.typography.bodyMedium)
-            Text("Private, studio-made story", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Original offline story · no public chat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { onReact(clip.id) }) {
                     Text(if (clip.id in reactionIds) "♥ Saved reaction" else "♡ React privately")
                 }
                 OutlinedButton(onClick = { infoOpen = true }) { Text("Safety tools") }
             }
-            Text("Your turn", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text("Story Challenge", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             Text(clip.challengePrompt)
             clip.choices.forEach { option ->
                 OutlinedButton(
