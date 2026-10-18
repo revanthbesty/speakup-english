@@ -23,8 +23,10 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
     Button(onClick={section="City";cityTurn=0;cityChoice=-1;cityFeedback=false},modifier=Modifier.fillMaxWidth()){Text("Virtual City · café dialogue")}
     OutlinedButton(onClick={section="Story";storyId="start"},modifier=Modifier.fillMaxWidth()){Text("Branching story · library")}
     OutlinedButton(onClick={section="Words"},modifier=Modifier.fillMaxWidth()){Text("Camera Words · manual fallback")}
+    OutlinedButton(onClick={section="Buddy"},modifier=Modifier.fillMaxWidth()){Text("Mint Buddy · offline text practice")}
     Text("Speaking Passport recording, learner history, daily plans and child collaboration need further privacy and device integration.",style=MaterialTheme.typography.bodySmall)
    }
+   "Buddy" -> { MintBuddyOfflineScreen() }
    "City" -> {
     if(cityTurn<MintLifeVirtualCity.cafe.size) {
      val turn=MintLifeVirtualCity.cafe[cityTurn]
