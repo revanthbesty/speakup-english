@@ -251,6 +251,7 @@ fun PremiumSpeakUp() {
     var mintShowHint by remember { mutableStateOf(false) }
     var mintRewardLedger by remember { mutableStateOf((preferences.getStringSet("mint_game_awards", emptySet()) ?: emptySet()).toSet()) }
     var mintGameFeedback by remember { mutableStateOf("") }
+    var mintGameXpAward by remember { mutableIntStateOf(0) }
     var mintSpeakingMission by remember { mutableStateOf("") }
 
     var dialogueIndex by remember { mutableIntStateOf(0) }
@@ -914,6 +915,7 @@ fun PremiumSpeakUp() {
                                                 } else mintChoice
                                                 val result = MintGameEngine.reward(activeQuest, response, mintRewardLedger)
                                                 mintChecked = true
+                                                mintGameXpAward = result.xpAward
                                                 mintGameFeedback = if (result.correct) "Correct! ${activeQuest.explanation}" else "Not quite. Try again or reveal a hint."
                                                 if (result.xpAward > 0 && result.rewardKey != null) {
                                                     mintRewardLedger = mintRewardLedger + result.rewardKey
@@ -925,11 +927,13 @@ fun PremiumSpeakUp() {
                                             modifier = Modifier.fillMaxWidth()
                                         ) { Text("Check answer") }
                                         if (mintChecked) {
-                                            Text(mintGameFeedback, color = primaryTextColor)
+                                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                                Text(mintGameFeedback, modifier = Modifier.padding(16.dp), color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                                            }
                                             if (activeQuest.evaluate(if (isTapOrder) {
                                                     if (activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE) mintSelectedTokens.joinToString("") else mintSelectedTokens.joinToString(" ")
                                                 } else mintChoice)) {
-                                                Text("+15 XP on first mastery • replay any time", color = accentTextColor)
+                                                Text(if (mintGameXpAward > 0) "+$mintGameXpAward XP earned!" else "Already mastered · no additional XP", color = accentTextColor, fontWeight = FontWeight.Bold)
                                                 Text("Speak next: ${activeQuest.speakingPrompt}", color = primaryTextColor)
                                                 OutlinedButton(onClick = {
                                                     mintSpeakingMission = activeQuest.speakingPrompt
