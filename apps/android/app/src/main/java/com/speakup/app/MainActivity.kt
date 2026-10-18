@@ -231,6 +231,7 @@ fun PremiumSpeakUp() {
     var showHomeExtras by remember { mutableStateOf(false) }
     var showProgressDetails by remember { mutableStateOf(false) }
     var grammarLanding by remember { mutableStateOf(true) }
+    var showGrammarInsights by remember { mutableStateOf(false) }
     var familyPilotEnabled by remember { mutableStateOf(preferences.getBoolean("mint_family_local_enabled", false)) }
     var passportConsent by remember { mutableStateOf(preferences.getBoolean("mint_passport_consent", false)) }
     var passportPrompt by remember { mutableStateOf("week") }
@@ -1598,15 +1599,18 @@ fun PremiumSpeakUp() {
                                 )
                             } else {
 
-                            Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            TextButton(onClick = { grammarLanding = true; showGrammarInsights = false }) {
+                                Text("← Grammar packs")
+                            }
+                            MintSectionHeading("Grammar practice", "One question at a time · Learn from the explanation")
+                            OutlinedButton(onClick = { showGrammarInsights = !showGrammarInsights },
+                                modifier = Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                                Text(if(showGrammarInsights) "Hide progress & saved questions" else "My grammar progress & saved questions  →")
+                            }
                             val grammarSetSize = MintGrammarPilotEngine.setSize
                             val grammarTotalSets = (grammarQuestions.size + grammarSetSize - 1) / grammarSetSize
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
-                            Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                            Text("Release readiness: NOT APPROVED · independently reviewed content, accessibility, migrations and owner sign-off still required.",
-                                color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-
                             val grammarQualityIssues = remember {
                                 MintGrammarQuality.collectionIssues(grammarQuestions.map {
                                     MintGrammarQuality.Item(it.prompt,it.options,it.correct,it.explanation)
@@ -1617,6 +1621,7 @@ fun PremiumSpeakUp() {
                                     color = MaterialTheme.colorScheme.error)
                             }
 
+                            if (showGrammarInsights) {
                             val grammarAnalytics = MintGrammarAnalytics.snapshot(grammarQuestions.size,grammarMastered,grammarBookmarks,grammarRevisionMissed)
                             Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1710,7 +1715,8 @@ fun PremiumSpeakUp() {
                                     }, label = { Text("Pack ${pack + 1}") })
                                 }
                             }
-                            LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
+                            }
+                            MintProgressBar((grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize))
                             val question = grammarQuestions[grammarIndex]
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 val savedKey = MintGrammarHub.bookmarkId(grammarIndex)
