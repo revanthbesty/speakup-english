@@ -238,6 +238,7 @@ fun PremiumSpeakUp() {
         when {
             page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
+            page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
             else -> page = "Today"
         }
     }
@@ -1270,10 +1271,27 @@ fun PremiumSpeakUp() {
                             }
                         )
                     }
+                    "Help" -> {
+                        MintHelpScreen(
+                            onBack = { page = "Profile" },
+                            onGames = { page = "Games" },
+                            onSpeak = { page = "Speak" },
+                            onClips = { page = "Feed" }
+                        )
+                    }
                     "Profile" -> {
                         Text("My learning space", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
                         Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Your progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                                Text("$xp XP earned · ${completedIds.size} of ${lessons.size} lessons completed", color = secondaryTextColor)
+                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                                OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("View progress & achievements →") }
+                            }
+                        }
+                        OutlinedButton(onClick = { page = "Help" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Help & guidance →") }
                         Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
                             Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
                         }
