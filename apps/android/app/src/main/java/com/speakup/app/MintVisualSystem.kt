@@ -219,3 +219,42 @@ internal fun MintTabGlyph(tab: String, color: Color) {
         }
     }
 }
+
+@Composable
+internal fun MintChoiceTile(label: String, subtitle: String, symbol: String,
+    selected: Boolean, onClick: () -> Unit
+) {
+    Surface(onClick=onClick, modifier=Modifier.fillMaxWidth().heightIn(min=68.dp),
+        shape=RoundedCornerShape(18.dp),
+        color=if(selected)MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+        tonalElevation=if(selected)3.dp else 1.dp, shadowElevation=if(selected)2.dp else 0.dp
+    ) {
+        Row(Modifier.fillMaxWidth().padding(13.dp),
+            horizontalArrangement=Arrangement.spacedBy(12.dp),
+            verticalAlignment=Alignment.CenterVertically) {
+            Surface(color=MintVisualTokens.violet.copy(alpha=0.13f),shape=RoundedCornerShape(12.dp)) {
+                Text(symbol, modifier=Modifier.padding(horizontal=10.dp,vertical=6.dp),
+                    style=MaterialTheme.typography.titleLarge)
+            }
+            Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(2.dp)) {
+                Text(label,style=MaterialTheme.typography.titleSmall,fontWeight=FontWeight.Bold)
+                Text(subtitle,style=MaterialTheme.typography.labelSmall,
+                    color=MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            if(selected) Text("✓", color=MaterialTheme.colorScheme.primary,
+                fontWeight=FontWeight.Bold, style=MaterialTheme.typography.titleLarge)
+        }
+    }
+}
+@Composable
+internal fun MintProgressBar(value:Float, modifier:Modifier=Modifier) {
+    Box(modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(8.dp))
+        .background(MaterialTheme.colorScheme.onSurface.copy(alpha=0.1f))) {
+        val fraction=value.coerceIn(0f,1f)
+        if(fraction>0f) {
+            Box(Modifier.fillMaxWidth(fraction).fillMaxHeight()
+                .background(Brush.horizontalGradient(
+                    listOf(MintVisualTokens.mint,MintVisualTokens.blue))))
+        }
+    }
+}
