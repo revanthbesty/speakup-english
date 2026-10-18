@@ -86,7 +86,7 @@ internal fun MintWelcomeFlow(
                         if(picked)2.dp else 1.dp,
                         if(picked)mint else MaterialTheme.colorScheme.outline.copy(alpha=0.4f))
                 ) {
-                    Row(Modifier.fillMaxWidth().heightIn(min=60.dp).padding(horizontal=17.dp),
+                    Row(Modifier.fillMaxWidth().heightIn(min=54.dp).padding(horizontal=17.dp),
                         verticalAlignment=Alignment.CenterVertically,
                         horizontalArrangement=Arrangement.spacedBy(16.dp)) {
                         Text(symbol,style=MaterialTheme.typography.headlineSmall)
@@ -132,11 +132,11 @@ internal fun MintWelcomeFlow(
             }
             Text("Your adventure begins! ✨",style=MaterialTheme.typography.headlineLarge,
                 fontWeight=FontWeight.ExtraBold,color=ink)
-            Text("Your first adventure is waiting. Start with a short game and try speaking when ready.",color=subtle)
+            Text("Your first adventure is ready. You can start with games and practise speaking whenever you like.",color=subtle)
             OutlinedTextField(value=name,onValueChange={onName(it.take(40))},
                 singleLine=true,label={Text("Your name (optional)")},
                 modifier=Modifier.fillMaxWidth(),shape=RoundedCornerShape(16.dp))
-            Text("A level check is optional. Skipping it won't change existing learning history.",
+            Text("Optional: take a short level check, or head straight to Home.",
                 style=MaterialTheme.typography.bodySmall,color=subtle)
         }
         MintPrimaryAction(if (step == 0) "Let\'s begin →" else if (step == 3) "Start my adventure →" else "Continue →",
