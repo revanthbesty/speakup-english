@@ -1466,7 +1466,7 @@ fun PremiumSpeakUp() {
                 }
             }
             if (!showPathSetup && !showPlacement) {
-            NavigationBar(modifier = Modifier.navigationBarsPadding(), containerColor = surfaceColor, tonalElevation = 6.dp) {
+            NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
                 listOf("Today", "Feed", "Games", "Speak", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
