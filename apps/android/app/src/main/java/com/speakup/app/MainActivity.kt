@@ -1186,11 +1186,27 @@ fun PremiumSpeakUp() {
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
                         } else if (gameMode == "Grammar") {
                             Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            val grammarSetSize = 6
+                            val grammarSetSize = MintGrammarPilotEngine.setSize
                             val grammarTotalSets = (grammarQuestions.size + grammarSetSize - 1) / grammarSetSize
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
-                            Text("Set ${grammarSet + 1} of $grammarTotalSets · Six questions per set", color = secondaryTextColor)
+                            Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            Text("Practice pack ${grammarSet + 1} of $grammarTotalSets · Six questions per pack", color = secondaryTextColor)
+                            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                (0 until grammarTotalSets).forEach { pack ->
+                                    FilterChip(selected = pack == grammarSet, onClick = {
+                                        grammarIndex = MintGrammarPilotEngine.indicesForSet(grammarQuestions.size,pack).first()
+                                        grammarChoice = ""
+                                        grammarChecked = false
+                                        grammarSetComplete = false
+                                        grammarSetNewXp = 0
+                                        grammarFirstTryCorrect = 0
+                                        grammarWrongCount = 0
+                                        grammarHadError = false
+                                        grammarMissedNotes = emptyList()
+                                    }, label = { Text("Pack ${pack + 1}") })
+                                }
+                            }
                             LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
                             Text("Question ${grammarIndex - grammarSet * grammarSetSize + 1} of ${grammarSetEndExclusive - grammarSet * grammarSetSize}", color = accentTextColor, fontWeight = FontWeight.Bold)
