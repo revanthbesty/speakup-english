@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun MintNegotiationScreen() {
+internal fun MintNegotiationScreen(onVerified: (String) -> Unit = {}) {
  var category by remember { mutableStateOf("Negotiation") }
  var index by remember { mutableIntStateOf(0) }
  var choice by remember { mutableIntStateOf(-1) }
@@ -29,7 +29,7 @@ internal fun MintNegotiationScreen() {
     Text("${if(choice==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
    }
   }
-  Button(onClick={checked=true},enabled=choice>=0,modifier=Modifier.fillMaxWidth()){Text("Check response")}
+  Button(onClick={checked=true;if(choice==item.best)onVerified(item.id)},enabled=choice>=0,modifier=Modifier.fillMaxWidth()){Text("Check response")}
   if(checked){Text(if(choice==item.best)"Suitable response!" else "Consider a more constructive option.");Text(item.explanation)}
   OutlinedButton(onClick={index=(index+1)%items.size;choice=-1;checked=false},modifier=Modifier.fillMaxWidth()){Text("Next scenario →")}
   Text("No paid AI, workplace messaging, scores or Mint Bloom rewards.")
