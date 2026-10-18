@@ -21,12 +21,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 1",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What hands and a face but no arms?",
-      "prompt": "Write the noun or short phrase described in riddle 1.",
+      "content": "I am something that hands and a face but no arms?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "clock"
       ],
@@ -37,15 +37,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand calendar",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'calendar'.",
+      "content": "Consider the word \"calendar\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'calendar'?",
       "options": [
         "days and months in order",
-        "information sent to someone"
+        "information sent to someone",
+        "find something unknown"
       ],
       "correct_answers": [
         "days and months in order"
@@ -191,12 +192,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 2",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What reflects the person looking at it?",
-      "prompt": "Write the noun or short phrase described in riddle 2.",
+      "content": "I am something that reflects the person looking at it?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "mirror"
       ],
@@ -207,15 +208,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand library",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'library'.",
+      "content": "Consider the word \"library\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'library'?",
       "options": [
         "place to borrow books",
-        "proof of payment"
+        "proof of payment",
+        "dependable over time"
       ],
       "correct_answers": [
         "place to borrow books"
@@ -361,12 +363,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 3",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What becomes shorter while writing?",
-      "prompt": "Write the noun or short phrase described in riddle 3.",
+      "content": "I am something that becomes shorter while writing?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "pencil"
       ],
@@ -377,15 +379,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand bakery",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'bakery'.",
+      "content": "Consider the word \"bakery\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'bakery'?",
       "options": [
         "shop that sells bread",
-        "even distribution of weight"
+        "even distribution of weight",
+        "able to adapt"
       ],
       "correct_answers": [
         "shop that sells bread"
@@ -531,12 +534,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 4",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What steps without walking?",
-      "prompt": "Write the noun or short phrase described in riddle 4.",
+      "content": "I am something that steps without walking?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "ladder"
       ],
@@ -547,15 +550,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand umbrella",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'umbrella'.",
+      "content": "Consider the word \"umbrella\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'umbrella'?",
       "options": [
         "cover against rainfall",
-        "assurance of future action"
+        "assurance of future action",
+        "free from errors"
       ],
       "correct_answers": [
         "cover against rainfall"
@@ -701,12 +705,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 5",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What carries a mailed letter?",
-      "prompt": "Write the noun or short phrase described in riddle 5.",
+      "content": "I am something that carries a mailed letter?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "envelope"
       ],
@@ -717,15 +721,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand garden",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'garden'.",
+      "content": "Consider the word \"garden\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'garden'?",
       "options": [
         "land used for growing plants",
-        "make ready beforehand"
+        "make ready beforehand",
+        "willing to share"
       ],
       "correct_answers": [
         "land used for growing plants"
@@ -871,12 +876,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 6",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What opens a locked door?",
-      "prompt": "Write the noun or short phrase described in riddle 6.",
+      "content": "I am something that opens a locked door?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "key"
       ],
@@ -887,15 +892,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand station",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'station'.",
+      "content": "Consider the word \"station\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'station'?",
       "options": [
         "where trains stop",
-        "make something clear"
+        "make something clear",
+        "avoiding wasted effort"
       ],
       "correct_answers": [
         "where trains stop"
@@ -1041,12 +1047,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 7",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What carries books on shoulders?",
-      "prompt": "Write the noun or short phrase described in riddle 7.",
+      "content": "I am something that carries books on shoulders?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "backpack"
       ],
@@ -1057,15 +1063,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand teacher",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'teacher'.",
+      "content": "Consider the word \"teacher\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'teacher'?",
       "options": [
         "person who instructs learners",
-        "make something better"
+        "make something better",
+        "discuss terms of an agreement"
       ],
       "correct_answers": [
         "person who instructs learners"
@@ -1211,12 +1218,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 8",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What measures temperature?",
-      "prompt": "Write the noun or short phrase described in riddle 8.",
+      "content": "I am something that measures temperature?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "thermometer"
       ],
@@ -1227,15 +1234,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand window",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'window'.",
+      "content": "Consider the word \"window\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'window'?",
       "options": [
         "glass opening in a wall",
-        "join two things"
+        "join two things",
+        "rank by importance"
       ],
       "correct_answers": [
         "glass opening in a wall"
@@ -1381,12 +1389,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 9",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What points toward north?",
-      "prompt": "Write the noun or short phrase described in riddle 9.",
+      "content": "I am something that points toward north?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "compass"
       ],
@@ -1397,15 +1405,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand market",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'market'.",
+      "content": "Consider the word \"market\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'market'?",
       "options": [
         "place to buy goods",
-        "find something unknown"
+        "find something unknown",
+        "expect in advance"
       ],
       "correct_answers": [
         "place to buy goods"
@@ -1551,12 +1560,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 10",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What shows roads without having roads?",
-      "prompt": "Write the noun or short phrase described in riddle 10.",
+      "content": "I am something that shows roads without having roads?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "map"
       ],
@@ -1567,15 +1576,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand picture",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'picture'.",
+      "content": "Consider the word \"picture\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'picture'?",
       "options": [
         "drawing or photograph",
-        "dependable over time"
+        "dependable over time",
+        "explain using an example"
       ],
       "correct_answers": [
         "drawing or photograph"
@@ -1721,12 +1731,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 11",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What saves the page in a book?",
-      "prompt": "Write the noun or short phrase described in riddle 11.",
+      "content": "I am something that saves the page in a book?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "bookmark"
       ],
@@ -1737,15 +1747,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand journey",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'journey'.",
+      "content": "Consider the word \"journey\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'journey'?",
       "options": [
         "travel from one location to another",
-        "able to adapt"
+        "able to adapt",
+        "think again about a choice"
       ],
       "correct_answers": [
         "travel from one location to another"
@@ -1891,12 +1902,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 12",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What explains the meaning of words?",
-      "prompt": "Write the noun or short phrase described in riddle 12.",
+      "content": "I am something that explains the meaning of words?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "dictionary"
       ],
@@ -1907,15 +1918,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand message",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'message'.",
+      "content": "Consider the word \"message\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'message'?",
       "options": [
         "information sent to someone",
-        "free from errors"
+        "free from errors",
+        "more than one possible meaning"
       ],
       "correct_answers": [
         "information sent to someone"
@@ -2061,12 +2073,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 13",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What shows the dates of a year?",
-      "prompt": "Write the noun or short phrase described in riddle 13.",
+      "content": "I am something that shows the dates of a year?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "calendar"
       ],
@@ -2077,15 +2089,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand receipt",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'receipt'.",
+      "content": "Consider the word \"receipt\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'receipt'?",
       "options": [
         "proof of payment",
-        "willing to share"
+        "willing to share",
+        "logical connectedness"
       ],
       "correct_answers": [
         "proof of payment"
@@ -2231,12 +2244,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 14",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What controls traffic using red amber green?",
-      "prompt": "Write the noun or short phrase described in riddle 14.",
+      "content": "I am something that controls traffic using red amber green?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "traffic light"
       ],
@@ -2247,15 +2260,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand balance",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'balance'.",
+      "content": "Consider the word \"balance\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'balance'?",
       "options": [
         "even distribution of weight",
-        "avoiding wasted effort"
+        "avoiding wasted effort",
+        "ability to recover"
       ],
       "correct_answers": [
         "even distribution of weight"
@@ -2401,12 +2415,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 15",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What a secret that unlocks an account?",
-      "prompt": "Write the noun or short phrase described in riddle 15.",
+      "content": "I am something that a secret that unlocks an account?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "password"
       ],
@@ -2417,15 +2431,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand promise",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'promise'.",
+      "content": "Consider the word \"promise\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'promise'?",
       "options": [
         "assurance of future action",
-        "discuss terms of an agreement"
+        "discuss terms of an agreement",
+        "practical possibility"
       ],
       "correct_answers": [
         "assurance of future action"
@@ -2571,12 +2586,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 16",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What records what a customer paid?",
-      "prompt": "Write the noun or short phrase described in riddle 16.",
+      "content": "I am something that records what a customer paid?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "receipt"
       ],
@@ -2587,15 +2602,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand prepare",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'prepare'.",
+      "content": "Consider the word \"prepare\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'prepare'?",
       "options": [
         "make ready beforehand",
-        "rank by importance"
+        "rank by importance",
+        "broad group agreement"
       ],
       "correct_answers": [
         "make ready beforehand"
@@ -2741,12 +2757,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 17",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What lists departure and arrival times?",
-      "prompt": "Write the noun or short phrase described in riddle 17.",
+      "content": "I am something that lists departure and arrival times?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "timetable"
       ],
@@ -2757,15 +2773,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand explain",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'explain'.",
+      "content": "Consider the word \"explain\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'explain'?",
       "options": [
         "make something clear",
-        "expect in advance"
+        "expect in advance",
+        "responsibility for decisions"
       ],
       "correct_answers": [
         "make something clear"
@@ -2911,12 +2928,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 18",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What shelters you from rain?",
-      "prompt": "Write the noun or short phrase described in riddle 18.",
+      "content": "I am something that shelters you from rain?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "umbrella"
       ],
@@ -2927,15 +2944,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand improve",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'improve'.",
+      "content": "Consider the word \"improve\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'improve'?",
       "options": [
         "make something better",
-        "explain using an example"
+        "explain using an example",
+        "openness about decisions"
       ],
       "correct_answers": [
         "make something better"
@@ -3081,12 +3099,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 19",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What lets people cross a river?",
-      "prompt": "Write the noun or short phrase described in riddle 19.",
+      "content": "I am something that lets people cross a river?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "bridge"
       ],
@@ -3097,15 +3115,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand connect",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'connect'.",
+      "content": "Consider the word \"connect\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'connect'?",
       "options": [
         "join two things",
-        "think again about a choice"
+        "think again about a choice",
+        "difference between expected matches"
       ],
       "correct_answers": [
         "join two things"
@@ -3251,12 +3270,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 20",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What stores energy for devices?",
-      "prompt": "Write the noun or short phrase described in riddle 20.",
+      "content": "I am something that stores energy for devices?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "battery"
       ],
@@ -3267,15 +3286,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand discover",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'discover'.",
+      "content": "Consider the word \"discover\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'discover'?",
       "options": [
         "find something unknown",
-        "more than one possible meaning"
+        "more than one possible meaning",
+        "reduction of harmful impact"
       ],
       "correct_answers": [
         "find something unknown"
@@ -3421,12 +3441,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 21",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What requests payment for goods?",
-      "prompt": "Write the noun or short phrase described in riddle 21.",
+      "content": "I am something that requests payment for goods?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "invoice"
       ],
@@ -3437,15 +3457,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand reliable",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'reliable'.",
+      "content": "Consider the word \"reliable\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'reliable'?",
       "options": [
         "dependable over time",
-        "logical connectedness"
+        "logical connectedness",
+        "possible consequence"
       ],
       "correct_answers": [
         "dependable over time"
@@ -3591,12 +3612,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 22",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What plans how money is spent?",
-      "prompt": "Write the noun or short phrase described in riddle 22.",
+      "content": "I am something that plans how money is spent?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "budget"
       ],
@@ -3607,15 +3628,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand flexible",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'flexible'.",
+      "content": "Consider the word \"flexible\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'flexible'?",
       "options": [
         "able to adapt",
-        "ability to recover"
+        "ability to recover",
+        "fair across differing needs"
       ],
       "correct_answers": [
         "able to adapt"
@@ -3761,12 +3783,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 23",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What latest acceptable completion time?",
-      "prompt": "Write the noun or short phrase described in riddle 23.",
+      "content": "I am something that latest acceptable completion time?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "deadline"
       ],
@@ -3777,15 +3799,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand accurate",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'accurate'.",
+      "content": "Consider the word \"accurate\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'accurate'?",
       "options": [
         "free from errors",
-        "practical possibility"
+        "practical possibility",
+        "temporary pending a decision"
       ],
       "correct_answers": [
         "free from errors"
@@ -3931,12 +3954,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 24",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What reserved time for a meeting?",
-      "prompt": "Write the noun or short phrase described in riddle 24.",
+      "content": "I am something that reserved time for a meeting?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "appointment"
       ],
@@ -3947,15 +3970,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand generous",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'generous'.",
+      "content": "Consider the word \"generous\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'generous'?",
       "options": [
         "willing to share",
-        "broad group agreement"
+        "broad group agreement",
+        "support with proof"
       ],
       "correct_answers": [
         "willing to share"
@@ -4101,12 +4125,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 25",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What short version retaining key points?",
-      "prompt": "Write the noun or short phrase described in riddle 25.",
+      "content": "I am something that short version retaining key points?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "summary"
       ],
@@ -4117,15 +4141,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand efficient",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'efficient'.",
+      "content": "Consider the word \"efficient\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'efficient'?",
       "options": [
         "avoiding wasted effort",
-        "responsibility for decisions"
+        "responsibility for decisions",
+        "confirm independently"
       ],
       "correct_answers": [
         "avoiding wasted effort"
@@ -4271,12 +4296,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 26",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What support for a factual claim?",
-      "prompt": "Write the noun or short phrase described in riddle 26.",
+      "content": "I am something that support for a factual claim?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "evidence"
       ],
@@ -4287,15 +4312,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand negotiate",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'negotiate'.",
+      "content": "Consider the word \"negotiate\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'negotiate'?",
       "options": [
         "discuss terms of an agreement",
-        "openness about decisions"
+        "openness about decisions",
+        "careful about consequences"
       ],
       "correct_answers": [
         "discuss terms of an agreement"
@@ -4441,12 +4467,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 27",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What tentative testable explanation?",
-      "prompt": "Write the noun or short phrase described in riddle 27.",
+      "content": "I am something that tentative testable explanation?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "hypothesis"
       ],
@@ -4457,15 +4483,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand prioritize",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'prioritize'.",
+      "content": "Consider the word \"prioritize\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'prioritize'?",
       "options": [
         "rank by importance",
-        "difference between expected matches"
+        "difference between expected matches",
+        "days and months in order"
       ],
       "correct_answers": [
         "rank by importance"
@@ -4611,12 +4638,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 28",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What case not following the usual rule?",
-      "prompt": "Write the noun or short phrase described in riddle 28.",
+      "content": "I am something that case not following the usual rule?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "exception"
       ],
@@ -4627,15 +4654,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand anticipate",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'anticipate'.",
+      "content": "Consider the word \"anticipate\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'anticipate'?",
       "options": [
         "expect in advance",
-        "reduction of harmful impact"
+        "reduction of harmful impact",
+        "place to borrow books"
       ],
       "correct_answers": [
         "expect in advance"
@@ -4781,12 +4809,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 29",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What agreement reached through concessions?",
-      "prompt": "Write the noun or short phrase described in riddle 29.",
+      "content": "I am something that agreement reached through concessions?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "compromise"
       ],
@@ -4797,15 +4825,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand illustrate",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'illustrate'.",
+      "content": "Consider the word \"illustrate\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'illustrate'?",
       "options": [
         "explain using an example",
-        "possible consequence"
+        "possible consequence",
+        "shop that sells bread"
       ],
       "correct_answers": [
         "explain using an example"
@@ -4951,12 +4980,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 30",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What approximate rather than exact value?",
-      "prompt": "Write the noun or short phrase described in riddle 30.",
+      "content": "I am something that approximate rather than exact value?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "estimate"
       ],
@@ -4967,15 +4996,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand reconsider",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'reconsider'.",
+      "content": "Consider the word \"reconsider\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'reconsider'?",
       "options": [
         "think again about a choice",
-        "fair across differing needs"
+        "fair across differing needs",
+        "cover against rainfall"
       ],
       "correct_answers": [
         "think again about a choice"
@@ -5121,12 +5151,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 31",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What broad agreement among people?",
-      "prompt": "Write the noun or short phrase described in riddle 31.",
+      "content": "I am something that broad agreement among people?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "consensus"
       ],
@@ -5137,15 +5167,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand ambiguity",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'ambiguity'.",
+      "content": "Consider the word \"ambiguity\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'ambiguity'?",
       "options": [
         "more than one possible meaning",
-        "temporary pending a decision"
+        "temporary pending a decision",
+        "land used for growing plants"
       ],
       "correct_answers": [
         "more than one possible meaning"
@@ -5291,12 +5322,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 32",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What surrounding details giving meaning?",
-      "prompt": "Write the noun or short phrase described in riddle 32.",
+      "content": "I am something that surrounding details giving meaning?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "context"
       ],
@@ -5307,15 +5338,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand coherence",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'coherence'.",
+      "content": "Consider the word \"coherence\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'coherence'?",
       "options": [
         "logical connectedness",
-        "support with proof"
+        "support with proof",
+        "where trains stop"
       ],
       "correct_answers": [
         "logical connectedness"
@@ -5461,12 +5493,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 33",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What comparison that explains an idea?",
-      "prompt": "Write the noun or short phrase described in riddle 33.",
+      "content": "I am something that comparison that explains an idea?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "analogy"
       ],
@@ -5477,15 +5509,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand resilience",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'resilience'.",
+      "content": "Consider the word \"resilience\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'resilience'?",
       "options": [
         "ability to recover",
-        "confirm independently"
+        "confirm independently",
+        "person who instructs learners"
       ],
       "correct_answers": [
         "ability to recover"
@@ -5631,12 +5664,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 34",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What something taken as true without proof?",
-      "prompt": "Write the noun or short phrase described in riddle 34.",
+      "content": "I am something that something taken as true without proof?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "assumption"
       ],
@@ -5647,15 +5680,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand feasibility",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'feasibility'.",
+      "content": "Consider the word \"feasibility\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'feasibility'?",
       "options": [
         "practical possibility",
-        "careful about consequences"
+        "careful about consequences",
+        "glass opening in a wall"
       ],
       "correct_answers": [
         "practical possibility"
@@ -5801,12 +5835,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 35",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What credit showing the source of an idea?",
-      "prompt": "Write the noun or short phrase described in riddle 35.",
+      "content": "I am something that credit showing the source of an idea?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "citation"
       ],
@@ -5817,15 +5851,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand consensus",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'consensus'.",
+      "content": "Consider the word \"consensus\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'consensus'?",
       "options": [
         "broad group agreement",
-        "days and months in order"
+        "days and months in order",
+        "place to buy goods"
       ],
       "correct_answers": [
         "broad group agreement"
@@ -5971,12 +6006,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 36",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What wording with multiple interpretations?",
-      "prompt": "Write the noun or short phrase described in riddle 36.",
+      "content": "I am something that wording with multiple interpretations?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "ambiguity"
       ],
@@ -5987,15 +6022,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand accountability",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'accountability'.",
+      "content": "Consider the word \"accountability\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'accountability'?",
       "options": [
         "responsibility for decisions",
-        "place to borrow books"
+        "place to borrow books",
+        "drawing or photograph"
       ],
       "correct_answers": [
         "responsibility for decisions"
@@ -6141,12 +6177,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 37",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What logical relationship among ideas?",
-      "prompt": "Write the noun or short phrase described in riddle 37.",
+      "content": "I am something that logical relationship among ideas?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "coherence"
       ],
@@ -6157,15 +6193,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand transparency",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'transparency'.",
+      "content": "Consider the word \"transparency\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'transparency'?",
       "options": [
         "openness about decisions",
-        "shop that sells bread"
+        "shop that sells bread",
+        "travel from one location to another"
       ],
       "correct_answers": [
         "openness about decisions"
@@ -6311,12 +6348,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 38",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What conclusion inferred from clues?",
-      "prompt": "Write the noun or short phrase described in riddle 38.",
+      "content": "I am something that conclusion inferred from clues?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "inference"
       ],
@@ -6327,15 +6364,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand discrepancy",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'discrepancy'.",
+      "content": "Consider the word \"discrepancy\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'discrepancy'?",
       "options": [
         "difference between expected matches",
-        "cover against rainfall"
+        "cover against rainfall",
+        "information sent to someone"
       ],
       "correct_answers": [
         "difference between expected matches"
@@ -6481,12 +6519,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 39",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What unfair influence on judgment?",
-      "prompt": "Write the noun or short phrase described in riddle 39.",
+      "content": "I am something that unfair influence on judgment?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "bias"
       ],
@@ -6497,15 +6535,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand mitigation",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'mitigation'.",
+      "content": "Consider the word \"mitigation\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'mitigation'?",
       "options": [
         "reduction of harmful impact",
-        "land used for growing plants"
+        "land used for growing plants",
+        "proof of payment"
       ],
       "correct_answers": [
         "reduction of harmful impact"
@@ -6651,12 +6690,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 40",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What independent supporting evidence?",
-      "prompt": "Write the noun or short phrase described in riddle 40.",
+      "content": "I am something that independent supporting evidence?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "corroboration"
       ],
@@ -6667,15 +6706,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand implication",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'implication'.",
+      "content": "Consider the word \"implication\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'implication'?",
       "options": [
         "possible consequence",
-        "where trains stop"
+        "where trains stop",
+        "even distribution of weight"
       ],
       "correct_answers": [
         "possible consequence"
@@ -6821,12 +6861,12 @@
       "category": "riddles",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 41",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What action reducing the harm from a risk?",
-      "prompt": "Write the noun or short phrase described in riddle 41.",
+      "content": "I am something that action reducing the harm from a risk?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "mitigation"
       ],
@@ -6837,15 +6877,16 @@
       "category": "vocabulary",
       "cefr": "A1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand equitable",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'equitable'.",
+      "content": "Consider the word \"equitable\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'equitable'?",
       "options": [
         "fair across differing needs",
-        "person who instructs learners"
+        "person who instructs learners",
+        "assurance of future action"
       ],
       "correct_answers": [
         "fair across differing needs"
@@ -6991,12 +7032,12 @@
       "category": "riddles",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 42",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What assessment of practical possibility?",
-      "prompt": "Write the noun or short phrase described in riddle 42.",
+      "content": "I am something that assessment of practical possibility?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "feasibility"
       ],
@@ -7007,15 +7048,16 @@
       "category": "vocabulary",
       "cefr": "A2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand provisional",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'provisional'.",
+      "content": "Consider the word \"provisional\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'provisional'?",
       "options": [
         "temporary pending a decision",
-        "glass opening in a wall"
+        "glass opening in a wall",
+        "make ready beforehand"
       ],
       "correct_answers": [
         "temporary pending a decision"
@@ -7161,12 +7203,12 @@
       "category": "riddles",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 43",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What obligation to account for actions?",
-      "prompt": "Write the noun or short phrase described in riddle 43.",
+      "content": "I am something that obligation to account for actions?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "accountability"
       ],
@@ -7177,15 +7219,16 @@
       "category": "vocabulary",
       "cefr": "B1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand substantiate",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'substantiate'.",
+      "content": "Consider the word \"substantiate\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'substantiate'?",
       "options": [
         "support with proof",
-        "place to buy goods"
+        "place to buy goods",
+        "make something clear"
       ],
       "correct_answers": [
         "support with proof"
@@ -7331,12 +7374,12 @@
       "category": "riddles",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 44",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What openness about processes?",
-      "prompt": "Write the noun or short phrase described in riddle 44.",
+      "content": "I am something that openness about processes?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "transparency"
       ],
@@ -7347,15 +7390,16 @@
       "category": "vocabulary",
       "cefr": "B2",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand corroborate",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'corroborate'.",
+      "content": "Consider the word \"corroborate\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'corroborate'?",
       "options": [
         "confirm independently",
-        "drawing or photograph"
+        "drawing or photograph",
+        "make something better"
       ],
       "correct_answers": [
         "confirm independently"
@@ -7501,12 +7545,12 @@
       "category": "riddles",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Riddle 45",
       "objective": "Use descriptive language to infer a noun",
-      "content": "What limitation attached to a claim?",
-      "prompt": "Write the noun or short phrase described in riddle 45.",
+      "content": "I am something that limitation attached to a claim?",
+      "prompt": "What am I? Give a word or short phrase.",
       "correct_answers": [
         "qualification"
       ],
@@ -7517,15 +7561,16 @@
       "category": "vocabulary",
       "cefr": "C1",
       "estimated_seconds": 75,
-      "content_version": "draft-0.2",
+      "content_version": "draft-0.3",
       "review_status": "needs_human_review",
       "title": "Understand circumspect",
       "objective": "Choose a precise vocabulary definition",
-      "content": "A sentence or text uses the word 'circumspect'.",
+      "content": "Consider the word \"circumspect\" in English vocabulary. Read all three definitions carefully before answering.",
       "prompt": "What is the meaning of 'circumspect'?",
       "options": [
         "careful about consequences",
-        "travel from one location to another"
+        "travel from one location to another",
+        "join two things"
       ],
       "correct_answers": [
         "careful about consequences"
