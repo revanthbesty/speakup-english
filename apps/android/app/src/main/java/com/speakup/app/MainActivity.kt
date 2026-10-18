@@ -1303,7 +1303,15 @@ fun PremiumSpeakUp() {
                         MintMembershipScreen(onReturn = { page = "Profile" })
                     }
                     "Privacy" -> {
-                        MintPrivacyScreen(onBack = { page = "Profile" })
+                        MintPrivacyScreen(
+                            onBack = { page = "Profile" },
+                            onPrivateInteractionsCleared = {
+                                blockedMintClips = emptySet()
+                                reportedMintClips = emptySet()
+                                reactedMintClips = emptySet()
+                                mintStoryCompletions = emptySet()
+                            }
+                        )
                     }
                     "Profile" -> {
                         Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
