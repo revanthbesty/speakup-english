@@ -215,6 +215,7 @@ fun PremiumSpeakUp() {
     var mintShowHint by remember { mutableStateOf(false) }
     var mintRewardLedger by remember { mutableStateOf((preferences.getStringSet("mint_game_awards", emptySet()) ?: emptySet()).toSet()) }
     var mintGameFeedback by remember { mutableStateOf("") }
+    var mintSpeakingMission by remember { mutableStateOf("") }
 
     var dialogueIndex by remember { mutableIntStateOf(0) }
     var dialogueChoice by remember { mutableStateOf("") }
@@ -643,6 +644,16 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Speak" -> {
+                        if (mintSpeakingMission.isNotBlank()) {
+                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                                Column(Modifier.padding(16.dp)) {
+                                    Text("Mint Quest · Speaking Mission", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                    Text(mintSpeakingMission, color = primaryTextColor)
+                                    Text("Use the microphone or quiet-mode text. This is private rehearsal, not a certified pronunciation assessment.", color = secondaryTextColor)
+                                    TextButton(onClick = { mintSpeakingMission = ""; practiceChecked = false }) { Text("Return to standard speaking practice") }
+                                }
+                            }
+                        }
                         Text("Speaking Studio", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp)) {
@@ -666,7 +677,7 @@ fun PremiumSpeakUp() {
                                 val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                                     putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                                     putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.ENGLISH.toLanguageTag())
-                                    putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak your answer for ${lesson.title}")
+                                    putExtra(RecognizerIntent.EXTRA_PROMPT, if (mintSpeakingMission.isNotBlank()) mintSpeakingMission else "Speak your answer for ${lesson.title}")
                                 }
                                 try { speechLauncher.launch(intent) }
                                 catch (_: android.content.ActivityNotFoundException) {
@@ -684,7 +695,11 @@ fun PremiumSpeakUp() {
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 2
                         )
-                        if (practiceChecked) {
+                        if (practiceChecked && mintSpeakingMission.isNotBlank()) {
+                            Spacer(Modifier.height(10.dp))
+                            Text("Great effort practising your response. Re-read your words, try a clearer phrase, or speak again. Speech recognition may vary by accent and environment.", color = primaryTextColor)
+                        }
+                        if (practiceChecked && mintSpeakingMission.isBlank()) {
                             Spacer(Modifier.height(10.dp))
                             val keywords = lesson.answer.lowercase().replace(Regex("[^a-z ]"), "").split(" ").filter { it.length > 3 }.toSet()
                             val spokenWords = practiceResponse.lowercase().replace(Regex("[^a-z ]"), "").split(" ").toSet()
@@ -829,6 +844,9 @@ fun PremiumSpeakUp() {
                                                 Text("+15 XP on first mastery • replay any time", color = accentTextColor)
                                                 Text("Speak next: ${activeQuest.speakingPrompt}", color = primaryTextColor)
                                                 OutlinedButton(onClick = {
+                                                    mintSpeakingMission = activeQuest.speakingPrompt
+                                                    practiceResponse = ""
+                                                    practiceChecked = false
                                                     page = "Speak"
                                                     showSpeakingHint = false
                                                 }, modifier = Modifier.fillMaxWidth()) { Text("Try the speaking mission →") }
