@@ -16,6 +16,7 @@ class MintUiNavigationTest {
         assertEquals("Profile", MintUiNavigation.mainTab("Privacy"))
         assertEquals("Profile", MintUiNavigation.mainTab("Membership"))
         assertEquals("Profile", MintUiNavigation.mainTab("Help"))
+        assertEquals("Profile", MintUiNavigation.mainTab("Settings"))
         assertEquals("Feed", MintUiNavigation.mainTab("Feed"))
         assertEquals("Feed", MintUiNavigation.mainTab("FiveWord"))
     }

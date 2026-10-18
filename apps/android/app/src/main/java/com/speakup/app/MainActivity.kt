@@ -223,6 +223,7 @@ fun PremiumSpeakUp() {
     var showSpeakingHint by remember { mutableStateOf(true) }
     var showProfileSettings by remember { mutableStateOf(false) }
     var showGameFilters by remember { mutableStateOf(false) }
+    var showGameContent by remember { mutableStateOf(false) }
     var showOnboardingOptions by remember { mutableStateOf(false) }
     var showJourneyPicker by remember { mutableStateOf(false) }
     var showProfileAdvanced by remember { mutableStateOf(false) }
@@ -230,6 +231,7 @@ fun PremiumSpeakUp() {
     var showHomeExtras by remember { mutableStateOf(false) }
     var showProgressDetails by remember { mutableStateOf(false) }
     var grammarLanding by remember { mutableStateOf(true) }
+    var showGrammarInsights by remember { mutableStateOf(false) }
     var familyPilotEnabled by remember { mutableStateOf(preferences.getBoolean("mint_family_local_enabled", false)) }
     var passportConsent by remember { mutableStateOf(preferences.getBoolean("mint_passport_consent", false)) }
     var passportPrompt by remember { mutableStateOf("week") }
@@ -238,6 +240,7 @@ fun PremiumSpeakUp() {
         mutableStateOf((preferences.getStringSet("mint_passport_reflections", emptySet()) ?: emptySet()).toSet())
     }
     var speakingView by remember { mutableStateOf("Conversations") }
+    var showSpeakingPassport by remember { mutableStateOf(false) }
     var guidedVoiceReceived by remember { mutableStateOf(false) }
     var showSpeechConsent by remember { mutableStateOf(false) }
     var pendingSpeechPrompt by remember { mutableStateOf("") }
@@ -275,6 +278,9 @@ fun PremiumSpeakUp() {
     var gameMode by remember { mutableStateOf("Mint Quests") }
     BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
         when {
+            page == "Games" && showGameContent -> {
+                showGameContent = false; gameMode = "Mint Quests"; showGameFilters = false
+            }
             page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
             page == "FiveWord" -> page = "Feed"
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
@@ -542,6 +548,7 @@ fun PremiumSpeakUp() {
                             onAction = {
                                 showGameFilters = false
                                 gameMode = "Mint Quests"
+                                showGameContent = false
                                 page = "Games"
                             }
                         )
@@ -769,51 +776,17 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Speak" -> {
-                        Text("Speak with Mint Buddy", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Text("Try a short, private English conversation.", color = secondaryTextColor)
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("📘 Speaking Growth Passport", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                                Text("Optional, local self-reflections. This does not save microphone audio or grade your accent.", color = secondaryTextColor)
-                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                                    Text("Save reflection notes on this device", modifier = Modifier.weight(1f), color = primaryTextColor)
-                                    Switch(checked = passportConsent, onCheckedChange = { enabled ->
-                                        passportConsent = enabled
-                                        preferences.edit().putBoolean("mint_passport_consent", enabled).apply()
-                                    })
-                                }
-                                if (passportConsent) {
-                                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        MintSpeakingPassport.prompts().forEach { (id, _) ->
-                                            FilterChip(selected = passportPrompt == id, onClick = { passportPrompt = id },
-                                                label = { Text(when(id) { "week" -> "7 days"; "month" -> "30 days"; else -> "90 days" }) })
-                                        }
-                                    }
-                                    Text(MintSpeakingPassport.prompts()[passportPrompt] ?: "", color = primaryTextColor)
-                                    OutlinedTextField(value = passportReflection, onValueChange = { passportReflection = it },
-                                        label = { Text("Your private progress note (max 240 characters)") },
-                                        modifier = Modifier.fillMaxWidth(), maxLines = 4)
-                                    Button(onClick = {
-                                        MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay())?.let { note ->
-                                            passportNotes = passportNotes + MintSpeakingPassport.encode(note)
-                                            preferences.edit().putStringSet("mint_passport_reflections", passportNotes).apply()
-                                            passportReflection = ""
-                                        }
-                                    }, enabled = MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay()) != null,
-                                        modifier = Modifier.fillMaxWidth()) { Text("Save private reflection") }
-                                    MintSpeakingPassport.newestNotes(passportNotes).take(5).forEach { note ->
-                                        Text("${note.promptId} · ${note.selfReflection}", color = primaryTextColor)
-                                    }
-                                    if (passportNotes.isNotEmpty()) {
-                                        OutlinedButton(onClick = {
-                                            passportNotes = emptySet()
-                                            preferences.edit().remove("mint_passport_reflections").apply()
-                                        }, modifier = Modifier.fillMaxWidth()) { Text("Delete all Passport notes") }
-                                    }
-                                } else Text("Off · No Passport reflections are saved.", color = secondaryTextColor)
+                        MintDashboardHero(
+                            kicker="Mint Buddy • Voice & text",
+                            title="Let's practise speaking",
+                            description="Choose guided conversations or an optional voice attempt. Text practice always works without the microphone.",
+                            action="Start voice practice  🎤",
+                            onAction={
+                                speakingView="Lessons"
+                                pendingSpeechPrompt="Speak one short English sentence"
+                                showSpeechConsent=true
                             }
-                        }
-                        Spacer(Modifier.height(10.dp))
+                        )
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text("Your practice", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -932,6 +905,56 @@ fun PremiumSpeakUp() {
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                         }
+                        OutlinedButton(onClick = { showSpeakingPassport = !showSpeakingPassport },
+                            modifier = Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                            Text(if(showSpeakingPassport) "Hide speaking passport" else "My Speaking Passport  →")
+                        }
+                        if(showSpeakingPassport) {
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("📘 Speaking Growth Passport", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                Text("Optional, local self-reflections. This does not save microphone audio or grade your accent.", color = secondaryTextColor)
+                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                    Text("Save reflection notes on this device", modifier = Modifier.weight(1f), color = primaryTextColor)
+                                    Switch(checked = passportConsent, onCheckedChange = { enabled ->
+                                        passportConsent = enabled
+                                        preferences.edit().putBoolean("mint_passport_consent", enabled).apply()
+                                    })
+                                }
+                                if (passportConsent) {
+                                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        MintSpeakingPassport.prompts().forEach { (id, _) ->
+                                            FilterChip(selected = passportPrompt == id, onClick = { passportPrompt = id },
+                                                label = { Text(when(id) { "week" -> "7 days"; "month" -> "30 days"; else -> "90 days" }) })
+                                        }
+                                    }
+                                    Text(MintSpeakingPassport.prompts()[passportPrompt] ?: "", color = primaryTextColor)
+                                    OutlinedTextField(value = passportReflection, onValueChange = { passportReflection = it },
+                                        label = { Text("Your private progress note (max 240 characters)") },
+                                        modifier = Modifier.fillMaxWidth(), maxLines = 4)
+                                    Button(onClick = {
+                                        MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay())?.let { note ->
+                                            passportNotes = passportNotes + MintSpeakingPassport.encode(note)
+                                            preferences.edit().putStringSet("mint_passport_reflections", passportNotes).apply()
+                                            passportReflection = ""
+                                        }
+                                    }, enabled = MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay()) != null,
+                                        modifier = Modifier.fillMaxWidth()) { Text("Save private reflection") }
+                                    MintSpeakingPassport.newestNotes(passportNotes).take(5).forEach { note ->
+                                        Text("${note.promptId} · ${note.selfReflection}", color = primaryTextColor)
+                                    }
+                                    if (passportNotes.isNotEmpty()) {
+                                        OutlinedButton(onClick = {
+                                            passportNotes = emptySet()
+                                            preferences.edit().remove("mint_passport_reflections").apply()
+                                        }, modifier = Modifier.fillMaxWidth()) { Text("Delete all Passport notes") }
+                                    }
+                                } else Text("Off · No Passport reflections are saved.", color = secondaryTextColor)
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+
+                        }
                     }
                     "FiveWord" -> {
                         val eligibleAge = when (learnerAgeBand) {
@@ -998,6 +1021,48 @@ fun PremiumSpeakUp() {
                     }
                     "Games" -> {
                         MintSectionHeading("Games Hub", "Play a quick game, learn something new")
+
+                        if (!showGameContent) {
+                            MintDashboardHero(
+                                kicker="Featured game · Mint Quests",
+                                title="Ready for a quick challenge?",
+                                description="Solve a short original English puzzle and practise at your own pace.",
+                                action="Play Mint Quests  →",
+                                onAction={gameMode="Mint Quests";showGameFilters=false;showGameContent=true}
+                            )
+                            MintSectionHeading("Choose a game","Short games with real learning goals")
+                            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                                MintDestinationTile("Grammar","3 practice packs","📘",MintVisualTokens.violet,Modifier.weight(1f)) {
+                                    gameMode="Grammar"; grammarLanding=true; showGameContent=true; showGameFilters=false
+                                }
+                                MintDestinationTile("Vocabulary","Learn new words","💎",MintVisualTokens.blue,Modifier.weight(1f)) {
+                                    gameMode="Vocabulary";showGameContent=true;showGameFilters=false
+                                }
+                            }
+                            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                                MintDestinationTile("Word Builder","Build sentences","🧩",MintVisualTokens.orange,Modifier.weight(1f)) {
+                                    gameMode="Word Builder";showGameContent=true;showGameFilters=false
+                                }
+                                MintDestinationTile("Situations","Real-life choices","🌍",MintVisualTokens.pink,Modifier.weight(1f)) {
+                                    gameMode="Situations";showGameContent=true;showGameFilters=false
+                                }
+                            }
+                            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                                MintDestinationTile("Listening","Listen & respond","🎧",MintVisualTokens.mint,Modifier.weight(1f)) {
+                                    gameMode="Listening";showGameContent=true;showGameFilters=false
+                                }
+                                MintDestinationTile("Stories","Read & explore","📖",MintVisualTokens.violet,Modifier.weight(1f)) {
+                                    storyOpenedFromGames=true;page="Feed"
+                                }
+                            }
+                            OutlinedButton(onClick={showGameContent=true;showGameFilters=true},
+                                modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
+                                Text("All games & levels  →")
+                            }
+                        } else {
+                            TextButton(onClick={
+                                showGameContent=false;gameMode="Mint Quests";showGameFilters=false
+                            }) { Text("← Games Hub") }
                         if (!showGameFilters && gameMode == "Mint Quests") {
                             Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1534,15 +1599,18 @@ fun PremiumSpeakUp() {
                                 )
                             } else {
 
-                            Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            TextButton(onClick = { grammarLanding = true; showGrammarInsights = false }) {
+                                Text("← Grammar packs")
+                            }
+                            MintSectionHeading("Grammar practice", "One question at a time · Learn from the explanation")
+                            OutlinedButton(onClick = { showGrammarInsights = !showGrammarInsights },
+                                modifier = Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                                Text(if(showGrammarInsights) "Hide progress & saved questions" else "My grammar progress & saved questions  →")
+                            }
                             val grammarSetSize = MintGrammarPilotEngine.setSize
                             val grammarTotalSets = (grammarQuestions.size + grammarSetSize - 1) / grammarSetSize
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
-                            Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                            Text("Release readiness: NOT APPROVED · independently reviewed content, accessibility, migrations and owner sign-off still required.",
-                                color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-
                             val grammarQualityIssues = remember {
                                 MintGrammarQuality.collectionIssues(grammarQuestions.map {
                                     MintGrammarQuality.Item(it.prompt,it.options,it.correct,it.explanation)
@@ -1553,6 +1621,7 @@ fun PremiumSpeakUp() {
                                     color = MaterialTheme.colorScheme.error)
                             }
 
+                            if (showGrammarInsights) {
                             val grammarAnalytics = MintGrammarAnalytics.snapshot(grammarQuestions.size,grammarMastered,grammarBookmarks,grammarRevisionMissed)
                             Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1646,7 +1715,8 @@ fun PremiumSpeakUp() {
                                     }, label = { Text("Pack ${pack + 1}") })
                                 }
                             }
-                            LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
+                            }
+                            MintProgressBar((grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize))
                             val question = grammarQuestions[grammarIndex]
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 val savedKey = MintGrammarHub.bookmarkId(grammarIndex)
@@ -1933,6 +2003,7 @@ fun PremiumSpeakUp() {
                                 dialogueChoice = ""
                                 dialogueChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next conversation →") }
+                        }
                         }
                     }
                     "Membership" -> {
@@ -2284,7 +2355,10 @@ fun PremiumSpeakUp() {
                     )
                     NavigationBarItem(
                         selected = isActive,
-                        onClick = { page = tab },
+                        onClick = {
+                            if (tab == "Games") { showGameContent=false;gameMode="Mint Quests";showGameFilters=false }
+                            page = tab
+                        },
                         icon = { MintTabGlyph(tab, iconColor) },
                         label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
