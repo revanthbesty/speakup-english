@@ -194,7 +194,14 @@ fun PremiumSpeakUp() {
         MintPlacementBank.session(selectedPlacementLevel, placementAttempt)
     }
     var showPlacement by remember { mutableStateOf(false) }
-    BackHandler(enabled = !showPathSetup && !showPlacement && page != "Today") { page = "Today" }
+    var storyOpenedFromGames by remember { mutableStateOf(false) }
+    BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
+        when {
+            page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
+            page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
+            else -> page = "Today"
+        }
+    }
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
     val lesson = lessons[lessonIndex]
@@ -755,7 +762,7 @@ fun PremiumSpeakUp() {
                         }
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = "" }, modifier = Modifier.weight(1f)) { Text("Grammar") }
-                            OutlinedButton(onClick = { page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
+                            OutlinedButton(onClick = { storyOpenedFromGames = true; page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
                         }
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
                         if (showGameFilters) {
