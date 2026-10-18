@@ -49,8 +49,10 @@ def validate_replacement(item, old):
     for field in ("category", "cefr_level"):
         if item.get(field) != before.get(field):
             raise ValueError(f"{ident}: unexpected {field} change")
-    if item.get("review_status") not in ("needs_human_review", "approved"):
+    if item.get("review_status") != "needs_human_review":
         raise ValueError(f"{ident}: explicit review status required")
+    if item.get("source_type") != "original_ai_draft_rewrite":
+        raise ValueError(f"{ident}: repair source provenance required")
     if not item.get("content") or not item.get("question") or not item.get("explanation"):
         raise ValueError(f"{ident}: incomplete core content")
     validate_answer(item)
@@ -58,6 +60,12 @@ def validate_replacement(item, old):
     field = NEEDS_TEXT.get(cat)
     if field and not str(item.get(field, "")).strip():
         raise ValueError(f"{ident}: {field} missing")
+    if cat == "word_builder" and not str(item.get("target_word", "")).strip():
+        raise ValueError(f"{ident}: target_word missing")
+    if cat == "vocabulary" and not str(item.get("definition", "")).strip():
+        raise ValueError(f"{ident}: vocabulary definition missing")
+    if cat == "situations" and not str(item.get("situation_context", "")).strip():
+        raise ValueError(f"{ident}: situation context missing")
     if cat == "dialogues":
         turns = item.get(NEEDS_TURNS)
         if not isinstance(turns, list) or len(turns) < 2 or any(not isinstance(t, dict) or not t.get("speaker") or not t.get("text") for t in turns):
@@ -81,8 +89,12 @@ def overlay(zip_path, patch_path):
     if len(old) != 4000:
         raise ValueError("Source bank must contain 4000 unique activity IDs")
     patches = parse_rows(Path(patch_path).read_text(encoding="utf-8"), str(patch_path))
+    if not patches:
+        raise ValueError("No replacement activities provided")
     seen = set()
     for x in patches:
+        if x.get("review_status") != "needs_human_review":
+            raise ValueError(f"{x.get('activity_id')}: auto-approved replacement not permitted")
         ident = x.get("activity_id")
         if ident in seen:
             raise ValueError(f"Duplicate replacement ID: {ident}")
