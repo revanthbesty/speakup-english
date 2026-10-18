@@ -14,8 +14,7 @@ internal fun MintHelpScreen(onBack: () -> Unit, onGames: () -> Unit, onSpeak: ()
     var topic by remember { mutableStateOf("Getting started") }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onBack) { Text("← Profile") }
-        Text("Help & guidance", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("Simple answers for your learning journey.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        MintScreenHeading("Help & guidance", "Simple answers for your learning journey.", "PROFILE • SUPPORT")
         listOf("Getting started", "Using games", "Speaking privately", "Stories & offline", "Privacy & support").forEach { item ->
             OutlinedButton(onClick = { topic = item }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 colors = ButtonDefaults.outlinedButtonColors(containerColor = if (topic == item) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)) {
