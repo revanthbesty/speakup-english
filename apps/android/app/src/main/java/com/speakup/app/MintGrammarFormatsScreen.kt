@@ -26,7 +26,7 @@ internal fun MintGrammarFormatsScreen() {
     DisposableEffect(tts) { onDispose { tts.stop(); tts.shutdown() } }
     val item = MintGrammarFormats.samples.first { it.format == selectedFormat }
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("🎭 Grammar Formats · offline pilot", style = MaterialTheme.typography.titleLarge)
+        MintScreenHeading("Grammar Formats", "Three original offline practice activities.", "GAMES • GRAMMAR")
         Text("Three original sample activities. They are not an approved exam or imported question bank.")
         Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             MintGrammarFormat.entries.forEach { format ->
@@ -47,8 +47,7 @@ internal fun MintGrammarFormatsScreen() {
             Text(if (ttsAvailable) "Listen, or read the transcript below."
                 else "Speech engine unavailable. Read the transcript below instead.")
         }
-        Text(item.cue, style = MaterialTheme.typography.titleMedium)
-        Text(item.prompt)
+        MintSectionCard("Your challenge") { Text(item.cue, style = MaterialTheme.typography.titleMedium); Text(item.prompt) }
         item.options.forEachIndexed { index, value ->
             OutlinedButton(onClick = { selectedAnswer = index; checked = false },
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
@@ -56,8 +55,7 @@ internal fun MintGrammarFormatsScreen() {
                     modifier = Modifier.fillMaxWidth())
             }
         }
-        Button(onClick = { checked = true }, enabled = selectedAnswer >= 0,
-            modifier = Modifier.fillMaxWidth()) { Text("Check answer") }
+        MintPrimaryAction("Check answer", onClick = { checked = true }, enabled = selectedAnswer >= 0)
         if (checked) {
             Text(if (MintGrammarFormats.checked(item,selectedAnswer)) "Correct!" else "Try another answer.")
             Text(item.explanation)
