@@ -1,6 +1,8 @@
 package com.speakup.app
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
@@ -43,6 +45,7 @@ internal fun MintFeedScreen(
     var frameIndex by rememberSaveable { mutableIntStateOf(0) }
     var playing by remember { mutableStateOf(false) }
     var captionVisible by rememberSaveable { mutableStateOf(true) }
+    var largeCaptions by rememberSaveable { mutableStateOf(false) }
     var choice by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
     var reportOpen by remember { mutableStateOf(false) }
@@ -112,16 +115,16 @@ internal fun MintFeedScreen(
                     Modifier.background(
                         Brush.verticalGradient(listOf(Color(0xFF0A6D68), Color(0xFF133B4C), Color(0xFF10202C))),
                         RoundedCornerShape(28.dp)
-                    ).padding(22.dp).animateContentSize(),
+                    ).padding(22.dp).then(if (reducedMotion) Modifier else Modifier.animateContentSize()),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text("ENGLISH MINT ORIGINAL • CAPTIONED STORY", color = Color.White.copy(alpha = 0.8f),
                         style = MaterialTheme.typography.labelSmall)
-                    Box(Modifier.fillMaxWidth().height(128.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    Box(Modifier.fillMaxWidth().height(128.dp).semantics { contentDescription = frame.caption }, contentAlignment = androidx.compose.ui.Alignment.Center) {
                         Text(frame.visual, style = MaterialTheme.typography.displayLarge)
                     }
                     Text(if (captionVisible) frame.caption else "Captions hidden",
-                        color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        color = Color.White, style = if (largeCaptions) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(frame.spokenLine, color = Color.White.copy(alpha = 0.9f))
                     LinearProgressIndicator(progress = { MintClipsPlayback.progress(frameIndex, clip.frames.size) },
                         modifier = Modifier.fillMaxWidth(), color = Color(0xFF7FE5C8))
@@ -148,6 +151,9 @@ internal fun MintFeedScreen(
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { captionVisible = !captionVisible }) {
                     Text(if (captionVisible) "Hide captions" else "Show captions")
+                }
+                OutlinedButton(onClick = { largeCaptions = !largeCaptions }, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(if (largeCaptions) "Standard captions" else "Larger captions")
                 }
                 OutlinedButton(onClick = { playing = false; showListening = !showListening }) {
                     Text(if (showListening) "Hide audio" else "Listen to line")
