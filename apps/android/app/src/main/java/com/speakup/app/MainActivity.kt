@@ -349,7 +349,7 @@ fun PremiumSpeakUp() {
             AlertDialog(
                 onDismissRequest = { showSpeechConsent = false },
                 title = { Text("Optional speech recognition") },
-                text = { Text("Your device's speech recognition provider may process spoken audio. English Mint does not save raw recordings or upload them to its own server in this mode. You can cancel or use quiet text practice.") },
+                text = { Text("Your device's speech recognition provider may process spoken audio. English Mint does not store raw audio in this flow. Your device speech provider may process audio. Cancel or type instead; recognition is not a pronunciation score.") },
                 confirmButton = {
                     TextButton(onClick = {
                         showSpeechConsent = false
