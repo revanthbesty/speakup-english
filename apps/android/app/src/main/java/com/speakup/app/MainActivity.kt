@@ -417,7 +417,7 @@ fun PremiumSpeakUp() {
     val accentTextColor = if (darkAppearance) NightAccent else Violet
     val surfaceColor = if (darkAppearance) NightCard else Color.White
     val softSurfaceColor = if (darkAppearance) NightCard else Soft
-    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, onPrimary = Color(0xFF062B24), background = Night, onBackground = Color(0xFFE8F3F3), surface = NightCard, onSurface = Color(0xFFE8F3F3), surfaceVariant = Color(0xFF253643), onSurfaceVariant = Color(0xFFB5CACF), surfaceContainer = NightCard, surfaceContainerLow = NightCard, primaryContainer = Color(0xFF20534A), onPrimaryContainer = Color.White, outline = Color(0xFF9DB9BE)) else lightColorScheme(primary = Violet, onPrimary = Color.White, background = Cream, onBackground = Navy, surface = Color.White, onSurface = Navy, surfaceVariant = Color(0xFFE5F0EF), onSurfaceVariant = Color(0xFF46606A), surfaceContainer = Color(0xFFF0F6F5), surfaceContainerLow = Color(0xFFF6FAFA), primaryContainer = Soft, onPrimaryContainer = Navy, outline = Color(0xFF607D82))) {
+    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, secondary = Color(0xFFC4B5FD), tertiary = Color(0xFF67E8F9), onPrimary = Color(0xFF062B24), background = Night, onBackground = Color(0xFFE8F3F3), surface = NightCard, onSurface = Color(0xFFE8F3F3), surfaceVariant = Color(0xFF253643), onSurfaceVariant = Color(0xFFB5CACF), surfaceContainer = NightCard, surfaceContainerLow = NightCard, primaryContainer = Color(0xFF20534A), onPrimaryContainer = Color.White, outline = Color(0xFF9DB9BE)) else lightColorScheme(primary = Color(0xFF059669), secondary = Color(0xFF7C3AED), tertiary = Color(0xFF0891B2), onPrimary = Color.White, background = Cream, onBackground = Navy, surface = Color.White, onSurface = Navy, surfaceVariant = Color(0xFFE5F0EF), onSurfaceVariant = Color(0xFF46606A), surfaceContainer = Color(0xFFF0F6F5), surfaceContainerLow = Color(0xFFF6FAFA), primaryContainer = Soft, onPrimaryContainer = Navy, outline = Color(0xFF607D82))) {
         if (showSpeechConsent) {
             AlertDialog(
                 onDismissRequest = { showSpeechConsent = false },
@@ -433,7 +433,11 @@ fun PremiumSpeakUp() {
             )
         }
         Surface(color = backgroundColor, contentColor = primaryTextColor) {
-        Column(Modifier.fillMaxSize().statusBarsPadding()) {
+        Column(Modifier.fillMaxSize()
+            .background(Brush.verticalGradient(
+                if (darkAppearance) listOf(Color(0xFF101D32),Night,Color(0xFF101D32))
+                else listOf(Color(0xFFEAFBF6),Cream,Color(0xFFF5F1FF))
+            )).statusBarsPadding()) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
                 if (showPathSetup || page == "Today") {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
