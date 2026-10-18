@@ -1302,7 +1302,17 @@ fun PremiumSpeakUp() {
                     "Membership" -> {
                         MintMembershipScreen(onReturn = { page = "Profile" })
                     }
+                    "Privacy" -> {
+                        MintPrivacyScreen(onBack = { page = "Profile" })
+                    }
                     "Profile" -> {
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                            Column(Modifier.padding(14.dp)) {
+                                Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text("Export saved learning history or manage local feed interactions.", color = secondaryTextColor)
+                                OutlinedButton(onClick = { page = "Privacy" }) { Text("Open privacy controls →") }
+                            }
+                        }
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                             Column(Modifier.padding(16.dp)) {
                                 Text("English Mint Free", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
