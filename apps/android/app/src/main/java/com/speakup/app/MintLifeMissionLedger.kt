@@ -28,6 +28,17 @@ internal object MintLifeMissionLedger {
     fun completedMissionCount(records: Set<String>, date: String): Int =
         supportedMissionIds.count { completedToday(records, date, it) }
 
+    fun daysPractised(records: Set<String>, today: String, days: Int = 7): Int {
+        if (!isValidDate(today) || days !in 1..31) return 0
+        val end = java.time.LocalDate.parse(today)
+        val start = end.minusDays(days.toLong() - 1)
+        return records.mapNotNull { entry ->
+            val parts = entry.split('|')
+            if (parts.size != 2 || parts[1] !in supportedMissionIds || !isValidDate(parts[0])) null
+            else java.time.LocalDate.parse(parts[0])
+        }.filter { it >= start && it <= end }.distinct().size
+    }
+
     private fun isValidDate(date: String): Boolean =
         runCatching { java.time.LocalDate.parse(date).toString() == date }.getOrDefault(false)
 }
