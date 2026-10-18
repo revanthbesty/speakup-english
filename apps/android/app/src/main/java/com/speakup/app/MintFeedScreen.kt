@@ -47,6 +47,8 @@ internal fun MintFeedScreen(
     var infoOpen by remember { mutableStateOf(false) }
     var showListening by remember { mutableStateOf(false) }
     var wordSheetOpen by remember { mutableStateOf(false) }
+    var speakMomentOpen by remember { mutableStateOf(false) }
+    var suggestedReplyVisible by remember { mutableStateOf(false) }
     val visibleClips = MintFeedCatalog.visible(learnerAge, level, blockedIds)
     val currentIndex = clipIndex.coerceIn(0, (visibleClips.size - 1).coerceAtLeast(0))
     val clip = visibleClips.getOrNull(currentIndex)
@@ -59,10 +61,12 @@ internal fun MintFeedScreen(
         checked = false
         showListening = false
         wordSheetOpen = false
+        speakMomentOpen = false
+        suggestedReplyVisible = false
     }
 
     LaunchedEffect(clip?.id, frameIndex, playing, reducedMotion) {
-        if (playing && !reducedMotion && clip != null && !wordSheetOpen) {
+        if (playing && !reducedMotion && clip != null && !wordSheetOpen && !speakMomentOpen) {
             delay(2800L)
             if (frameIndex < clip.frames.lastIndex) frameIndex += 1 else playing = false
         }
@@ -186,8 +190,38 @@ internal fun MintFeedScreen(
             if (checked) Text(if (choice == clip.challengeAnswer) "Correct! You've understood this story." else
                 "Give it another try. You can replay the scenes and read the captions.")
             if (clip.id in completedChallengeIds) Text("✓ Story challenge completed", color = MaterialTheme.colorScheme.primary)
-            OutlinedButton(onClick = { onSpeakingPrompt("Explain what happened in '${clip.title}' using one or two English sentences.") },
-                modifier = Modifier.fillMaxWidth()) { Text("🎙 Try the speaking challenge") }
+            OutlinedButton(onClick = {
+                playing = false
+                suggestedReplyVisible = false
+                speakMomentOpen = true
+            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("🎙 Pause & speak (optional)") }
+            if (speakMomentOpen) AlertDialog(
+                onDismissRequest = { speakMomentOpen = false },
+                title = { Text("Your speaking moment") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text("Tell the story in one or two English sentences.", color = MaterialTheme.colorScheme.onSurface)
+                        if (suggestedReplyVisible) Text(
+                            "Suggested reply: ${frame.spokenLine}",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text("Speaking is optional. Skipping does not count as spoken practice.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        OutlinedButton(onClick = { suggestedReplyVisible = !suggestedReplyVisible },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text(if (suggestedReplyVisible) "Hide example" else "Suggested reply")
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        speakMomentOpen = false
+                        onSpeakingPrompt("Explain what happened in '${clip.title}' using one or two English sentences.")
+                    }) { Text("Speak or type") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { speakMomentOpen = false }) { Text("Skip") }
+                }
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { reset(currentIndex - 1) }, enabled = currentIndex > 0) { Text("Previous story") }
                 OutlinedButton(onClick = { reset(currentIndex + 1) }, enabled = currentIndex < visibleClips.lastIndex) { Text("Next story") }
