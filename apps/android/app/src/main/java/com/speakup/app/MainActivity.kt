@@ -1825,6 +1825,14 @@ fun PremiumSpeakUp() {
                             }
                         }
                         OutlinedButton(onClick = { page = "Help" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Help & guidance →") }
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text("🛡 Beta readiness", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text("Development build only · no production launch authorized.", color = secondaryTextColor)
+                                Text("${MintBetaReadiness.required.size} release safeguards must be verified separately. An APK build alone does not mean the app is ready to publish.",
+                                    color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
                         Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
                             Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
                         }
