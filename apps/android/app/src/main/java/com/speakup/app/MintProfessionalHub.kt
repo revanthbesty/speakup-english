@@ -76,51 +76,45 @@ internal fun MintProfessionalHub(
         TextButton(onClick = { if (section == "Hub") onBack() else section = "Hub" }) { Text("← " + if (section == "Hub") "Home" else "Professional English") }
         when (section) {
             "Hub" -> {
-                Text("Professional English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                Text("Practice English for work, at your own pace.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Core text practice works without a paid AI account or internet. Optional audio availability depends on the installed device engine.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-                Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                    Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Text("Your next step", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Text("Start with an existing lesson or rehearse a conversation.", color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Button(onClick = onLessons, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Continue learning →") }
-                    }
+                MintDashboardHero(
+                    kicker="Professional English",
+                    title="Grow your career with English",
+                    description="Practical, private workplace lessons and short guided exercises.",
+                    action="Continue learning  →",
+                    onAction=onLessons
+                )
+                MintSectionHeading("Practise workplace skills","Choose a short session")
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                    MintDestinationTile("Workplace", "Guided dialogues", "💬",MintVisualTokens.blue,
+                        Modifier.weight(1f)) { section="Workplace" }
+                    MintDestinationTile("Interviews", "Prepare confidently", "🎤",MintVisualTokens.violet,
+                        Modifier.weight(1f)) { section="Interviews" }
                 }
-                OutlinedButton(onClick = { section = "Industries" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Explore career topics →") }
-                OutlinedButton(onClick = onRoleplay, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Practise a workplace conversation →") }
-                OutlinedButton(onClick = { section = "Workplace" }, modifier = Modifier.fillMaxWidth()) { Text("Offline workplace roleplay pilot →") }
-                OutlinedButton(onClick = { section = "Interviews" }, modifier = Modifier.fillMaxWidth()) { Text("Interview preparation pilot →") }
-                OutlinedButton(onClick = { section = "Meetings" }, modifier = Modifier.fillMaxWidth()) { Text("Meetings & presentations pilot →") }
-                OutlinedButton(onClick = { section = "Writing" }, modifier = Modifier.fillMaxWidth()) { Text("Email & business writing pilot →") }
-                OutlinedButton(onClick = { section = "Negotiation" }, modifier = Modifier.fillMaxWidth()) { Text("Negotiation & problem-solving pilot →") }
-                Surface(shape = RoundedCornerShape(16.dp),color=MaterialTheme.colorScheme.surfaceVariant) {
-                    Column(Modifier.fillMaxWidth().padding(14.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                        Text("Your professional practice suggestion",fontWeight=FontWeight.Bold)
-                        Text("Your goal: $learningGoal. Suggestions prioritize original exercises not yet completed on this device; they do not estimate proficiency.")
-                        Text("Verified original practice: ${MintProfessionalReview.completed(completedPracticeIds)} of ${MintProfessionalReview.validIds.size} items on this device.")
-                        Text("Suggested next: ${MintProfessionalReview.label(MintProfessionalReview.next(completedPracticeIds,null))}",style=MaterialTheme.typography.bodySmall)
-                        Text("Practice completion is recorded after checked-correct answers; workplace roleplays require all three turns. No XP, badges or certificates are granted.",style=MaterialTheme.typography.bodySmall)
-                        if (completedPracticeIds.isNotEmpty()) {
-                            TextButton(onClick = { confirmClearPractice = true }) {
-                                Text("Delete Professional practice history")
-                            }
-                        }
-                    }
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                    MintDestinationTile("Meetings", "Present & discuss", "📊",MintVisualTokens.orange,
+                        Modifier.weight(1f)) { section="Meetings" }
+                    MintDestinationTile("Email writing", "Polite work messages", "✉",MintVisualTokens.pink,
+                        Modifier.weight(1f)) { section="Writing" }
                 }
-
-                OutlinedButton(onClick = { section = "AI Life" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Everyday real-life scenarios →") }
-                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
-                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text("Recommended for your goal", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text(learningGoal, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("Based on your selected learning goal; not an AI-generated recommendation.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        TextButton(onClick = onRoleplay) { Text("Try guided speaking →") }
-                    }
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                    MintDestinationTile("Negotiation", "Resolve challenges", "🤝",MintVisualTokens.mint,
+                        Modifier.weight(1f)) { section="Negotiation" }
+                    MintDestinationTile("Industries", "Find your profession", "💼",MintVisualTokens.blue,
+                        Modifier.weight(1f)) { section="Industries" }
                 }
-                Text("Your progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("$completedLessons of $totalLessons existing lessons completed · $dailyGoal-minute daily goal")
-                LinearProgressIndicator(progress = { completedLessons.toFloat() / totalLessons.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                TextButton(onClick = onReview) { Text("Review my learning →") }
+                OutlinedButton(onClick=onRoleplay,modifier=Modifier.fillMaxWidth().heightIn(min=50.dp)) {
+                    Text("Guided speaking studio  →")
+                }
+                OutlinedButton(onClick={section="AI Life"},modifier=Modifier.fillMaxWidth().heightIn(min=50.dp)) {
+                    Text("Explore real-life learning  →")
+                }
+                MintInfoBanner("Your practice journey",
+                    "${MintProfessionalReview.completed(completedPracticeIds)} of ${MintProfessionalReview.validIds.size} original activities completed on this device • ${completedLessons.coerceAtMost(totalLessons)} of $totalLessons existing lessons.")
+                Text("Next practice: ${MintProfessionalReview.label(MintProfessionalReview.next(completedPracticeIds,null))}",
+                    color=MaterialTheme.colorScheme.onSurfaceVariant,style=MaterialTheme.typography.bodySmall)
+                TextButton(onClick=onReview) { Text("View my learning progress  →") }
+                Text("These pilot activities are not certified professional courses or AI hiring assessments.",
+                    style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
             }
             "Workplace" -> { MintWorkplaceRoleplayScreen(onVerified = markVerified) }
             "Interviews" -> { MintInterviewPrepScreen(onVerified = markVerified) }
