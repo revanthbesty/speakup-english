@@ -28,6 +28,7 @@ internal fun MintProfessionalHub(
 ) {
     var section by remember { mutableStateOf("Hub") }
     var industry by remember { mutableStateOf("Business") }
+    var industryQuery by remember { mutableStateOf("") }
     BackHandler(enabled = section != "Hub") {
         section = if (section == "Industry") "Industries" else "Hub"
     }
@@ -48,6 +49,14 @@ internal fun MintProfessionalHub(
                 OutlinedButton(onClick = { section = "Industries" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Explore career topics →") }
                 OutlinedButton(onClick = onRoleplay, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Practise a workplace conversation →") }
                 OutlinedButton(onClick = { section = "AI Life" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Everyday real-life scenarios →") }
+                Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Recommended for your goal", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(learningGoal, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Based on your selected learning goal; not an AI-generated recommendation.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        TextButton(onClick = onRoleplay) { Text("Try guided speaking →") }
+                    }
+                }
                 Text("Your progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text("$completedLessons of $totalLessons existing lessons completed · $dailyGoal-minute daily goal")
                 LinearProgressIndicator(progress = { completedLessons.toFloat() / totalLessons.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
@@ -56,7 +65,10 @@ internal fun MintProfessionalHub(
             "Industries" -> {
                 Text("Choose your industry", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text("Browse possible professional pathways. Only existing general lessons are playable today.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                industries.forEach { name ->
+                OutlinedTextField(value = industryQuery, onValueChange = { industryQuery = it.take(60) }, label = { Text("Search industries") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                val matchingIndustries = industries.filter { it.contains(industryQuery.trim(), ignoreCase = true) }
+                if (matchingIndustries.isEmpty()) Text("No matching industries. Try another search.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                matchingIndustries.forEach { name ->
                     OutlinedButton(onClick = { industry = name; section = "Industry" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("$name →", modifier = Modifier.fillMaxWidth()) }
                 }
             }
