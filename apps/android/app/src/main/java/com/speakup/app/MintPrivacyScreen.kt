@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
  * connected authenticated account backend.
  */
 @Composable
-internal fun MintPrivacyScreen(onBack: () -> Unit) {
+internal fun MintPrivacyScreen(onBack: () -> Unit, onPrivateInteractionsCleared: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember(context) {
         context.getSharedPreferences(MintIdentity.legacyPreferencesFile, Context.MODE_PRIVATE)
@@ -104,6 +104,7 @@ internal fun MintPrivacyScreen(onBack: () -> Unit) {
                 MintDataProtection.privateInteractionKeys.forEach(editor::remove)
                 if (editor.commit()) {
                     recordsVersion += 1
+                    onPrivateInteractionsCleared()
                     feedback = "Private feed interactions cleared. Other learning progress was preserved."
                 } else {
                     feedback = "Unable to clear interactions. Please try again."

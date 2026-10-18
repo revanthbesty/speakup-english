@@ -46,11 +46,11 @@ class MintDataProtectionTest {
         assertTrue(json.contains("\\\\slash"))
     }
 
-    @Test fun exportListsAreLimitedAndSortedDeterministically() {
+    @Test fun exportListsRemainCompleteAndSortedDeterministically() {
         val raw = mapOf<String, Any>("completed_lessons" to (0..1200).map { "lesson-$it" }.toSet())
         val snapshot = MintDataProtection.safeSnapshot(raw)
         val list = snapshot["completed_lessons"] as List<*>
-        assertEquals(1000, list.size)
+        assertEquals(1201, list.size)
         assertEquals(list.sortedBy { it.toString() }, list)
     }
 

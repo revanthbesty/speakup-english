@@ -33,7 +33,7 @@ internal object MintDataProtection {
         all.filterKeys(::exportableKey).mapNotNull { (key, value) ->
             val safe = when (value) {
                 is String, is Boolean, is Int, is Long -> value
-                is Set<*> -> value.filterIsInstance<String>().sorted().take(1000)
+                is Set<*> -> value.filterIsInstance<String>().sorted()
                 else -> null
             }
             if (safe == null) null else key to safe
@@ -44,6 +44,12 @@ internal object MintDataProtection {
         val warnings = mutableListOf<String>()
         val xp = all["total_xp"]
         if (xp !is Int || xp < 0) warnings.add("XP is missing or invalid; do not overwrite it automatically.")
+        val oversizedSets = all.filter { (key, value) ->
+            exportableKey(key) && value is Set<*> && value.size > 10000
+        }
+        if (oversizedSets.isNotEmpty()) {
+            warnings.add("A large learning collection is present; verify the exported file can be stored safely.")
+        }
         if (all.containsKey("learning_path") && all["learning_path"] !is String) {
             warnings.add("Learning path is invalid; keep the legacy value for review.")
         }
