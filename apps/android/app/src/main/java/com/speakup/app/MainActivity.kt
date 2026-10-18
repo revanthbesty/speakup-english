@@ -1054,7 +1054,7 @@ fun PremiumSpeakUp() {
                             question.options.forEachIndexed { index, choice ->
                                 OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                                     colors = ButtonDefaults.outlinedButtonColors(containerColor = if (grammarChoice == choice) softSurfaceColor else surfaceColor)) {
-                                    Text("${"ABC"[index]}. $choice", color = primaryTextColor, modifier = Modifier.fillMaxWidth())
+                                    Text(MintGrammarUiContract.optionLabel(index, choice), color = primaryTextColor, modifier = Modifier.fillMaxWidth())
                                 }
                             }
                             if (grammarChecked) {
