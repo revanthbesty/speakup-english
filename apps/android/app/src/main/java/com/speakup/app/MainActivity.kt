@@ -195,13 +195,6 @@ fun PremiumSpeakUp() {
     }
     var showPlacement by remember { mutableStateOf(false) }
     var storyOpenedFromGames by remember { mutableStateOf(false) }
-    BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
-        when {
-            page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
-            page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
-            else -> page = "Today"
-        }
-    }
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
     val lesson = lessons[lessonIndex]
@@ -241,6 +234,14 @@ fun PremiumSpeakUp() {
         mutableStateOf((preferences.getStringSet("mint_story_completed", emptySet()) ?: emptySet()).toSet())
     }
     var gameMode by remember { mutableStateOf("Mint Quests") }
+    BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
+        when {
+            page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
+            page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
+            else -> page = "Today"
+        }
+    }
+
     var mintDifficulty by remember { mutableStateOf(when (chosenDifficulty) { "Hard" -> MintDifficulty.HARD; "Medium" -> MintDifficulty.MEDIUM; else -> MintDifficulty.EASY }) }
     var mintMechanic by remember { mutableStateOf(MintMechanic.CHOOSE_REPLY) }
     var mintGameId by remember { mutableStateOf("") }
