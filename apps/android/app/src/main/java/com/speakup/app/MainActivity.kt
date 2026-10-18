@@ -2263,7 +2263,7 @@ fun PremiumSpeakUp() {
                     NavigationBarItem(
                         selected = isActive,
                         onClick = { page = tab },
-                        icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab navigation" }, color = iconColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
+                        icon = { MintTabGlyph(tab, iconColor) },
                         label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
