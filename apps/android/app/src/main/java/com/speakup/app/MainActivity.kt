@@ -1777,14 +1777,49 @@ fun PremiumSpeakUp() {
                                 }
                                 }
                             } else {
-                            Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
+                            Surface(
+                                shape = RoundedCornerShape(26.dp),
+                                color = if (darkAppearance) Color(0xFF25334C) else Color(0xFFF0E7FF),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Text("✦  GRAMMAR CHALLENGE", color = if (darkAppearance) Color(0xFFB9A3FF) else Color(0xFF6D28D9),
+                                        style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                    Text(question.prompt, style = MaterialTheme.typography.headlineSmall,
+                                        color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                    Text("Choose the best answer", color = secondaryTextColor,
+                                        style = MaterialTheme.typography.bodyMedium)
+                                }
+                            }
                             question.options.forEachIndexed { index, choice ->
-                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, enabled = !(grammarChecked && grammarChoice == question.correct), modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (grammarChoice == choice) softSurfaceColor else surfaceColor)) {
-                                    Text(MintGrammarUiContract.optionLabel(index, choice), color = primaryTextColor,
-                                        modifier = Modifier.fillMaxWidth().semantics {
+                                val selected = grammarChoice == choice
+                                Surface(
+                                    onClick = { if (!(grammarChecked && selected && choice == question.correct)) {
+                                        grammarChoice = choice; grammarChecked = false
+                                    } },
+                                    shape = RoundedCornerShape(20.dp),
+                                    color = if (selected) {
+                                        if (darkAppearance) Color(0xFF214F49) else Color(0xFFD4FAEA)
+                                    } else surfaceColor,
+                                    border = androidx.compose.foundation.BorderStroke(
+                                        if (selected) 2.dp else 1.dp,
+                                        if (selected) Color(0xFF10B981) else MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
+                                    ),
+                                    modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)
+                                        .semantics {
                                             contentDescription = "Option ${index + 1} of ${question.options.size}: $choice"
-                                        })
+                                            selected = selected
+                                        }
+                                ) {
+                                    Row(Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        Text(('A' + index).toString() + ".", color = if (selected) Color(0xFF10B981) else secondaryTextColor,
+                                            fontWeight = FontWeight.ExtraBold)
+                                        Text(choice, color = primaryTextColor, modifier = Modifier.weight(1f),
+                                            style = MaterialTheme.typography.bodyLarge)
+                                        if (selected) Text("✓", color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
+                                    }
                                 }
                             }
                             if (grammarChecked) {
