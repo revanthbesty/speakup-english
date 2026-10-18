@@ -223,6 +223,7 @@ fun PremiumSpeakUp() {
     var showSpeakingHint by remember { mutableStateOf(true) }
     var showProfileSettings by remember { mutableStateOf(false) }
     var showGameFilters by remember { mutableStateOf(false) }
+    var showGameContent by remember { mutableStateOf(false) }
     var showOnboardingOptions by remember { mutableStateOf(false) }
     var showJourneyPicker by remember { mutableStateOf(false) }
     var showProfileAdvanced by remember { mutableStateOf(false) }
@@ -276,6 +277,9 @@ fun PremiumSpeakUp() {
     var gameMode by remember { mutableStateOf("Mint Quests") }
     BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
         when {
+            page == "Games" && showGameContent -> {
+                showGameContent = false; gameMode = "Mint Quests"; showGameFilters = false
+            }
             page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
             page == "FiveWord" -> page = "Feed"
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
@@ -543,6 +547,7 @@ fun PremiumSpeakUp() {
                             onAction = {
                                 showGameFilters = false
                                 gameMode = "Mint Quests"
+                                showGameContent = false
                                 page = "Games"
                             }
                         )
@@ -1015,6 +1020,48 @@ fun PremiumSpeakUp() {
                     }
                     "Games" -> {
                         MintSectionHeading("Games Hub", "Play a quick game, learn something new")
+
+                        if (!showGameContent) {
+                            MintDashboardHero(
+                                kicker="Featured game · Mint Quests",
+                                title="Ready for a quick challenge?",
+                                description="Solve a short original English puzzle and practise at your own pace.",
+                                action="Play Mint Quests  →",
+                                onAction={gameMode="Mint Quests";showGameFilters=false;showGameContent=true}
+                            )
+                            MintSectionHeading("Choose a game","Short games with real learning goals")
+                            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                                MintDestinationTile("Grammar","3 practice packs","📘",MintVisualTokens.violet,Modifier.weight(1f)) {
+                                    gameMode="Grammar"; grammarLanding=true; showGameContent=true; showGameFilters=false
+                                }
+                                MintDestinationTile("Vocabulary","Learn new words","💎",MintVisualTokens.blue,Modifier.weight(1f)) {
+                                    gameMode="Vocabulary";showGameContent=true;showGameFilters=false
+                                }
+                            }
+                            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                                MintDestinationTile("Word Builder","Build sentences","🧩",MintVisualTokens.orange,Modifier.weight(1f)) {
+                                    gameMode="Word Builder";showGameContent=true;showGameFilters=false
+                                }
+                                MintDestinationTile("Situations","Real-life choices","🌍",MintVisualTokens.pink,Modifier.weight(1f)) {
+                                    gameMode="Situations";showGameContent=true;showGameFilters=false
+                                }
+                            }
+                            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                                MintDestinationTile("Listening","Listen & respond","🎧",MintVisualTokens.mint,Modifier.weight(1f)) {
+                                    gameMode="Listening";showGameContent=true;showGameFilters=false
+                                }
+                                MintDestinationTile("Stories","Read & explore","📖",MintVisualTokens.violet,Modifier.weight(1f)) {
+                                    storyOpenedFromGames=true;page="Feed"
+                                }
+                            }
+                            OutlinedButton(onClick={showGameContent=true;showGameFilters=true},
+                                modifier=Modifier.fillMaxWidth().heightIn(min=52.dp)) {
+                                Text("All games & levels  →")
+                            }
+                        } else {
+                            TextButton(onClick={
+                                showGameContent=false;gameMode="Mint Quests";showGameFilters=false
+                            }) { Text("← Games Hub") }
                         if (!showGameFilters && gameMode == "Mint Quests") {
                             Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1951,6 +1998,7 @@ fun PremiumSpeakUp() {
                                 dialogueChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next conversation →") }
                         }
+                        }
                     }
                     "Membership" -> {
                         MintMembershipScreen(onReturn = { page = "Profile" })
@@ -2301,7 +2349,10 @@ fun PremiumSpeakUp() {
                     )
                     NavigationBarItem(
                         selected = isActive,
-                        onClick = { page = tab },
+                        onClick = {
+                            if (tab == "Games") { showGameContent=false;gameMode="Mint Quests";showGameFilters=false }
+                            page = tab
+                        },
                         icon = { MintTabGlyph(tab, iconColor) },
                         label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
