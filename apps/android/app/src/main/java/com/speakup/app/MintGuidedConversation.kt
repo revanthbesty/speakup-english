@@ -40,7 +40,7 @@ internal fun MintGuidedConversation(
     Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Step 2 · Speak with Mia", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Listen, say your answer, and build confidence step by step.")
+        Text("Listen and reply. You can type instead of speaking.")
         TextButton(onClick = { showMoreChoices = !showMoreChoices }) { Text(if (showMoreChoices) "Hide conversation choices" else "Change level or topic") }
         if (showMoreChoices) {
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -109,7 +109,7 @@ internal fun MintGuidedConversation(
                 Button(onClick = { requestMicrophone(turn.prompt) }, modifier = Modifier.fillMaxWidth()) {
                     Text("🎙 Speak privately")
                 }
-                Text("Microphone starts only when you choose it. External speech recognition may process audio under your device provider's terms.")
+                Text("Microphone is optional. Your device speech provider may process audio.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedTextField(
                     value = response,
                     onValueChange = { onResponseChange(it); result = null },
