@@ -1182,7 +1182,7 @@ fun PremiumSpeakUp() {
                                 if (grammarIndex + 1 >= grammarSetEndExclusive) grammarSetComplete = true else grammarIndex += 1
                                 grammarChoice = ""
                                 grammarChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text(if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Next grammar question →") }
+                            }, enabled = grammarChecked && grammarChoice == question.correct, modifier = Modifier.fillMaxWidth()) { Text(if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Next grammar question →") }
                             }
                         } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
