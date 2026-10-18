@@ -200,6 +200,7 @@ fun PremiumSpeakUp() {
     var confidenceAttempts by remember { mutableIntStateOf(preferences.getInt("confidence_attempts", 0)) }
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
+    var showProfileSettings by remember { mutableStateOf(false) }
     var speakingView by remember { mutableStateOf("Conversations") }
     var guidedVoiceReceived by remember { mutableStateOf(false) }
     var showSpeechConsent by remember { mutableStateOf(false) }
@@ -1208,6 +1209,13 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
+                        Text("My profile", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                        Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
+                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
+                        Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
+                        }
+                        if (showProfileSettings) {
                         Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                             Column(Modifier.padding(14.dp)) {
                                 Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -1300,6 +1308,7 @@ fun PremiumSpeakUp() {
                         }, modifier = Modifier.fillMaxWidth()) { Text("Save profile changes") }
                         if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
                         OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
+                        }
                     }
                     "Review" -> {
                         val progressEvidence = MintProgressEvidence(
