@@ -1,5 +1,6 @@
 package com.speakup.app
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -27,6 +28,9 @@ internal fun MintProfessionalHub(
 ) {
     var section by remember { mutableStateOf("Hub") }
     var industry by remember { mutableStateOf("Business") }
+    BackHandler(enabled = section != "Hub") {
+        section = if (section == "Industry") "Industries" else "Hub"
+    }
     val industries = listOf("Business", "IT & Technology", "Healthcare", "Finance", "Customer Service", "Education", "Hospitality", "Retail")
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         TextButton(onClick = { if (section == "Hub") onBack() else section = "Hub" }) { Text("← " + if (section == "Hub") "Home" else "Professional English") }
