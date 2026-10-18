@@ -13,8 +13,7 @@ internal data class MintRealWorldQuestRecord(
     val choices: List<String>,
     val correctAnswer: String,
     val speakingPrompt: String,
-    val status: String
-)
+    val status: String,\n    val correctExplanation: String = "",\n    val wrongExplanations: List<String> = emptyList()\n)
 
 internal object MintRealWorldQuestGate {
     private val levels = setOf("EASY", "MEDIUM", "HARD")
@@ -36,6 +35,6 @@ internal object MintRealWorldQuestGate {
         quests.count { it.difficulty == "HARD" } == 25 &&
         quests.all(::valid)
 
-    fun explanationIndex(answer: String): Int? =
+    fun answerExplanation(q: MintRealWorldQuestRecord, answer: String): String {\n        val index = explanationIndex(answer) ?: return "Invalid answer"\n        return if (q.correctAnswer == answer) q.correctExplanation\n        else q.wrongExplanations.getOrNull(index).orEmpty()\n    }\n\n    fun explanationIndex(answer: String): Int? =
         answers.indexOf(answer).takeIf { it >= 0 }
 }
