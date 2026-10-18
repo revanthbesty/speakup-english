@@ -889,6 +889,8 @@ fun PremiumSpeakUp() {
                                         MintMechanic.MISSING_WORD -> "Missing Word"
                                         MintMechanic.WORD_SCRAMBLE -> "Word Scramble"
                                         MintMechanic.SENTENCE_ORDER -> "Sentence Builder"
+                                        MintMechanic.LISTEN_AND_CHOOSE -> "Listening Quest"
+                                        MintMechanic.STORY_DECISION -> "Story Decisions"
                                     }
                                     FilterChip(selected = mintMechanic == mechanic, onClick = {
                                         mintMechanic = mechanic
@@ -903,7 +905,9 @@ fun PremiumSpeakUp() {
                             val learnerMinAge = when (learnerAgeBand) {
                                 "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
                             }
-                            val availableQuests = MintGameCatalog.listFor(mintDifficulty, learnerMinAge).filter { it.mechanic == mintMechanic }
+                            val availableQuests = remember(mintDifficulty, mintMechanic, learnerMinAge) {
+                                MintGameCatalog.listFor(mintDifficulty, learnerMinAge).filter { it.mechanic == mintMechanic }
+                            }
                             val activeQuest = availableQuests.firstOrNull { it.id == mintGameId } ?: availableQuests.firstOrNull()
                             if (activeQuest == null) {
                                 Text("This combination does not have an age-appropriate pack yet. Choose another difficulty or game category.", color = secondaryTextColor)
@@ -915,6 +919,16 @@ fun PremiumSpeakUp() {
                                     Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                         Text(activeQuest.title, color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                                         Text(activeQuest.prompt, color = primaryTextColor)
+                                        if (activeQuest.mechanic == MintMechanic.LISTEN_AND_CHOOSE) {
+                                            val listeningLine = activeQuest.listeningLine
+                                            if (!listeningLine.isNullOrBlank()) {
+                                                Text("Listen to the spoken line, then choose the best answer.", color = secondaryTextColor)
+                                                ListeningAudio(listeningLine)
+                                            }
+                                        }
+                                        if (activeQuest.mechanic == MintMechanic.STORY_DECISION) {
+                                            Text("Think through the situation before selecting your response.", color = secondaryTextColor)
+                                        }
                                         val isTapOrder = activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE || activeQuest.mechanic == MintMechanic.SENTENCE_ORDER
                                         if (isTapOrder) {
                                             val composed = if (activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE) mintSelectedTokens.joinToString("") else mintSelectedTokens.joinToString(" ")
