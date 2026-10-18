@@ -294,6 +294,13 @@ fun PremiumSpeakUp() {
                 }
                 Spacer(Modifier.height(12.dp))
                 if (showPathSetup) {
+                    Surface(color = softSurfaceColor, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(18.dp)) {
+                            Text("🌿  Welcome to English Mint", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("Fresh Games. Fluent Voices. Choose your journey; speak from day one.", color = secondaryTextColor)
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
                     Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                     Text("Choose the path that fits you. You can change it any time.", color = secondaryTextColor)
                     Spacer(Modifier.height(16.dp))
@@ -418,20 +425,31 @@ fun PremiumSpeakUp() {
                         ) {
                             Column(
                                 modifier = Modifier.background(
-                                    Brush.linearGradient(listOf(Color(0xFF4935B8), Color(0xFF8A5CF6), Color(0xFFB269CF))),
+                                    Brush.linearGradient(if (eyeComfort || darkAppearance)
+                                        listOf(Color(0xFF123E43), Color(0xFF166457), Color(0xFF1B7168))
+                                        else listOf(Color(0xFF087B67), Color(0xFF0EAF8A), Color(0xFF58A6A5))),
                                     RoundedCornerShape(28.dp)
                                 ).padding(22.dp)
                             ) {
                                 Text(if (profileName.isBlank()) "Your learning journey" else "Welcome, $profileName!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-                                Text("$learningGoal  •  $chosenDifficulty", color = Color.White.copy(alpha = 0.90f))
+                                Text("${MintExperiencePolicy.selectedJourney(chosenPath)}  •  $chosenDifficulty", color = Color.White.copy(alpha = 0.90f))
+                                Text("Fresh Games. Fluent Voices.", color = Color.White.copy(alpha = 0.90f), style = MaterialTheme.typography.bodySmall)
                                 Spacer(Modifier.height(14.dp))
                                 Text("$xp XP   ✦   ${completedIds.size} lessons completed", color = Color.White, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(12.dp))
                                 Button(
-                                    onClick = { page = "Learn" },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF4935B8))
-                                ) { Text("Continue learning  →", fontWeight = FontWeight.Bold) }
+                                    onClick = { page = "Speak" },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))
+                                ) { Text("Start speaking  →", fontWeight = FontWeight.Bold) }
+                                TextButton(onClick = { page = "Games" }) { Text("Explore games", color = Color.White) }
                             }
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        Text("Your 5-minute adventure", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("One game, one spoken sentence, and a natural stopping point.", color = secondaryTextColor)
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                            Button(onClick = { page = "Games" }, modifier = Modifier.weight(1f)) { Text("Play") }
+                            OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
                         }
                         Spacer(Modifier.height(20.dp))
                         Text("Your progress", style = MaterialTheme.typography.headlineSmall, color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -970,7 +988,7 @@ fun PremiumSpeakUp() {
                     "Profile" -> {
                         Text("Appearance", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("system" to "System", "light" to "Light", "dark" to "Dark").forEach { (mode, label) ->
+                            listOf("system" to "System", "light" to "Light", "dark" to "Dark", "night" to "Night").forEach { (mode, label) ->
                                 FilterChip(
                                     selected = themePreference == mode,
                                     onClick = {
@@ -981,7 +999,22 @@ fun PremiumSpeakUp() {
                                 )
                             }
                         }
-                        Text("Night-friendly colors reduce glare for some users; take regular screen breaks.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Text("Scheduled Night: 8 PM–6 AM device time. Light and Dark overrides remain available.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Eye comfort: softer hero colors", color = primaryTextColor, modifier = Modifier.weight(1f))
+                            Switch(checked = eyeComfort, onCheckedChange = {
+                                eyeComfort = it
+                                preferences.edit().putBoolean("mint_eye_comfort", it).apply()
+                            })
+                        }
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Reduce animations", color = primaryTextColor, modifier = Modifier.weight(1f))
+                            Switch(checked = reduceMotion, onCheckedChange = {
+                                reduceMotion = it
+                                preferences.edit().putBoolean("mint_reduce_motion", it).apply()
+                            })
+                        }
+                        Text("Respect device brightness, rest breaks and accessibility settings. Dark mode does not prevent eye damage.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -1134,18 +1167,18 @@ fun PremiumSpeakUp() {
             }
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
-                listOf("Today", "Learn", "Games", "Review", "Profile").forEach { tab ->
+                listOf("Today", "Games", "Speak", "Review", "Profile").forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
-                        "Learn" -> "▣"
+                        "Speak" -> "♫"
                         "Games" -> "✦"
                         "Review" -> "▥"
                         else -> "◉"
                     }
-                    val isActive = page == tab || (page == "Speak" && tab == "Learn")
+                    val isActive = page == tab || (page == "Learn" && tab == "Today")
                     val iconColor by animateColorAsState(
                         targetValue = if (isActive) accentTextColor else secondaryTextColor,
-                        animationSpec = tween(durationMillis = 220), label = "nav-$tab"
+                        animationSpec = tween(durationMillis = if (motionReduced) 0 else 200), label = "nav-$tab"
                     )
                     NavigationBarItem(
                         selected = isActive,
