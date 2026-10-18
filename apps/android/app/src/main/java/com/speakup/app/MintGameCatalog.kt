@@ -29,7 +29,7 @@ internal object MintGameCatalog {
         MintGameDefinition("order-policy",1,MintMechanic.SENTENCE_ORDER,MintDifficulty.HARD,MintSkill.READING,"Professional proposal","Build a measured policy recommendation.",listOf("reconsidering","the","worth","may","proposal.","It","be"),"It may be worth reconsidering the proposal.","Start with It may.","Hedging keeps constructive feedback diplomatic.","Recommend an improvement diplomatically.")
     )
 
-    val allDefinitions: List<MintGameDefinition> = definitions + MintExpansionPack.definitions
+    val allDefinitions: List<MintGameDefinition> = definitions + MintExpansionPack.definitions + MintVisualVocabularyPack.definitions
 
     val mechanics: List<MintMechanic> = MintMechanic.entries
 
