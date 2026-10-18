@@ -22,8 +22,9 @@ PATCH_FILES = (
     "external_workbook_repair_cross_level_batch_40b.json",
     "external_workbook_repair_cross_level_batch_40c.json",
     "external_workbook_repair_cross_level_batch_40d.json",
+    "external_workbook_repair_cross_level_batch_40e.json",
 )
-EXPECTED_COUNTS = {"A1": 56, "A2": 48, "B1": 48, "B2": 48, "C1": 48}
+EXPECTED_COUNTS = {"A1": 64, "A2": 56, "B1": 56, "B2": 56, "C1": 56}
 CATEGORIES = {"word_builder", "riddles", "vocabulary", "situations",
               "listening", "reading", "dialogues", "stories"}
 
@@ -53,14 +54,14 @@ def build_repair_patch(base):
                 raise ValueError(f"{ident}: incomplete educational content")
             validate_answer(item)
             rows.append(item)
-    if len(rows) != 248:
-        raise ValueError(f"Expected 248 pilots, received {len(rows)}")
+    if len(rows) != 288:
+        raise ValueError(f"Expected 288 pilots, received {len(rows)}")
     by_level = Counter(x["cefr_level"] for x in rows)
     if by_level != EXPECTED_COUNTS:
         raise ValueError(f"Incorrect level distribution: {by_level}")
     by_category = Counter(x["category"] for x in rows)
-    if set(by_category) != CATEGORIES or any(n != 31 for n in by_category.values()):
-        raise ValueError(f"Expected 31 drafts per category: {by_category}")
+    if set(by_category) != CATEGORIES or any(n != 36 for n in by_category.values()):
+        raise ValueError(f"Expected 36 drafts per category: {by_category}")
     return {"schema_version": "1.0", "review_status": "needs_human_review",
             "warning": "DRAFT replacement content; no editorial approval or Android import",
             "activities": rows}
@@ -74,7 +75,7 @@ def main():
     document = build_repair_patch(args.content_dir)
     if args.out:
         args.out.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("PASS: 248 non-approved repair pilots, thirty-one per category, levels 56/48/48/48/48")
+    print("PASS: 288 non-approved repair pilots, thirty-six per category, levels 64/56/56/56/56")
 
 
 if __name__ == "__main__":
