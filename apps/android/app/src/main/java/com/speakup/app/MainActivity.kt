@@ -1517,6 +1517,25 @@ fun PremiumSpeakUp() {
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             val grammarReviewIndices = MintGrammarRevision.reviewIndices(grammarQuestions.size, grammarRevisionMissed, grammarBookmarks, grammarMastered)
+                            val personalized = MintGrammarPersonalization.suggestedIndices(grammarQuestions.size,grammarRevisionMissed,grammarBookmarks,grammarMastered)
+                            if (personalized.isNotEmpty()) {
+                                val recommendedIndex = personalized.first()
+                                Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                        Text("🌱 Recommended practice",color = primaryTextColor,fontWeight = FontWeight.Bold)
+                                        Text("Q${recommendedIndex + 1}: ${grammarQuestions[recommendedIndex].prompt}",color = primaryTextColor)
+                                        Text(MintGrammarPersonalization.reason(recommendedIndex,grammarRevisionMissed,grammarBookmarks,grammarMastered),
+                                            color = secondaryTextColor)
+                                        OutlinedButton(onClick = {
+                                            grammarIndex = recommendedIndex
+                                            grammarChoice = "";grammarChecked = false;grammarSetComplete = false
+                                            grammarHadError = false;grammarWrongCount = 0;grammarFirstTryCorrect = 0
+                                            grammarSetNewXp = 0;grammarMissedNotes = emptyList()
+                                        },modifier = Modifier.fillMaxWidth()) { Text("Practice recommendation →") }
+                                    }
+                                }
+                            }
+
                             Text("Progress: ${MintGrammarRevision.masteredCount(grammarQuestions.size,grammarMastered)} / ${grammarQuestions.size} mastered (${MintGrammarRevision.progressPercent(grammarQuestions.size,grammarMastered)}%)", color = primaryTextColor)
                             LinearProgressIndicator(progress = { MintGrammarRevision.progressPercent(grammarQuestions.size,grammarMastered) / 100f },modifier = Modifier.fillMaxWidth())
                             Text("Revision queue: ${grammarReviewIndices.size} questions (mistakes, bookmarks and unmastered).",color = secondaryTextColor)
