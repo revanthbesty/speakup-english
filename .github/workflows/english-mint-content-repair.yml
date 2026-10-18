@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run offline Python safety tests
         run: python3 -m unittest discover -s scripts -p 'test_english_mint*.py' -v
-      - name: Validate and combine all 168 unapproved repair drafts
+      - name: Validate and combine all 208 unapproved repair drafts
         run: python3 scripts/combine_english_mint_repair_pilots.py
       - name: Confirm strict release gate rejects the incomplete content pilot
         shell: bash
