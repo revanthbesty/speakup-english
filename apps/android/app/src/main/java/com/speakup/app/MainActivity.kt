@@ -201,6 +201,7 @@ fun PremiumSpeakUp() {
     var independentReplies by remember { mutableIntStateOf(preferences.getInt("independent_replies", 0)) }
     var showSpeakingHint by remember { mutableStateOf(true) }
     var showProfileSettings by remember { mutableStateOf(false) }
+    var showGameFilters by remember { mutableStateOf(false) }
     var speakingView by remember { mutableStateOf("Conversations") }
     var guidedVoiceReceived by remember { mutableStateOf(false) }
     var showSpeechConsent by remember { mutableStateOf(false) }
@@ -745,7 +746,10 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
-                        Text("Mint Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Play a game", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Choose an answer and see how you did.", color = secondaryTextColor)
+                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide game choices" else "Change game or difficulty") }
+                        if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
                         val suggestedModes = when (learningGoal) {
                             "Start speaking" -> listOf("Dialogues", "Word Builder", "Listening")
@@ -762,9 +766,11 @@ fun PremiumSpeakUp() {
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
+                        }
                         if (gameMode == "Mint Quests") {
                             Text("Mint Quest Arcade", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            Text("A curated challenge ends with an optional speaking mission. Your progress is saved on this device.", color = secondaryTextColor)
+                            Text("A quick English challenge. Speak afterward if you like.", color = secondaryTextColor)
+                            if (showGameFilters) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 MintDifficulty.entries.forEach { level ->
                                     FilterChip(selected = mintDifficulty == level, onClick = {
@@ -798,6 +804,7 @@ fun PremiumSpeakUp() {
                                         mintShowHint = false
                                     }, label = { Text(label) })
                                 }
+                            }
                             }
                             val learnerMinAge = when (learnerAgeBand) {
                                 "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
