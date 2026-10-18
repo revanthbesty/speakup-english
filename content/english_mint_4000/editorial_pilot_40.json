@@ -1,0 +1,859 @@
+{
+  "activities": [
+    {
+      "id": "em4000:word_builder:001",
+      "category": "word_builder",
+      "cefr": "A1",
+      "title": "The missing vowel",
+      "objective": "Spell a common household word",
+      "content": "The object you sit on has five letters: CH_IR.",
+      "prompt": "Fill in the missing letter and type the whole word.",
+      "correct_answers": [
+        "chair"
+      ],
+      "explanation": "Chair is spelled c-h-a-i-r.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:word_builder:002",
+      "category": "word_builder",
+      "cefr": "A2",
+      "title": "Make a compound",
+      "objective": "Combine meaningful word parts",
+      "content": "Combine rain and coat to name clothing used in wet weather.",
+      "prompt": "Write the compound word.",
+      "correct_answers": [
+        "raincoat"
+      ],
+      "explanation": "Raincoat is a closed compound noun formed from rain and coat.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:word_builder:003",
+      "category": "word_builder",
+      "cefr": "B1",
+      "title": "Choose a suffix",
+      "objective": "Form an adjective from a noun",
+      "content": "The noun care can describe a person who checks details and avoids mistakes.",
+      "prompt": "Add a suffix to mean 'paying attention to avoid errors'.",
+      "correct_answers": [
+        "careful"
+      ],
+      "explanation": "The suffix -ful produces the adjective careful.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:word_builder:004",
+      "category": "word_builder",
+      "cefr": "B2",
+      "title": "Derive the noun",
+      "objective": "Turn an adjective into a noun",
+      "content": "The adjective reliable means someone can be depended on.",
+      "prompt": "Form the noun in: 'Customers value the ___ of this service.'",
+      "correct_answers": [
+        "reliability"
+      ],
+      "explanation": "Reliable changes to reliability, with -able becoming -ability.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:word_builder:005",
+      "category": "word_builder",
+      "cefr": "C1",
+      "title": "Use a prefix precisely",
+      "objective": "Build an academic English verb",
+      "content": "The verb contextualize means to place something within its context.",
+      "prompt": "Add a prefix to create the verb meaning 'place in a new context'.",
+      "correct_answers": [
+        "recontextualize"
+      ],
+      "explanation": "Re- plus contextualize creates recontextualize.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:riddles:001",
+      "category": "riddles",
+      "cefr": "A1",
+      "title": "At the table",
+      "objective": "Infer a noun from concrete clues",
+      "content": "I have a handle and a round bowl. I help you eat soup. What am I?",
+      "prompt": "Name the object.",
+      "correct_answers": [
+        "spoon"
+      ],
+      "explanation": "A spoon has a handle and a bowl-shaped end used for soup.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:riddles:002",
+      "category": "riddles",
+      "cefr": "A2",
+      "title": "A rainy-day helper",
+      "objective": "Read practical clues",
+      "content": "You open me above your head when it rains, and fold me when the sun returns.",
+      "prompt": "What am I?",
+      "correct_answers": [
+        "umbrella"
+      ],
+      "explanation": "An umbrella opens to shield a person from rain.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:riddles:003",
+      "category": "riddles",
+      "cefr": "B1",
+      "title": "The silent messenger",
+      "objective": "Interpret figurative description",
+      "content": "I travel in an envelope, carry a message, and can cross oceans without speaking.",
+      "prompt": "What am I?",
+      "correct_answers": [
+        "letter"
+      ],
+      "explanation": "A posted letter carries written words without speaking.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:riddles:004",
+      "category": "riddles",
+      "cefr": "B2",
+      "title": "A flexible appointment",
+      "objective": "Use abstract nouns in context",
+      "content": "You can rearrange me without moving furniture. I organize appointments and deadlines.",
+      "prompt": "What am I?",
+      "correct_answers": [
+        "schedule"
+      ],
+      "explanation": "A schedule is a plan of activities and their times.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:riddles:005",
+      "category": "riddles",
+      "cefr": "C1",
+      "title": "The careful omission",
+      "objective": "Infer an advanced abstract noun",
+      "content": "I am the deliberate absence of information from a report. I can mislead even when no statement is technically false.",
+      "prompt": "What am I?",
+      "correct_answers": [
+        "omission"
+      ],
+      "explanation": "An omission is something intentionally or unintentionally left out.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review"
+    },
+    {
+      "id": "em4000:vocabulary:001",
+      "category": "vocabulary",
+      "cefr": "A1",
+      "title": "A quick meaning",
+      "objective": "Understand daily adjectives",
+      "content": "The water is cold.",
+      "prompt": "Choose the closest meaning of cold.",
+      "correct_answers": [
+        "not warm"
+      ],
+      "explanation": "Cold means having a low temperature.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "not warm",
+        "very loud",
+        "quite heavy"
+      ]
+    },
+    {
+      "id": "em4000:vocabulary:002",
+      "category": "vocabulary",
+      "cefr": "A2",
+      "title": "An opposite",
+      "objective": "Identify antonyms",
+      "content": "We arrived early for the concert.",
+      "prompt": "What is the opposite of early?",
+      "correct_answers": [
+        "late"
+      ],
+      "explanation": "Late means after the expected or planned time.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "late",
+        "soon",
+        "first"
+      ]
+    },
+    {
+      "id": "em4000:vocabulary:003",
+      "category": "vocabulary",
+      "cefr": "B1",
+      "title": "A natural phrase",
+      "objective": "Identify common collocations",
+      "content": "After a difficult choice, Fatima finally ___ a decision.",
+      "prompt": "Choose the natural verb.",
+      "correct_answers": [
+        "made"
+      ],
+      "explanation": "English uses the collocation make a decision.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "made",
+        "did",
+        "built"
+      ]
+    },
+    {
+      "id": "em4000:vocabulary:004",
+      "category": "vocabulary",
+      "cefr": "B2",
+      "title": "A meeting idiom",
+      "objective": "Understand figurative workplace language",
+      "content": "After a long discussion, the team was finally on the same page.",
+      "prompt": "What does on the same page mean?",
+      "correct_answers": [
+        "in agreement"
+      ],
+      "explanation": "This idiom means sharing the same understanding.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "in agreement",
+        "in the same room",
+        "reading aloud"
+      ]
+    },
+    {
+      "id": "em4000:vocabulary:005",
+      "category": "vocabulary",
+      "cefr": "C1",
+      "title": "Nuance in argument",
+      "objective": "Distinguish precise academic vocabulary",
+      "content": "The committee described the claim as plausible but not yet substantiated.",
+      "prompt": "What does substantiated mean here?",
+      "correct_answers": [
+        "supported by evidence"
+      ],
+      "explanation": "A substantiated claim is backed by supporting proof.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "supported by evidence",
+        "widely repeated",
+        "carefully phrased"
+      ]
+    },
+    {
+      "id": "em4000:situations:001",
+      "category": "situations",
+      "cefr": "A1",
+      "title": "A friendly introduction",
+      "objective": "Introduce yourself politely",
+      "content": "You meet a new classmate after school. They say, 'Hi, I'm Noor.'",
+      "prompt": "What is a friendly reply?",
+      "correct_answers": [
+        "Hi, I'm Sam. Nice to meet you."
+      ],
+      "explanation": "A greeting and introduction appropriately answer Noor.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "Hi, I'm Sam. Nice to meet you.",
+        "I have no pencils.",
+        "The bus is late."
+      ]
+    },
+    {
+      "id": "em4000:situations:002",
+      "category": "situations",
+      "cefr": "A2",
+      "title": "At the bakery",
+      "objective": "Make a polite purchase request",
+      "content": "You want two rolls. The baker asks, 'What would you like?'",
+      "prompt": "Which reply is polite and clear?",
+      "correct_answers": [
+        "Could I have two rolls, please?"
+      ],
+      "explanation": "Could I have...please? is an everyday polite request.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "Could I have two rolls, please?",
+        "You should go home.",
+        "There were two buses."
+      ]
+    },
+    {
+      "id": "em4000:situations:003",
+      "category": "situations",
+      "cefr": "B1",
+      "title": "Change a meeting time",
+      "objective": "Negotiate an alternative",
+      "content": "Your study partner suggests 3 p.m., but you are busy until 4 p.m.",
+      "prompt": "Choose a response that offers another time.",
+      "correct_answers": [
+        "Could we meet at 4:30 instead?"
+      ],
+      "explanation": "This politely suggests a specific alternative.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "Could we meet at 4:30 instead?",
+        "I will never study again.",
+        "You were there yesterday."
+      ]
+    },
+    {
+      "id": "em4000:situations:004",
+      "category": "situations",
+      "cefr": "B2",
+      "title": "Customer support",
+      "objective": "Explain a service issue professionally",
+      "content": "Your order arrived damaged, but you want a replacement rather than a refund.",
+      "prompt": "Choose the clearest message.",
+      "correct_answers": [
+        "The item arrived damaged. Could you arrange a replacement?"
+      ],
+      "explanation": "A specific problem and requested remedy help customer support.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "The item arrived damaged. Could you arrange a replacement?",
+        "Your company is terrible.",
+        "Everything is absolutely fine."
+      ]
+    },
+    {
+      "id": "em4000:situations:005",
+      "category": "situations",
+      "cefr": "C1",
+      "title": "Disagree constructively",
+      "objective": "Offer measured disagreement in a meeting",
+      "content": "A colleague proposes skipping accessibility testing to meet a deadline.",
+      "prompt": "Choose a response that disagrees and proposes a solution.",
+      "correct_answers": [
+        "I understand the deadline, but skipping accessibility checks creates risk. Could we reduce scope instead?"
+      ],
+      "explanation": "This acknowledges constraints, states the concern and offers a workable alternative.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "options": [
+        "I understand the deadline, but skipping accessibility checks creates risk. Could we reduce scope instead?",
+        "That idea is stupid.",
+        "Fine. Testing has no value."
+      ]
+    },
+    {
+      "id": "em4000:listening:001",
+      "category": "listening",
+      "cefr": "A1",
+      "title": "A bus announcement",
+      "objective": "Extract a departure time",
+      "content": "A station announces the time for the next bus.",
+      "prompt": "What time does the bus leave?",
+      "correct_answers": [
+        "nine thirty"
+      ],
+      "explanation": "The announcement says the bus leaves at nine thirty.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "transcript": "Attention, passengers. The next bus to the library leaves at nine thirty. Please wait by gate two.",
+      "options": [
+        "nine thirty",
+        "eight thirty",
+        "ten thirty"
+      ]
+    },
+    {
+      "id": "em4000:listening:002",
+      "category": "listening",
+      "cefr": "A2",
+      "title": "Shopping list",
+      "objective": "Identify a requested quantity",
+      "content": "Two friends talk before going to the market.",
+      "prompt": "How many oranges should Mia buy?",
+      "correct_answers": [
+        "six"
+      ],
+      "explanation": "Jon asks Mia to get six oranges.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "transcript": "Jon: Can you pick up some fruit? Mia: Sure. What do we need? Jon: Six oranges and a bunch of bananas.",
+      "options": [
+        "six",
+        "four",
+        "eight"
+      ]
+    },
+    {
+      "id": "em4000:listening:003",
+      "category": "listening",
+      "cefr": "B1",
+      "title": "A change of venue",
+      "objective": "Track changed event information",
+      "content": "A coordinator announces a room change.",
+      "prompt": "Where will the workshop take place?",
+      "correct_answers": [
+        "the library hall"
+      ],
+      "explanation": "The speaker corrects the previous room and names the library hall.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "transcript": "Good morning, everyone. Today's writing workshop was originally booked in Room 12, but a projector problem means we're moving to the library hall. Please arrive ten minutes early.",
+      "options": [
+        "the library hall",
+        "Room 12",
+        "the sports hall"
+      ]
+    },
+    {
+      "id": "em4000:listening:004",
+      "category": "listening",
+      "cefr": "B2",
+      "title": "Project update",
+      "objective": "Identify a conditional plan",
+      "content": "A project manager outlines a contingency.",
+      "prompt": "What will the team do if testing finds a serious issue?",
+      "correct_answers": [
+        "postpone the release"
+      ],
+      "explanation": "The plan is conditional: a serious issue triggers postponement.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "transcript": "We expect to release the update on Friday. However, if Thursday's accessibility tests reveal any major blockers, we'll postpone the release rather than ship a rushed fix.",
+      "options": [
+        "postpone the release",
+        "skip accessibility testing",
+        "release on Wednesday"
+      ]
+    },
+    {
+      "id": "em4000:listening:005",
+      "category": "listening",
+      "cefr": "C1",
+      "title": "A nuanced proposal",
+      "objective": "Identify the speaker's qualified position",
+      "content": "A lecturer weighs research trade-offs.",
+      "prompt": "What is the speaker's main conclusion?",
+      "correct_answers": [
+        "use both methods with clearly stated limitations"
+      ],
+      "explanation": "The lecturer recommends combining approaches while acknowledging uncertainty.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "transcript": "Interviews provide depth, but the sample can be too narrow to support broad conclusions. Surveys offer reach, yet their fixed questions can conceal context. Rather than treating the methods as rivals, we should combine them and state plainly what each cannot establish.",
+      "options": [
+        "use both methods with clearly stated limitations",
+        "abandon interviews completely",
+        "consider survey results infallible"
+      ]
+    },
+    {
+      "id": "em4000:reading:001",
+      "category": "reading",
+      "cefr": "A1",
+      "title": "A door sign",
+      "objective": "Locate simple written information",
+      "content": "Read a sign on a classroom door.",
+      "prompt": "When does the room close?",
+      "correct_answers": [
+        "four o'clock"
+      ],
+      "explanation": "The sign states that the room closes at 4:00.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "passage": "Art Room. Open: 9:00–4:00. Please leave paintbrushes in the blue box.",
+      "options": [
+        "four o'clock",
+        "six o'clock",
+        "nine o'clock"
+      ]
+    },
+    {
+      "id": "em4000:reading:002",
+      "category": "reading",
+      "cefr": "A2",
+      "title": "A short message",
+      "objective": "Identify a meeting place",
+      "content": "Read a message from a friend.",
+      "prompt": "Where should the friends meet?",
+      "correct_answers": [
+        "outside the cinema"
+      ],
+      "explanation": "The message explicitly says outside the cinema.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "passage": "Hi Alex, the film starts at seven. Let's meet outside the cinema at six forty-five so we can buy tickets together. — Priya",
+      "options": [
+        "outside the cinema",
+        "inside the café",
+        "at the bus station"
+      ]
+    },
+    {
+      "id": "em4000:reading:003",
+      "category": "reading",
+      "cefr": "B1",
+      "title": "A community notice",
+      "objective": "Identify the purpose of a message",
+      "content": "Read an announcement for local volunteers.",
+      "prompt": "Why does the group need volunteers?",
+      "correct_answers": [
+        "to help clean the riverside"
+      ],
+      "explanation": "The notice requests helpers for a riverside clean-up.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "passage": "The Riverside Club is organizing a clean-up on Saturday morning. Volunteers will collect litter along the walking path. Gloves and bags will be supplied, but please bring water and wear strong shoes.",
+      "options": [
+        "to help clean the riverside",
+        "to paint a classroom",
+        "to sell sports shoes"
+      ]
+    },
+    {
+      "id": "em4000:reading:004",
+      "category": "reading",
+      "cefr": "B2",
+      "title": "A policy explanation",
+      "objective": "Identify an exception to a rule",
+      "content": "Read an updated public library policy.",
+      "prompt": "Who may keep a laptop overnight?",
+      "correct_answers": [
+        "members with prior written approval"
+      ],
+      "explanation": "The exception explicitly requires written approval.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "passage": "Members may borrow a laptop for use inside the library during opening hours. Devices normally must be returned before closing. A member preparing an approved outreach event may retain a device overnight, provided written authorization is received from the service desk in advance.",
+      "options": [
+        "members with prior written approval",
+        "all new members",
+        "anyone who asks after closing"
+      ]
+    },
+    {
+      "id": "em4000:reading:005",
+      "category": "reading",
+      "cefr": "C1",
+      "title": "An editorial argument",
+      "objective": "Identify the author's qualified argument",
+      "content": "Read an opinion paragraph about urban transport.",
+      "prompt": "What is the author's position on fare reductions?",
+      "correct_answers": [
+        "they can help but require complementary investment"
+      ],
+      "explanation": "The author supports lower fares only as part of a wider service plan.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "passage": "Reducing public transport fares can make travel more accessible, but price alone rarely determines whether commuters abandon their cars. Infrequent services and unreliable connections impose costs that cheaper tickets cannot erase. A serious affordability policy must therefore pair fare reform with investment in coverage and reliability.",
+      "options": [
+        "they can help but require complementary investment",
+        "they are always sufficient on their own",
+        "they should be replaced by higher parking charges"
+      ]
+    },
+    {
+      "id": "em4000:dialogues:001",
+      "category": "dialogues",
+      "cefr": "A1",
+      "title": "At the café",
+      "objective": "Choose a routine answer",
+      "content": "Customer: A cup of tea, please. Server: Would you like milk?",
+      "prompt": "Complete the customer's reply.",
+      "correct_answers": [
+        "Yes, please."
+      ],
+      "explanation": "Yes, please is a polite short answer to an offer.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "turns": [
+        {
+          "speaker": "Customer",
+          "text": "A cup of tea, please."
+        },
+        {
+          "speaker": "Server",
+          "text": "Would you like milk?"
+        }
+      ],
+      "options": [
+        "Yes, please.",
+        "I am ten years old.",
+        "The library is closed."
+      ]
+    },
+    {
+      "id": "em4000:dialogues:002",
+      "category": "dialogues",
+      "cefr": "A2",
+      "title": "Asking directions",
+      "objective": "Respond to location information",
+      "content": "Visitor: Excuse me, where is the bank? Local: Go straight and turn right at the lights.",
+      "prompt": "What should the visitor say next?",
+      "correct_answers": [
+        "Thank you for your help."
+      ],
+      "explanation": "A polite thank-you naturally follows directions.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "turns": [
+        {
+          "speaker": "Visitor",
+          "text": "Excuse me, where is the bank?"
+        },
+        {
+          "speaker": "Local",
+          "text": "Go straight and turn right at the lights."
+        }
+      ],
+      "options": [
+        "Thank you for your help.",
+        "I ate dinner.",
+        "That book is mine."
+      ]
+    },
+    {
+      "id": "em4000:dialogues:003",
+      "category": "dialogues",
+      "cefr": "B1",
+      "title": "Clarifying instructions",
+      "objective": "Request a useful clarification",
+      "content": "Manager: Please email the report before lunch. Intern: I can do that, but which version should I send?",
+      "prompt": "Choose the manager's helpful reply.",
+      "correct_answers": [
+        "Send the revised version from this morning."
+      ],
+      "explanation": "A specific version clarifies which file is expected.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "turns": [
+        {
+          "speaker": "Manager",
+          "text": "Please email the report before lunch."
+        },
+        {
+          "speaker": "Intern",
+          "text": "Which version should I send?"
+        }
+      ],
+      "options": [
+        "Send the revised version from this morning.",
+        "You can take a train.",
+        "All reports are interesting."
+      ]
+    },
+    {
+      "id": "em4000:dialogues:004",
+      "category": "dialogues",
+      "cefr": "B2",
+      "title": "Constructive feedback",
+      "objective": "Respond to a colleague's concern",
+      "content": "Designer: The page looks clearer now, but the buttons are still hard to reach on small screens. Developer: ___",
+      "prompt": "Choose the most collaborative reply.",
+      "correct_answers": [
+        "Good point. I'll check the layout at smaller widths."
+      ],
+      "explanation": "This acknowledges feedback and proposes a concrete check.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "turns": [
+        {
+          "speaker": "Designer",
+          "text": "The buttons are still hard to reach on small screens."
+        },
+        {
+          "speaker": "Developer",
+          "text": "I'll take a look."
+        }
+      ],
+      "options": [
+        "Good point. I'll check the layout at smaller widths.",
+        "Small screens do not matter.",
+        "You are wrong and I will ignore you."
+      ]
+    },
+    {
+      "id": "em4000:dialogues:005",
+      "category": "dialogues",
+      "cefr": "C1",
+      "title": "Managing uncertainty",
+      "objective": "Give a proportionate project status",
+      "content": "Director: Can we guarantee the pilot will scale nationally? Analyst: ___",
+      "prompt": "Choose the most evidence-conscious answer.",
+      "correct_answers": [
+        "The early results are promising, but we need a broader sample before making that claim."
+      ],
+      "explanation": "The reply distinguishes encouraging preliminary results from unsupported certainty.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "turns": [
+        {
+          "speaker": "Director",
+          "text": "Can we guarantee the pilot will scale nationally?"
+        },
+        {
+          "speaker": "Analyst",
+          "text": "We have results from two districts."
+        }
+      ],
+      "options": [
+        "The early results are promising, but we need a broader sample before making that claim.",
+        "Yes, success is certain everywhere.",
+        "The pilot tells us absolutely nothing."
+      ]
+    },
+    {
+      "id": "em4000:stories:001",
+      "category": "stories",
+      "cefr": "A1",
+      "title": "The lost key",
+      "objective": "Understand a simple story sequence",
+      "content": "A child searches for a missing house key.",
+      "prompt": "Where does Ella find her key?",
+      "correct_answers": [
+        "in her coat pocket"
+      ],
+      "explanation": "The conclusion reveals the key was in Ella's coat pocket.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "story": "Ella comes home from school. She cannot find her key. She looks in her bag and under her books. Then she checks her coat pocket. The key is there! Ella smiles and opens the door.",
+      "options": [
+        "in her coat pocket",
+        "under her bed",
+        "at school"
+      ]
+    },
+    {
+      "id": "em4000:stories:002",
+      "category": "stories",
+      "cefr": "A2",
+      "title": "A helpful neighbor",
+      "objective": "Infer a simple reason for an action",
+      "content": "Two neighbors work together before a storm.",
+      "prompt": "Why does Ravi help Mrs. Chen?",
+      "correct_answers": [
+        "because strong wind might move her plants"
+      ],
+      "explanation": "Ravi helps protect the plants before the wind arrives.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "story": "Dark clouds gather over the street. Mrs. Chen has small flowerpots on her balcony. Ravi notices the wind getting stronger and offers to help. Together, they carry the pots indoors. Rain begins a few minutes later, but the flowers are safe.",
+      "options": [
+        "because strong wind might move her plants",
+        "because he wants to buy flowers",
+        "because he needs new shoes"
+      ]
+    },
+    {
+      "id": "em4000:stories:003",
+      "category": "stories",
+      "cefr": "B1",
+      "title": "The missed train",
+      "objective": "Identify a solution to an unexpected problem",
+      "content": "A traveler changes plans after missing a train.",
+      "prompt": "How does Nila reach the conference?",
+      "correct_answers": [
+        "she takes a later train and calls the organizer"
+      ],
+      "explanation": "Nila informs the organizer and travels on the next available service.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "story": "Nila arrived at the station just as the conference train departed. She had copied the departure time incorrectly. Instead of giving up, she checked the timetable and found another train leaving in twenty minutes. She phoned the organizer to explain the delay. When she arrived, the first talk had ended, but she was still able to present her project.",
+      "options": [
+        "she takes a later train and calls the organizer",
+        "she walks to the conference",
+        "she decides never to travel again"
+      ]
+    },
+    {
+      "id": "em4000:stories:004",
+      "category": "stories",
+      "cefr": "B2",
+      "title": "The team decision",
+      "objective": "Analyze competing workplace priorities",
+      "content": "A small team balances scope and quality under time pressure.",
+      "prompt": "Why does the team postpone one feature?",
+      "correct_answers": [
+        "to protect testing time for the core release"
+      ],
+      "explanation": "The team chooses a smaller tested release rather than more features with inadequate validation.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "story": "A week before the launch, the team discovered that the new search filter behaved unpredictably on older phones. The product manager argued that shipping everything on time was essential. However, the testers warned that the filter might prevent customers from finding any results. After discussing the risk, the team agreed to release the reliable search experience first and move the filter into the next update. The launch remained on schedule without hiding the defect.",
+      "options": [
+        "to protect testing time for the core release",
+        "because no one understands search",
+        "to avoid telling customers about an issue"
+      ]
+    },
+    {
+      "id": "em4000:stories:005",
+      "category": "stories",
+      "cefr": "C1",
+      "title": "The unexpected survey",
+      "objective": "Evaluate evidence in narrative context",
+      "content": "A researcher recognizes limitations in apparently strong findings.",
+      "prompt": "What changes the researcher's interpretation?",
+      "correct_answers": [
+        "recognizing that the sample excludes occasional users"
+      ],
+      "explanation": "The sample overrepresents frequent visitors and cannot support conclusions about everyone.",
+      "estimated_seconds": 60,
+      "content_version": "draft-0.1",
+      "review_status": "needs_human_review",
+      "story": "Mara's survey appeared decisive: nearly nine in ten respondents praised the town's new library hours. She was ready to present the results as evidence of universal satisfaction. During a final review, however, a colleague pointed out that the survey link had been displayed only inside the library. Occasional visitors, including those discouraged by the current opening hours, were unlikely to have seen it. Mara revised her report to describe the result as positive feedback from existing visitors and recommended additional outreach before broader claims were made.",
+      "options": [
+        "recognizing that the sample excludes occasional users",
+        "discovering that no respondent liked the hours",
+        "learning that the library had closed permanently"
+      ]
+    }
+  ]
+}

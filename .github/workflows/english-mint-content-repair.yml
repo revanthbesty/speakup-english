@@ -1,0 +1,45 @@
+name: English Mint Content Repair Safety
+on:
+  push:
+    branches:
+      - feature/english-mint-4000-activity-content-foundation
+  pull_request:
+    paths:
+      - 'scripts/*english_mint*.py'
+      - 'content/english_mint_4000/**'
+      - '.github/workflows/english-mint-content-repair.yml'
+  workflow_dispatch:
+jobs:
+  repair-validation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run offline Python safety tests
+        run: python3 -m unittest discover -s scripts -p 'test_english_mint*.py' -v
+      - name: Validate and combine all 288 unapproved repair drafts
+        run: python3 scripts/combine_english_mint_repair_pilots.py
+      - name: Confirm strict release gate rejects the incomplete content pilot
+        shell: bash
+        run: |
+          if python3 scripts/validate_english_mint_activities.py content/english_mint_4000/editorial_pilot_40.json; then
+            echo "ERROR: The incomplete 40-item pilot must not pass the 4,000-item release gate"
+            exit 1
+          fi
+          echo "PASS: incomplete content correctly rejected"
+      - name: Validate 24 draft repair records without approving them
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          from collections import Counter
+          path = 'content/english_mint_4000/external_workbook_repair_pilot_24_import_schema.json'
+          rows = json.load(open(path, encoding='utf-8'))['activities']
+          assert len(rows) == 24
+          assert len({x['activity_id'] for x in rows}) == 24
+          assert all(x['review_status'] == 'needs_human_review' for x in rows)
+          assert all(x['cefr_level'] == 'A1' for x in rows)
+          assert sorted(Counter(x['category'] for x in rows).values()) == [3] * 8
+          print("PASS: 24 draft repairs have stable distinct IDs and remain unapproved")
+          PY
