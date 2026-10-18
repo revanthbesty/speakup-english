@@ -599,17 +599,27 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Speak" -> {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Speak with Mint Buddy", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Text("Try a short, private English conversation.", color = secondaryTextColor)
+                        Spacer(Modifier.height(10.dp))
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text("Your practice", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text("${completedGuidedVoiceTurns.size} guided speaking turns completed on this device", color = secondaryTextColor)
+                                Text("Voice recognition uses your device's speech provider. Quiet text is available without microphone permission.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(selected = speakingView == "Conversations", onClick = {
                                 speakingView = "Conversations"
                                 practiceResponse = ""
                                 guidedVoiceReceived = false
-                            }, label = { Text("Conversation quests") })
+                            }, label = { Text("Roleplay conversations") })
                             FilterChip(selected = speakingView == "Lessons", onClick = {
                                 speakingView = "Lessons"
                                 guidedVoiceReceived = false
                                 practiceResponse = ""
-                            }, label = { Text("Speaking lessons") })
+                            }, label = { Text("Practice a lesson") })
                         }
                         if (speakingView == "Conversations") {
                             val learnerMinimumAge = when (learnerAgeBand) {
@@ -660,7 +670,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text("Speak or type your answer for this lesson. Keyword feedback is a practice aid, not a pronunciation score.", color = secondaryTextColor)
+                        Text("Listen and respond by voice or text.", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         Button(
                             onClick = {
@@ -668,7 +678,7 @@ fun PremiumSpeakUp() {
                                 showSpeechConsent = true
                             },
                             modifier = Modifier.fillMaxWidth()
-                        ) { Text("🎙 Speak my answer") }
+                        ) { Text("🎙 Start speaking") }
                         if (speechStatus.isNotBlank()) Text(speechStatus, color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
                         OutlinedTextField(
