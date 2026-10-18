@@ -238,6 +238,7 @@ fun PremiumSpeakUp() {
         mutableStateOf((preferences.getStringSet("mint_passport_reflections", emptySet()) ?: emptySet()).toSet())
     }
     var speakingView by remember { mutableStateOf("Conversations") }
+    var showSpeakingPassport by remember { mutableStateOf(false) }
     var guidedVoiceReceived by remember { mutableStateOf(false) }
     var showSpeechConsent by remember { mutableStateOf(false) }
     var pendingSpeechPrompt by remember { mutableStateOf("") }
@@ -769,51 +770,17 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Speak" -> {
-                        Text("Speak with Mint Buddy", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Text("Try a short, private English conversation.", color = secondaryTextColor)
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("📘 Speaking Growth Passport", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                                Text("Optional, local self-reflections. This does not save microphone audio or grade your accent.", color = secondaryTextColor)
-                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                                    Text("Save reflection notes on this device", modifier = Modifier.weight(1f), color = primaryTextColor)
-                                    Switch(checked = passportConsent, onCheckedChange = { enabled ->
-                                        passportConsent = enabled
-                                        preferences.edit().putBoolean("mint_passport_consent", enabled).apply()
-                                    })
-                                }
-                                if (passportConsent) {
-                                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        MintSpeakingPassport.prompts().forEach { (id, _) ->
-                                            FilterChip(selected = passportPrompt == id, onClick = { passportPrompt = id },
-                                                label = { Text(when(id) { "week" -> "7 days"; "month" -> "30 days"; else -> "90 days" }) })
-                                        }
-                                    }
-                                    Text(MintSpeakingPassport.prompts()[passportPrompt] ?: "", color = primaryTextColor)
-                                    OutlinedTextField(value = passportReflection, onValueChange = { passportReflection = it },
-                                        label = { Text("Your private progress note (max 240 characters)") },
-                                        modifier = Modifier.fillMaxWidth(), maxLines = 4)
-                                    Button(onClick = {
-                                        MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay())?.let { note ->
-                                            passportNotes = passportNotes + MintSpeakingPassport.encode(note)
-                                            preferences.edit().putStringSet("mint_passport_reflections", passportNotes).apply()
-                                            passportReflection = ""
-                                        }
-                                    }, enabled = MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay()) != null,
-                                        modifier = Modifier.fillMaxWidth()) { Text("Save private reflection") }
-                                    MintSpeakingPassport.newestNotes(passportNotes).take(5).forEach { note ->
-                                        Text("${note.promptId} · ${note.selfReflection}", color = primaryTextColor)
-                                    }
-                                    if (passportNotes.isNotEmpty()) {
-                                        OutlinedButton(onClick = {
-                                            passportNotes = emptySet()
-                                            preferences.edit().remove("mint_passport_reflections").apply()
-                                        }, modifier = Modifier.fillMaxWidth()) { Text("Delete all Passport notes") }
-                                    }
-                                } else Text("Off · No Passport reflections are saved.", color = secondaryTextColor)
+                        MintDashboardHero(
+                            kicker="Mint Buddy • Voice & text",
+                            title="Let's practise speaking",
+                            description="Choose guided conversations or an optional voice attempt. Text practice always works without the microphone.",
+                            action="Start voice practice  🎤",
+                            onAction={
+                                speakingView="Lessons"
+                                pendingSpeechPrompt="Speak one short English sentence"
+                                showSpeechConsent=true
                             }
-                        }
-                        Spacer(Modifier.height(10.dp))
+                        )
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text("Your practice", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -931,6 +898,56 @@ fun PremiumSpeakUp() {
                         ) { Text("Check my reply") }
                         Spacer(Modifier.height(16.dp))
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
+                        }
+                        OutlinedButton(onClick = { showSpeakingPassport = !showSpeakingPassport },
+                            modifier = Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+                            Text(if(showSpeakingPassport) "Hide speaking passport" else "My Speaking Passport  →")
+                        }
+                        if(showSpeakingPassport) {
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("📘 Speaking Growth Passport", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                Text("Optional, local self-reflections. This does not save microphone audio or grade your accent.", color = secondaryTextColor)
+                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                    Text("Save reflection notes on this device", modifier = Modifier.weight(1f), color = primaryTextColor)
+                                    Switch(checked = passportConsent, onCheckedChange = { enabled ->
+                                        passportConsent = enabled
+                                        preferences.edit().putBoolean("mint_passport_consent", enabled).apply()
+                                    })
+                                }
+                                if (passportConsent) {
+                                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        MintSpeakingPassport.prompts().forEach { (id, _) ->
+                                            FilterChip(selected = passportPrompt == id, onClick = { passportPrompt = id },
+                                                label = { Text(when(id) { "week" -> "7 days"; "month" -> "30 days"; else -> "90 days" }) })
+                                        }
+                                    }
+                                    Text(MintSpeakingPassport.prompts()[passportPrompt] ?: "", color = primaryTextColor)
+                                    OutlinedTextField(value = passportReflection, onValueChange = { passportReflection = it },
+                                        label = { Text("Your private progress note (max 240 characters)") },
+                                        modifier = Modifier.fillMaxWidth(), maxLines = 4)
+                                    Button(onClick = {
+                                        MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay())?.let { note ->
+                                            passportNotes = passportNotes + MintSpeakingPassport.encode(note)
+                                            preferences.edit().putStringSet("mint_passport_reflections", passportNotes).apply()
+                                            passportReflection = ""
+                                        }
+                                    }, enabled = MintSpeakingPassport.safeNote(passportPrompt, passportReflection, java.time.LocalDate.now().toEpochDay()) != null,
+                                        modifier = Modifier.fillMaxWidth()) { Text("Save private reflection") }
+                                    MintSpeakingPassport.newestNotes(passportNotes).take(5).forEach { note ->
+                                        Text("${note.promptId} · ${note.selfReflection}", color = primaryTextColor)
+                                    }
+                                    if (passportNotes.isNotEmpty()) {
+                                        OutlinedButton(onClick = {
+                                            passportNotes = emptySet()
+                                            preferences.edit().remove("mint_passport_reflections").apply()
+                                        }, modifier = Modifier.fillMaxWidth()) { Text("Delete all Passport notes") }
+                                    }
+                                } else Text("Off · No Passport reflections are saved.", color = secondaryTextColor)
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+
                         }
                     }
                     "FiveWord" -> {
