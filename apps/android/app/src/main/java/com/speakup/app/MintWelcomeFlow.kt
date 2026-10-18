@@ -27,8 +27,8 @@ internal fun MintWelcomeFlow(
     var step by rememberSaveable { mutableIntStateOf(0) }
     val ink = MaterialTheme.colorScheme.onBackground
     val subtle = MaterialTheme.colorScheme.onSurfaceVariant
-    val mint = Color(0xFF12B886)
-    val purple = Color(0xFF7C3AED)
+    val mint = Color(0xFF10B981)
+    val purple = Color(0xFF8B5CF6)
     val goals = listOf(
         "Start speaking" to "🎤", "Everyday conversation" to "💬",
         "School & exams" to "🎓", "Work & interviews" to "💼",
@@ -51,15 +51,15 @@ internal fun MintWelcomeFlow(
                 contentAlignment=Alignment.Center
             ) {
                 Column(horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(8.dp)) {
-                    Text("🌿",style=MaterialTheme.typography.displayLarge)
+                    Text("🌱🎧",style=MaterialTheme.typography.displayLarge)
                     Text("🎮  💬  🎤",style=MaterialTheme.typography.headlineMedium)
                     Text("PLAY  •  PRACTISE  •  SPEAK",color=Color(0xFF164637),
                         style=MaterialTheme.typography.labelLarge,fontWeight=FontWeight.Bold)
                 }
             }
-            Text("English is an adventure!",style=MaterialTheme.typography.headlineLarge,
+            Text("Play. Practice. Speak.",style=MaterialTheme.typography.headlineLarge,
                 fontWeight=FontWeight.ExtraBold,color=ink)
-            Text("Learn with quick games, stories and friendly speaking activities — at your pace.",
+            Text("Learn English through games, stories and friendly speaking practice — at your pace.",
                 style=MaterialTheme.typography.bodyLarge,color=subtle)
             Row(horizontalArrangement=Arrangement.spacedBy(9.dp)) {
                 listOf("🎮 Games","📚 Stories","🎤 Speak").forEach { text ->
