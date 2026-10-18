@@ -20,7 +20,7 @@ Package/application ID remains `com.speakup.app`, preferences remain `speakup_le
 - Device-level checks postponed until Sprint 10 per product owner: TalkBack, narrow screens, font 200%, color contrast in all modes, animations off, device time-zone changes, legacy update over installed APK, and screen/voice permissions.
 
 ## Not represented as finished
-- Production animated mascot splash and brand-owned/adaptive icon require licensed original artwork, asset generation and device acceptance.
+- An original simple mint-leaf chat vector is set as the launcher mark; the full mascot animation, adaptive icon deliverables, Play Store assets and visual QA remain a later asset/release gate.
 - Interactive short-video Feed and moderation are in Sprint 6, not a production Feed yet. Current navigation retains Review/Progress instead of a fake Feed.
 - Full game-engine scale is Sprint 3; production conversational AI is Sprint 4.
 - Scheduled night appearance evaluates device time when UI composes/changes state; reliable exact schedule rollover while foregrounded will need an event/tick mechanism and tests before release.
