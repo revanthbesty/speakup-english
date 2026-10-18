@@ -23,7 +23,7 @@ internal data class MintGameDefinition(
     val hint: String,
     val explanation: String,
     val speakingPrompt: String,
-    val minAge: Int = 4,
+    val minAge: Int = when(difficulty) { MintDifficulty.EASY -> 4; MintDifficulty.MEDIUM -> 8; MintDifficulty.HARD -> 13 },
     val locale: String = "en",
 ) {
     fun isValid(): Boolean =
@@ -91,8 +91,8 @@ internal object MintGameCatalog {
 
     val mechanics: List<MintMechanic> = MintMechanic.entries
 
-    fun listFor(difficulty: MintDifficulty, minAge: Int = 4): List<MintGameDefinition> =
-        definitions.filter { it.difficulty == difficulty && it.minAge <= minAge }
+    fun listFor(difficulty: MintDifficulty, learnerAge: Int = 100): List<MintGameDefinition> =
+        definitions.filter { it.difficulty == difficulty && it.minAge <= learnerAge }
 
     fun byId(id: String): MintGameDefinition? = definitions.firstOrNull { it.id == id }
 }
