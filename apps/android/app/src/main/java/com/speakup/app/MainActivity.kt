@@ -1079,6 +1079,29 @@ fun PremiumSpeakUp() {
                                 }
                             }
                         }
+                        Text("Pick your next adventure", style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        listOf(
+                            listOf(Triple("🧩", "Word Builder", "Build vocabulary"), Triple("💡", "Riddles", "Think and solve")),
+                            listOf(Triple("🎧", "Listening", "Listen and learn"), Triple("📖", "Reading", "Discover stories"))
+                        ).forEach { pair ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                pair.forEach { (symbol, mode, description) ->
+                                    Surface(
+                                        onClick = { gameMode = mode; showGameFilters = false },
+                                        shape = RoundedCornerShape(22.dp),
+                                        color = if (darkAppearance) Color(0xFF26364C) else Color(0xFFE9F7F3),
+                                        modifier = Modifier.weight(1f).heightIn(min = 110.dp)
+                                    ) {
+                                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            Text(symbol, style = MaterialTheme.typography.headlineMedium)
+                                            Text(mode, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                                            Text(description, style = MaterialTheme.typography.bodySmall, color = secondaryTextColor)
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide all game categories ↑" else "Browse all games & levels →") }
                         if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
