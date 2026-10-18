@@ -458,13 +458,13 @@ fun PremiumSpeakUp() {
                         val masteredGames = puzzleAwarded.size + riddleAwards.size + vocabularyMastered.size + grammarMastered.size + scenarioMastered.size + listeningMastered.size + readingMastered.size
                         val availableGames = lessons.size + riddles.size + vocabularyCards.size + grammarQuestions.size + conversationScenarios.size + listeningChecks.size + readingPassages.size
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            ProgressTile("Lessons", "${completedIds.size} / ${lessons.size}", completedIds.size.toFloat() / lessons.size.coerceAtLeast(1), Color(0xFF7456EF), Color(0xFFAC83FA), Modifier.weight(1f))
-                            ProgressTile("Games", "$masteredGames / $availableGames", masteredGames.toFloat() / availableGames.coerceAtLeast(1), Color(0xFFFF6A70), Color(0xFFFFB267), Modifier.weight(1f))
+                            ProgressTile("Lessons", "${completedIds.size} / ${lessons.size}", completedIds.size.toFloat() / lessons.size.coerceAtLeast(1), Color(0xFF7456EF), Color(0xFFAC83FA), Modifier.weight(1f), motionReduced)
+                            ProgressTile("Games", "$masteredGames / $availableGames", masteredGames.toFloat() / availableGames.coerceAtLeast(1), Color(0xFFFF6A70), Color(0xFFFFB267), Modifier.weight(1f), motionReduced)
                         }
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            ProgressTile("Reading", "${readingMastered.size} / ${readingPassages.size}", readingMastered.size.toFloat() / readingPassages.size.coerceAtLeast(1), Color(0xFF178D8D), Color(0xFF50CDB7), Modifier.weight(1f))
-                            ProgressTile("Listening", "${listeningMastered.size} / ${listeningChecks.size}", listeningMastered.size.toFloat() / listeningChecks.size.coerceAtLeast(1), Color(0xFF2770D5), Color(0xFF66A9FA), Modifier.weight(1f))
+                            ProgressTile("Reading", "${readingMastered.size} / ${readingPassages.size}", readingMastered.size.toFloat() / readingPassages.size.coerceAtLeast(1), Color(0xFF178D8D), Color(0xFF50CDB7), Modifier.weight(1f), motionReduced)
+                            ProgressTile("Listening", "${listeningMastered.size} / ${listeningChecks.size}", listeningMastered.size.toFloat() / listeningChecks.size.coerceAtLeast(1), Color(0xFF2770D5), Color(0xFF66A9FA), Modifier.weight(1f), motionReduced)
                         }
                         Spacer(Modifier.height(10.dp))
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
@@ -1203,8 +1203,8 @@ fun PremiumSpeakUp() {
 
 
 @Composable
-private fun ProgressTile(title: String, amount: String, progress: Float, first: Color, second: Color, modifier: Modifier = Modifier) {
-    val animated by animateFloatAsState(targetValue = progress.coerceIn(0f, 1f), animationSpec = tween(durationMillis = 650), label = "progress-$title")
+private fun ProgressTile(title: String, amount: String, progress: Float, first: Color, second: Color, modifier: Modifier = Modifier, reducedMotion: Boolean = false) {
+    val animated by animateFloatAsState(targetValue = progress.coerceIn(0f, 1f), animationSpec = tween(durationMillis = if (reducedMotion) 0 else 500), label = "progress-$title")
     Column(
         modifier = modifier.background(Brush.linearGradient(listOf(first, second)), RoundedCornerShape(20.dp)).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
