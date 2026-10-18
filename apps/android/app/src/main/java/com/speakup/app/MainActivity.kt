@@ -230,6 +230,9 @@ fun PremiumSpeakUp() {
     var reactedMintClips by remember {
         mutableStateOf((preferences.getStringSet("mint_private_reactions", emptySet()) ?: emptySet()).toSet())
     }
+    var mintSavedWords by remember {
+        mutableStateOf((preferences.getStringSet("mint_saved_vocabulary", emptySet()) ?: emptySet()).toSet())
+    }
     var mintStoryCompletions by remember {
         mutableStateOf((preferences.getStringSet("mint_story_completed", emptySet()) ?: emptySet()).toSet())
     }
@@ -768,6 +771,11 @@ fun PremiumSpeakUp() {
                             reportedKeys = reportedMintClips,
                             reactionIds = reactedMintClips,
                             completedChallengeIds = mintStoryCompletions,
+                            savedWords = mintSavedWords,
+                            onToggleWord = { word ->
+                                mintSavedWords = MintSavedVocabulary.toggle(mintSavedWords, word)
+                                preferences.edit().putStringSet("mint_saved_vocabulary", mintSavedWords).apply()
+                            },
                             onBlock = { id ->
                                 blockedMintClips = blockedMintClips + id
                                 preferences.edit().putStringSet("mint_hidden_clips", blockedMintClips).apply()
