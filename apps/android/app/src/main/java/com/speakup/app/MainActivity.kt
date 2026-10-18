@@ -202,6 +202,9 @@ fun PremiumSpeakUp() {
     var showSpeakingHint by remember { mutableStateOf(true) }
     var showProfileSettings by remember { mutableStateOf(false) }
     var showGameFilters by remember { mutableStateOf(false) }
+    var showOnboardingOptions by remember { mutableStateOf(false) }
+    var showJourneyPicker by remember { mutableStateOf(false) }
+    var showProfileAdvanced by remember { mutableStateOf(false) }
     var speakingView by remember { mutableStateOf("Conversations") }
     var guidedVoiceReceived by remember { mutableStateOf(false) }
     var showSpeechConsent by remember { mutableStateOf(false) }
@@ -341,8 +344,8 @@ fun PremiumSpeakUp() {
                 dismissButton = { TextButton(onClick = { showSpeechConsent = false }) { Text("Not now") } }
             )
         }
-        Column(Modifier.fillMaxSize().background(backgroundColor)) {
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).statusBarsPadding().padding(20.dp)) {
+        Column(Modifier.fillMaxSize().background(backgroundColor).statusBarsPadding()) {
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
                         Text(MintIdentity.displayName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
@@ -362,7 +365,7 @@ fun PremiumSpeakUp() {
                     Text("Your English, your way", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                     Text("Choose the path that fits you. You can change it any time.", color = secondaryTextColor)
                     Spacer(Modifier.height(16.dp))
-                    Text("Your name (optional)", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                    Text("A quick setup", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                     OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                     Text("Who is learning?", fontWeight = FontWeight.SemiBold, color = primaryTextColor)
                     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -381,6 +384,8 @@ fun PremiumSpeakUp() {
                         Text("Child and teen accounts stay private. Public chat and sharing are not enabled.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                     }
                     Spacer(Modifier.height(10.dp))
+                    TextButton(onClick = { showOnboardingOptions = !showOnboardingOptions }) { Text(if (showOnboardingOptions) "Fewer choices" else "Customize my learning (optional)") }
+                    if (showOnboardingOptions) {
                     Text("Why are you learning English?", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                     learningGoals.forEach { goal ->
                         FilterChip(selected = learningGoal == goal, onClick = { learningGoal = goal }, label = { Text(goal) }, modifier = Modifier.padding(end = 4.dp))
@@ -398,7 +403,10 @@ fun PremiumSpeakUp() {
                         }
                     }
                     Spacer(Modifier.height(12.dp))
-                    learningPaths.forEach { path ->
+                    }
+                    Text("My journey: ${MintExperiencePolicy.selectedJourney(chosenPath)}", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                    TextButton(onClick = { showJourneyPicker = !showJourneyPicker }) { Text(if (showJourneyPicker) "Done choosing" else "Change journey (optional)") }
+                    if (showJourneyPicker) learningPaths.forEach { path ->
                         Surface(color = if (chosenPath == path.id) softSurfaceColor else surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp), shadowElevation = 1.dp) {
                             Column(Modifier.padding(16.dp)) {
                                 Text(path.title, color = primaryTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
@@ -412,12 +420,12 @@ fun PremiumSpeakUp() {
                         preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putString("mint_age_band", learnerAgeBand).putInt("daily_goal", dailyGoal).putString("mint_age_band", learnerAgeBand)
                                 .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty).putString("profile_name", profileName).apply()
                         showPathSetup = false
-                        showPlacement = !placementDone
+                        showPlacement = false
                         page = "Today"
                     }, enabled = chosenPath.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Start my learning journey →") }
                 } else if (showPlacement) {
                     Text("Find your starting point", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                    Text("Your questions match your preferred challenge. Change the level below at any time. This is a short, non-certified starting check.", color = secondaryTextColor)
+                    Text("Three short questions. You can skip this.", color = secondaryTextColor)
                     Text("Assessment level: $selectedPlacementLevel", color = accentTextColor, fontWeight = FontWeight.Bold)
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         listOf("Easy", "Medium", "Hard", "Exam").forEach { level ->
@@ -492,7 +500,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(18.dp))
-                        Text("Explore next", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text("Explore when you like", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp)) {
                             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                                 TextButton(onClick = { page = "Games" }, modifier = Modifier.fillMaxWidth()) { Text("🎮  Play a quick game →") }
@@ -743,8 +751,7 @@ fun PremiumSpeakUp() {
                     }
                     "Games" -> {
                         Text("Play a game", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Step 1 of 2: Play a quick challenge. Then practise speaking.", color = secondaryTextColor)
-                        OutlinedButton(onClick = { speakingView = "Conversations"; page = "Speak" }, modifier = Modifier.fillMaxWidth()) { Text("Step 2: Practise speaking →") }
+                        Text("Choose the answer to begin.", color = secondaryTextColor)
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide game choices" else "Change game or difficulty") }
                         if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
@@ -765,8 +772,7 @@ fun PremiumSpeakUp() {
                         }
                         }
                         if (gameMode == "Mint Quests") {
-                            Text("Mint Quest Arcade", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            Text("A quick English challenge. Speak afterward if you like.", color = secondaryTextColor)
+                            
                             if (showGameFilters) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 MintDifficulty.entries.forEach { level ->
@@ -1213,7 +1219,7 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
-                        Text("My profile", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                        Text("My learning space", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
                         Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
                         Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
