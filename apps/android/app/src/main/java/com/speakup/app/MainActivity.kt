@@ -205,7 +205,7 @@ fun PremiumSpeakUp() {
     var skillPracticeAnswer by remember { mutableStateOf("") }
     var skillPracticeChecked by remember { mutableStateOf(false) }
     var skillMastered by remember { mutableStateOf((preferences.getStringSet("skill_practice_mastered", emptySet()) ?: emptySet()).toSet()) }
-    var gameMode by remember { mutableStateOf("Word Builder") }
+    var gameMode by remember { mutableStateOf("Mint Quests") }
     var mintDifficulty by remember { mutableStateOf(when (chosenDifficulty) { "Hard" -> MintDifficulty.HARD; "Medium" -> MintDifficulty.MEDIUM; else -> MintDifficulty.EASY }) }
     var mintMechanic by remember { mutableStateOf(MintMechanic.CHOOSE_REPLY) }
     var mintGameId by remember { mutableStateOf("") }
@@ -713,7 +713,7 @@ fun PremiumSpeakUp() {
                         Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("Open this lesson") }
                     }
                     "Games" -> {
-                        Text("Brain Games", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Mint Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
                         val suggestedModes = when (learningGoal) {
                             "Start speaking" -> listOf("Dialogues", "Word Builder", "Listening")
@@ -724,7 +724,7 @@ fun PremiumSpeakUp() {
                             else -> listOf("Vocabulary", "Situations", "Word Builder")
                         }
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
-                        Text("Browse all games below. Difficulty changes your learning preference; graded question filtering is being expanded.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Text("Choose a game world, challenge level or skill. Play at your pace and speak when you are ready.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("Mint Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
@@ -763,10 +763,13 @@ fun PremiumSpeakUp() {
                                     }, label = { Text(label) })
                                 }
                             }
-                            val availableQuests = MintGameCatalog.listFor(mintDifficulty).filter { it.mechanic == mintMechanic }
+                            val learnerMinAge = when (learnerAgeBand) {
+                                "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
+                            }
+                            val availableQuests = MintGameCatalog.listFor(mintDifficulty, learnerMinAge).filter { it.mechanic == mintMechanic }
                             val activeQuest = availableQuests.firstOrNull { it.id == mintGameId } ?: availableQuests.firstOrNull()
                             if (activeQuest == null) {
-                                Text("No curated quests yet for this selection.", color = secondaryTextColor)
+                                Text("This combination does not have an age-appropriate pack yet. Choose another difficulty or game category.", color = secondaryTextColor)
                             } else {
                                 val completed = availableQuests.count { "mint_game_${it.id}_v${it.version}" in mintRewardLedger }
                                 LinearProgressIndicator(progress = { completed.toFloat() / availableQuests.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
