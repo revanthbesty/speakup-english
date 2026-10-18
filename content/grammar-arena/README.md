@@ -29,3 +29,16 @@ Do not import unpublished questions into playable sessions. Do not alter learner
 3. Add fixture tests, semantic-review queue, cross-batch registry and 25-domain manifest.
 4. Have humans review all 100 pilot questions before eligibility to publish.
 5. Validate UI navigation, offline behavior and earned-reward eligibility only after the actual runtime path is understood.
+
+## Cross-batch audit
+
+Compare all candidate batches and any exported existing-bank data in a single read-only pass:
+
+```sh
+python3 content/grammar-arena/tools/audit_batches.py drafts/*.csv --report duplicate-review.json
+python3 -m unittest discover -s content/grammar-arena/tests -v
+```
+
+The audit rejects exact duplicate IDs/hashes/prompts and flags similar prompts for independent review. It has quadratic runtime; for the full 10,000-question bank replace the all-pairs comparison with a scalable indexing strategy before running in CI. This cannot establish semantic uniqueness or review approval.
+
+The original 100-item pilot was scanned locally in isolation: 100 records and zero duplicate/near-duplicate flags at the default 0.90 threshold. The existing repository question bank has **not** been scanned. Do not report this pilot-only result as whole-bank clearance.
