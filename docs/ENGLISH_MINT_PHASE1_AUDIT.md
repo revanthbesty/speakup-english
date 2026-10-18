@@ -49,3 +49,10 @@ Date: 2026-10-18 | Source: English Mint Master SRS v1.0 (15 pages), repo `revant
 
 ## Phase 1 exit conditions
 Code compiles and Kotlin/JUnit + Android lint pass on the PR; Android debug artifact built. Existing progress keys and package name unchanged. Device-scale/contrast/upgrade tests remain a **deferred** gate until the user chooses to review after Sprint 10; not falsely counted as passed.
+
+## Follow-up: level-appropriate placement (2026-10-18)
+- Replaced the fixed three-question diagnostic with four content banks: Easy, Medium, Hard and Exam. Each bank has six validated-answer items; each short session draws three, rotating between sets on subsequent attempts.
+- Initial placement bank follows the learner's selected difficulty, learning journey and exam goal; learner can explicitly override it in the assessment without affecting XP or lesson history.
+- Stores the latest bank in `placement_level` and retake offset in `placement_attempt` in the original `speakup_learning` preference file. Old `placement_score` and `placement_done` remain intact.
+- JUnit coverage in `MintPlacementBankTest.kt` checks answer integrity, bank separation, retakes, level selection and recommendations. This diagnostic is for initial routing only, not certified proficiency or psychometrically validated adaptive testing.
+- Follow-up roadmap: educator-reviewed item pools, per-skill vocabulary/listening/speaking/reading/writing calibration, age-banded presentation and adaptive item selection based on response accuracy.
