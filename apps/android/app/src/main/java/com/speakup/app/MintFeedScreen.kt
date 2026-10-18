@@ -65,6 +65,7 @@ internal fun MintFeedScreen(
         }
     }
 
+    Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("Mint Reels", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
         Text("Short illustrated English stories, not an endless algorithmic feed. Watch, read, play, then speak.")
@@ -204,5 +205,6 @@ internal fun MintFeedScreen(
             val localReports = reportedKeys.count { it.startsWith("${clip.id}:") }
             if (localReports > 0) Text("This story has $localReports locally saved report type(s). No moderation submission has occurred.")
         }
+    }
     }
 }
