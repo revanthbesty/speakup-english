@@ -9,6 +9,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -35,16 +36,17 @@ internal fun MintFeedScreen(
     onChallengeCompleted: (String) -> Unit,
     onSpeakingPrompt: (String) -> Unit
 ) {
-    var level by remember { mutableStateOf(MintClipLevel.EASY) }
-    var clipIndex by remember { mutableIntStateOf(0) }
-    var frameIndex by remember { mutableIntStateOf(0) }
+    var level by rememberSaveable { mutableStateOf(MintClipLevel.EASY) }
+    var clipIndex by rememberSaveable { mutableIntStateOf(0) }
+    var frameIndex by rememberSaveable { mutableIntStateOf(0) }
     var playing by remember { mutableStateOf(false) }
-    var captionVisible by remember { mutableStateOf(true) }
+    var captionVisible by rememberSaveable { mutableStateOf(true) }
     var choice by remember { mutableStateOf("") }
     var checked by remember { mutableStateOf(false) }
     var reportOpen by remember { mutableStateOf(false) }
     var infoOpen by remember { mutableStateOf(false) }
     var showListening by remember { mutableStateOf(false) }
+    var wordSheetOpen by remember { mutableStateOf(false) }
     val visibleClips = MintFeedCatalog.visible(learnerAge, level, blockedIds)
     val currentIndex = clipIndex.coerceIn(0, (visibleClips.size - 1).coerceAtLeast(0))
     val clip = visibleClips.getOrNull(currentIndex)
@@ -56,10 +58,11 @@ internal fun MintFeedScreen(
         choice = ""
         checked = false
         showListening = false
+        wordSheetOpen = false
     }
 
     LaunchedEffect(clip?.id, frameIndex, playing, reducedMotion) {
-        if (playing && !reducedMotion && clip != null) {
+        if (playing && !reducedMotion && clip != null && !wordSheetOpen) {
             delay(2800L)
             if (frameIndex < clip.frames.lastIndex) frameIndex += 1 else playing = false
         }
@@ -67,8 +70,8 @@ internal fun MintFeedScreen(
 
     Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Animated Stories", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-        Text("Watch · Read · Play", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Mint Clips", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
+        Text("Offline captioned stories · Watch, read and practise", color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintClipLevel.entries.forEach { option ->
                 FilterChip(selected = level == option, onClick = { level = option; reset(0) },
@@ -135,7 +138,7 @@ internal fun MintFeedScreen(
                         style = MaterialTheme.typography.labelSmall)
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { captionVisible = !captionVisible }) {
                     Text(if (captionVisible) "Hide captions" else "Show captions")
                 }
@@ -143,6 +146,20 @@ internal fun MintFeedScreen(
                     Text(if (showListening) "Hide audio" else "Listen to line")
                 }
             }
+            OutlinedButton(onClick = { playing = false; wordSheetOpen = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text("Words from this scene")
+            }
+            if (wordSheetOpen) AlertDialog(
+                onDismissRequest = { wordSheetOpen = false },
+                title = { Text("Words in context") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Text(frame.spokenLine, color = MaterialTheme.colorScheme.onSurface)
+                        Text("Read or listen to the sentence. Offline dictionary definitions aren't available yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                },
+                confirmButton = { TextButton(onClick = { wordSheetOpen = false }) { Text("Back to clip") } }
+            )
             if (showListening) ListeningAudio(frame.spokenLine)
             Text(clip.description, style = MaterialTheme.typography.bodyMedium)
             Text("Original offline story · no public chat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
