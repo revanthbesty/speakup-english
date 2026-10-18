@@ -478,147 +478,41 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(28.dp),
-                            color = Color.Transparent
-                        ) {
-                            Column(
-                                modifier = Modifier.background(
-                                    Brush.linearGradient(if (eyeComfort || darkAppearance)
-                                        listOf(Color(0xFF123E43), Color(0xFF166457), Color(0xFF1B7168))
-                                        else listOf(Color(0xFF087B67), Color(0xFF0EAF8A), Color(0xFF58A6A5))),
-                                    RoundedCornerShape(28.dp)
-                                ).padding(22.dp)
-                            ) {
-                                Text(if (profileName.isBlank()) "Your learning journey" else "Welcome, $profileName!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-                                Text("${MintExperiencePolicy.selectedJourney(chosenPath)}  •  $chosenDifficulty", color = Color.White.copy(alpha = 0.90f))
-                                Text("Fresh Games. Fluent Voices.", color = Color.White.copy(alpha = 0.90f), style = MaterialTheme.typography.bodySmall)
-                                Spacer(Modifier.height(14.dp))
-                                Text("$xp XP   ✦   ${completedIds.size} lessons completed", color = Color.White, fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.height(12.dp))
-                                Button(
-                                    onClick = { page = "Speak" },
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))
-                                ) { Text("Start speaking  →", fontWeight = FontWeight.Bold) }
-                                TextButton(onClick = { page = "Games" }) { Text("Explore games", color = Color.White) }
-                            }
-                        }
+                        Text(if (profileName.isBlank()) "Welcome to English Mint" else "Hello, $profileName!", color = primaryTextColor, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+                        Text("Your next step is ready.", color = secondaryTextColor)
                         Spacer(Modifier.height(16.dp))
-                        TextButton(onClick = { page = "Membership" }) { Text("Explore Membership →") }
-                        Text("Your 5-minute adventure", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Text("One game, one spoken sentence, and a natural stopping point.", color = secondaryTextColor)
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            Button(onClick = { page = "Games" }, modifier = Modifier.weight(1f)) { Text("Play") }
-                            OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
-                        }
-                        Spacer(Modifier.height(20.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            OutlinedButton(onClick = { page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Watch Mint Reels") }
-                            OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.weight(1f)) { Text("My Progress") }
-                        }
-                        Text("Your progress", style = MaterialTheme.typography.headlineSmall, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Text("Small steps, big achievements.", color = secondaryTextColor)
-                        Spacer(Modifier.height(10.dp))
-                        val masteredGames = puzzleAwarded.size + riddleAwards.size + vocabularyMastered.size + grammarMastered.size + scenarioMastered.size + listeningMastered.size + readingMastered.size
-                        val availableGames = lessons.size + riddles.size + vocabularyCards.size + grammarQuestions.size + conversationScenarios.size + listeningChecks.size + readingPassages.size
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            ProgressTile("Lessons", "${completedIds.size} / ${lessons.size}", completedIds.size.toFloat() / lessons.size.coerceAtLeast(1), Color(0xFF7456EF), Color(0xFFAC83FA), Modifier.weight(1f), motionReduced)
-                            ProgressTile("Games", "$masteredGames / $availableGames", masteredGames.toFloat() / availableGames.coerceAtLeast(1), Color(0xFFFF6A70), Color(0xFFFFB267), Modifier.weight(1f), motionReduced)
-                        }
-                        Spacer(Modifier.height(10.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                            ProgressTile("Reading", "${readingMastered.size} / ${readingPassages.size}", readingMastered.size.toFloat() / readingPassages.size.coerceAtLeast(1), Color(0xFF178D8D), Color(0xFF50CDB7), Modifier.weight(1f), motionReduced)
-                            ProgressTile("Listening", "${listeningMastered.size} / ${listeningChecks.size}", listeningMastered.size.toFloat() / listeningChecks.size.coerceAtLeast(1), Color(0xFF2770D5), Color(0xFF66A9FA), Modifier.weight(1f), motionReduced)
-                        }
-                        Spacer(Modifier.height(10.dp))
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text("⭐ $xp XP earned", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                                Text("$speakingAttempts speaking attempts • ${completedIds.size} lessons finished", color = primaryTextColor)
-                                val dueCount = lessons.indices.count { it.toString() in completedIds && (revisionSchedule[it.toString()] ?: 0L) <= System.currentTimeMillis() }
-                                Text("$dueCount revision lessons ready today", color = primaryTextColor)
-                                TextButton(onClick = { page = "Review" }) { Text("Explore detailed progress →") }
-                            }
-                        }
-                        Spacer(Modifier.height(18.dp))
-                        Text("Your English journey", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Text(when (learnerAge) {
-                            "Kids" -> "Play, discover words, and speak with confidence!"
-                            "Teen" -> "Build your skills through challenges and real conversations."
-                            else -> "Practical English for your everyday goals."
-                        }, color = secondaryTextColor)
-                        Spacer(Modifier.height(8.dp))
-                        val activePath = learningPaths.firstOrNull { it.id == chosenPath }
-                        Text("${activePath?.title ?: "My English journey"} • $learnerAge", color = accentTextColor, fontWeight = FontWeight.Bold)
-                        Text(activePath?.nextStep ?: "Choose a lesson to begin.", color = secondaryTextColor)
-                        Text("Your journey is personal: practise at your pace, revisit lessons, and build confidence.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Text("Daily goal: $dailyGoal minutes • ${completedIds.size} / ${lessons.size} lessons completed", color = primaryTextColor)
-                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp).semantics { contentDescription = "${completedIds.size} of ${lessons.size} lessons completed" })
-                        if (placementDone && placementScore >= 0) {
-                            val recommendation = MintPlacementBank.recommendation(placementLevel.ifBlank { suggestedPlacementLevel }, placementScore)
-                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                                Column(Modifier.padding(16.dp)) {
-                                    Text("YOUR STARTING POINT", color = accentTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelMedium)
-                                    Text("${placementLevel.ifBlank { suggestedPlacementLevel }} · $recommendation", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
-                                    Spacer(Modifier.height(8.dp))
-                                    Button(onClick = {
-                                        page = if (placementScore >= 2) "Speak" else "Learn"
-                                        lessonIndex = if (placementScore >= 2) 2 else 0
-                                        checked = false
-                                        selected = ""
-                                    }) { Text(if (placementScore >= 2) "Start speaking practice →" else "Start recommended lesson →") }
+                        Surface(color = Color(0xFF087665), shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text("START HERE", color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold)
+                                Text("Let's speak English!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                                Text("A friendly conversation in three small steps.", color = Color.White)
+                                Button(onClick = { speakingView = "Conversations"; page = "Speak" },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))) {
+                                    Text("Start learning →", fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
-                        TextButton(onClick = {
-                            placementIndex = 0
-                            placementSelected = ""
-                            placementAnswers = emptyList()
-                            placementLevel = suggestedPlacementLevel
-                            showPlacement = true
-                        }) { Text(if (placementDone) "Retake starting assessment" else "Take starting assessment") }
-                        TextButton(onClick = { page = "Profile" }) { Text("Manage my learning profile →") }
-                        Spacer(Modifier.height(8.dp))
-                        val achievementLevel = MintRewards.level(xp)
-                        val level = achievementLevel.number
-                        val levelNames = listOf(achievementLevel.title)
-                        val currentFloor = achievementLevel.currentFloor
-                        val nextTarget = achievementLevel.nextTarget
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text("LEVEL $level • ${achievementLevel.title}", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                if (nextTarget != null) {
-                                    LinearProgressIndicator(progress = { achievementLevel.progress(xp) }, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp))
-                                    Text("${nextTarget - xp} XP to Level ${level + 1}", color = secondaryTextColor)
-                                } else Text("Maximum achievement level reached!", color = accentTextColor)
+                        Spacer(Modifier.height(18.dp))
+                        Text("Explore next", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp)) {
+                            Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                                TextButton(onClick = { page = "Games" }, modifier = Modifier.fillMaxWidth()) { Text("🎮  Play a quick game →") }
+                                HorizontalDivider()
+                                TextButton(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("📖  Learn a phrase →") }
+                                HorizontalDivider()
+                                TextButton(onClick = { page = "Feed" }, modifier = Modifier.fillMaxWidth()) { Text("🎬  Watch a story →") }
                             }
                         }
-                        Spacer(Modifier.height(20.dp))
-                        Surface(color = Navy, shape = RoundedCornerShape(26.dp)) {
-                            Column(Modifier.fillMaxWidth().padding(24.dp)) {
-                                Text("TODAY'S SPEAKING MISSION", color = Color(0xFFBEB5FF), fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.height(12.dp))
-                                val nextLesson = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
-                                Text(if (completedIds.size == lessons.size) "Keep your English strong" else lessons[nextLesson].title, style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.Bold)
-                                Spacer(Modifier.height(8.dp))
-                                Text(if (completedIds.size == lessons.size) "Review your skills or try a speaking challenge" else "Your next lesson is ready • ${lessons.size - completedIds.size} lessons remaining", color = Color(0xFFE4E3F6))
-                                Spacer(Modifier.height(20.dp))
-                                Button(onClick = {
-                                    lessonIndex = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
-                                    page = if (completedIds.size == lessons.size) "Review" else "Learn"
-                                    checked = false
-                                    selected = ""
-                                }, modifier = Modifier.fillMaxWidth()) { Text(if (completedIds.size == lessons.size) "Review my skills →" else "Continue learning →") }
+                        Spacer(Modifier.height(16.dp))
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Column(Modifier.weight(1f)) {
+                                Text("Your progress", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text("$xp XP · ${completedIds.size} lessons completed", color = secondaryTextColor)
                             }
+                            TextButton(onClick = { page = "Review" }) { Text("View →") }
                         }
-                        Spacer(Modifier.height(24.dp))
-                        Text("Explore your academy", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Spacer(Modifier.height(12.dp))
-                        FeatureCard("✦  Speaking Studio", "Practise a café conversation", { page = "Speak" })
-                        FeatureCard("▣  My Learning Path", "Build practical everyday English", { page = "Learn" })
-                        FeatureCard("↻  Smart Revision", "Revisit what you have learned", { page = "Review" })
-                        FeatureCard("🧩  Word Builder Games", "Arrange words into useful English sentences", { page = "Games" })
+                        TextButton(onClick = { page = "Profile" }) { Text("Change my learning journey") }
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
