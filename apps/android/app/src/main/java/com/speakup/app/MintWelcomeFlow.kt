@@ -102,19 +102,25 @@ internal fun MintWelcomeFlow(
             Text("What's your goal?",style=MaterialTheme.typography.headlineLarge,
                 fontWeight=FontWeight.Bold,color=ink)
             Text("Pick your first learning adventure. You can change this any time.",color=subtle)
-            goals.forEach { (option,symbol) ->
-                val picked=goal==option
-                Surface(onClick={onGoal(option)},shape=RoundedCornerShape(18.dp),
-                    color=if(picked)MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                    border=androidx.compose.foundation.BorderStroke(
-                        if(picked)2.dp else 1.dp,
-                        if(picked)mint else MaterialTheme.colorScheme.outline.copy(alpha=0.4f))
-                ) {
-                    Row(Modifier.fillMaxWidth().heightIn(min=58.dp).padding(horizontal=16.dp),
-                        horizontalArrangement=Arrangement.spacedBy(12.dp),verticalAlignment=Alignment.CenterVertically) {
-                        Text(symbol,style=MaterialTheme.typography.titleLarge)
-                        Text(option,modifier=Modifier.weight(1f),color=ink,fontWeight=FontWeight.Medium)
-                        if(picked)Text("✓",color=mint)
+            // Compact two-column choices keep the primary CTA reachable on phones.
+            goals.chunked(2).forEach { pair ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    pair.forEach { (option, symbol) ->
+                        val picked = goal == option
+                        Surface(onClick = { onGoal(option) },
+                            modifier = Modifier.weight(1f).heightIn(min = 94.dp),
+                            shape = RoundedCornerShape(20.dp),
+                            color = if (picked) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                            border = BorderStroke(if (picked) 2.dp else 1.dp,
+                                if (picked) mint else MaterialTheme.colorScheme.outlineVariant)) {
+                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text(symbol, style = MaterialTheme.typography.titleLarge)
+                                Text(option, style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = if (picked) FontWeight.Bold else FontWeight.Medium,
+                                    color = ink)
+                                if (picked) Text("✓ Selected", style = MaterialTheme.typography.labelSmall, color = mint)
+                            }
+                        }
                     }
                 }
             }
