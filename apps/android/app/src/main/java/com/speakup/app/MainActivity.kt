@@ -621,6 +621,7 @@ fun PremiumSpeakUp() {
                                 TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
                             }
                         }
+                        TextButton(onClick = { page = "CreatorLab" }, modifier = Modifier.fillMaxWidth()) { Text("Creator Content Lab · private draft preview →") }
                         OutlinedButton(onClick = { page = "Professional" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                             Text("Explore Professional English →")
                         }
@@ -634,6 +635,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                     }
+                    "CreatorLab" -> { MintCreatorLab(onBack = { page = "Today" }) }
                     "Professional" -> {
                         MintProfessionalHub(
                             completedLessons = completedIds.size.coerceAtMost(lessons.size),
