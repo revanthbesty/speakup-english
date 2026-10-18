@@ -9,7 +9,7 @@ import android.content.Context
 import java.time.LocalDate
 import androidx.compose.ui.unit.dp
 
-/** Small safe entrance to original AI Life offline pilots. Nothing leaves this screen. */
+/** Offline AI Life pilots. Only verified mission dates are saved on device; no transcript is uploaded. */
 @Composable
 internal fun MintAiLifePilotScreen(onBack:()->Unit) {
  var section by remember { mutableStateOf("Home") }
@@ -26,8 +26,24 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
    (missionPreferences.getStringSet(MintLifeMissionLedger.storageKey, emptySet()) ?: emptySet()).toSet()
   )
  }
+ var showClearMissionPrompt by remember { mutableStateOf(false) }
  val today = LocalDate.now().toString()
 
+ if(showClearMissionPrompt) {
+  AlertDialog(
+   onDismissRequest={showClearMissionPrompt=false},
+   title={Text("Delete mission history?")},
+   text={Text("This clears only AI Life daily café completion dates on this device. It will not erase lessons, rewards or other learning records.")},
+   confirmButton={
+    TextButton(onClick={
+     missionPreferences.edit().remove(MintLifeMissionLedger.storageKey).apply()
+     missionEvidence=emptySet()
+     showClearMissionPrompt=false
+    }){Text("Delete mission history")}
+   },
+   dismissButton={TextButton(onClick={showClearMissionPrompt=false}){Text("Cancel")}}
+  )
+ }
  Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(10.dp)) {
   TextButton(onClick={if(section=="Home")onBack() else section="Home"}) {Text("← "+if(section=="Home")"Home" else "AI Life")}
   Text("AI Life · offline pilot",style=MaterialTheme.typography.headlineSmall)
@@ -36,6 +52,12 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
    "Home" -> {
     Text("Today's verified mission: ${MintLifeMissionLedger.completedMissionCount(missionEvidence,today)} of 1 original café conversation",style=MaterialTheme.typography.bodyMedium)
     Text("Finish all three correct dialogue turns to record a private daily completion. Opening an activity does not count.",style=MaterialTheme.typography.bodySmall)
+    Text("Café practice recorded on ${MintLifeMissionLedger.daysPractised(missionEvidence,today)} of the last 7 days (this device only).",
+      style=MaterialTheme.typography.bodySmall)
+    if(missionEvidence.isNotEmpty()) {
+     TextButton(onClick={showClearMissionPrompt=true}){Text("Delete AI Life daily mission history")}
+    }
+
     Button(onClick={section="City";cityTurn=0;cityChoice=-1;cityFeedback=false},modifier=Modifier.fillMaxWidth()){Text("Virtual City · café dialogue")}
     OutlinedButton(onClick={section="Story";storyId="start"},modifier=Modifier.fillMaxWidth()){Text("Branching story · library")}
     OutlinedButton(onClick={section="Words"},modifier=Modifier.fillMaxWidth()){Text("Camera Words · manual fallback")}
