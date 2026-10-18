@@ -308,6 +308,17 @@ fun PremiumSpeakUp() {
     var puzzlesSolved by remember { mutableIntStateOf(preferences.getInt("puzzles_solved", 0)) }
     var puzzleAwarded by remember { mutableStateOf((preferences.getStringSet("puzzle_awards", emptySet()) ?: emptySet()).toSet()) }
     var xp by remember { mutableIntStateOf(preferences.getInt("total_xp", 0)) }
+    val garden = MintRewardUniverse.fromLegacy(
+        lessons = completedIds,
+        grammar = grammarMastered,
+        riddles = riddleAwards,
+        vocabulary = vocabularyMastered,
+        reading = readingMastered,
+        listening = listeningMastered,
+        scenarios = scenarioMastered,
+        puzzles = puzzleAwarded,
+        quests = MintRewards.uniqueMintEventKeys(mintRewardLedger)
+    )
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
     var revisionSchedule by remember {
@@ -485,7 +496,18 @@ fun PremiumSpeakUp() {
                     "Today" -> {
                         Text(if (profileName.isBlank()) "Good to see you! 👋" else "Hi, $profileName! 👋",
                             color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $xp XP earned", color = secondaryTextColor)
+                        Text(MintExperiencePolicy.selectedJourney(chosenPath), color = secondaryTextColor)
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("🌱 My Mint Garden", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                Text("${garden.total} earned collectibles · From completed activities", color = secondaryTextColor)
+                                Text("🌸 ${garden.blooms} Blooms  •  💎 ${garden.words} Word Gems", color = primaryTextColor)
+                                Text("🌺 ${garden.stories} Story Flowers  •  🎵 ${garden.sounds} Sound Stars", color = primaryTextColor)
+                                Text("🏅 ${garden.quests} Quest Emblems  •  🧩 ${garden.puzzles} Puzzle Blooms", color = primaryTextColor)
+                                Text("🎤 ${garden.voices} verified Voice Blooms", color = primaryTextColor)
+                                Text("Keep exploring. Replaying activities is always welcome.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
                         Spacer(Modifier.height(14.dp))
                         Surface(color = Color(0xFF087665), shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -1095,6 +1117,7 @@ fun PremiumSpeakUp() {
                                 MintActivityCompletion(
                                     activity = "Riddles",
                                     newXp = latestActivityXp,
+                                    reducedMotion = motionReduced,
                                     nextLabel = "Next riddle →",
                                     onNext = {
                                         riddleIndex = (riddleIndex + 1) % riddles.size
@@ -1140,6 +1163,7 @@ fun PremiumSpeakUp() {
                                 MintActivityCompletion(
                                     activity = "Vocabulary",
                                     newXp = latestActivityXp,
+                                    reducedMotion = motionReduced,
                                     nextLabel = "Next word →",
                                     onNext = {
                                         vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
@@ -1243,6 +1267,7 @@ fun PremiumSpeakUp() {
                                 MintActivityCompletion(
                                     activity = "Situations",
                                     newXp = latestActivityXp,
+                                    reducedMotion = motionReduced,
                                     nextLabel = "Next situation →",
                                     onNext = {
                                         scenarioIndex = (scenarioIndex + 1) % conversationScenarios.size
@@ -1293,6 +1318,7 @@ fun PremiumSpeakUp() {
                                 MintActivityCompletion(
                                     activity = "Listening",
                                     newXp = latestActivityXp,
+                                    reducedMotion = motionReduced,
                                     nextLabel = "Next listening →",
                                     onNext = {
                                         listeningIndex = (listeningIndex + 1) % listeningChecks.size
@@ -1342,6 +1368,7 @@ fun PremiumSpeakUp() {
                                 MintActivityCompletion(
                                     activity = "Reading",
                                     newXp = latestActivityXp,
+                                    reducedMotion = motionReduced,
                                     nextLabel = "Next reading →",
                                     onNext = {
                                         readingIndex = (readingIndex + 1) % readingPassages.size
