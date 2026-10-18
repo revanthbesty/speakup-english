@@ -16,8 +16,9 @@ PATCH_FILES = (
     "external_workbook_repair_a2_b2_c1_pilot_24.json",
     "external_workbook_repair_a2_second_pilot_8.json",
     "external_workbook_repair_b1_second_pilot_8.json",
+    "external_workbook_repair_b2_second_pilot_8.json",
 )
-EXPECTED_COUNTS = {"A1": 24, "A2": 16, "B1": 16, "B2": 8, "C1": 8}
+EXPECTED_COUNTS = {"A1": 24, "A2": 16, "B1": 16, "B2": 16, "C1": 8}
 CATEGORIES = {"word_builder", "riddles", "vocabulary", "situations",
               "listening", "reading", "dialogues", "stories"}
 
@@ -47,14 +48,14 @@ def build_repair_patch(base):
                 raise ValueError(f"{ident}: incomplete educational content")
             validate_answer(item)
             rows.append(item)
-    if len(rows) != 72:
-        raise ValueError(f"Expected 72 pilots, received {len(rows)}")
+    if len(rows) != 80:
+        raise ValueError(f"Expected 80 pilots, received {len(rows)}")
     by_level = Counter(x["cefr_level"] for x in rows)
     if by_level != EXPECTED_COUNTS:
         raise ValueError(f"Incorrect level distribution: {by_level}")
     by_category = Counter(x["category"] for x in rows)
-    if set(by_category) != CATEGORIES or any(n != 9 for n in by_category.values()):
-        raise ValueError(f"Expected 9 drafts per category: {by_category}")
+    if set(by_category) != CATEGORIES or any(n != 10 for n in by_category.values()):
+        raise ValueError(f"Expected 10 drafts per category: {by_category}")
     return {"schema_version": "1.0", "review_status": "needs_human_review",
             "warning": "DRAFT replacement content; no editorial approval or Android import",
             "activities": rows}
@@ -68,7 +69,7 @@ def main():
     document = build_repair_patch(args.content_dir)
     if args.out:
         args.out.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("PASS: 72 non-approved repair pilots, nine per category, levels 24/16/16/8/8")
+    print("PASS: 80 non-approved repair pilots, ten per category, levels 24/16/16/16/8")
 
 
 if __name__ == "__main__":
