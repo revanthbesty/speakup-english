@@ -334,6 +334,7 @@ fun PremiumSpeakUp() {
     var latestActivityXp by remember { mutableIntStateOf(0) }
     var grammarChecked by remember { mutableStateOf(false) }
     var grammarMastered by remember { mutableStateOf((preferences.getStringSet("grammar_mastered", emptySet()) ?: emptySet()).toSet()) }
+    var grammarChallengeAwards by remember { mutableStateOf((preferences.getStringSet("mint_grammar_challenge_awards", emptySet()) ?: emptySet()).toSet()) }
     var vocabularyIndex by remember { mutableIntStateOf(0) }
     var vocabularyChoice by remember { mutableStateOf("") }
     var vocabularyChecked by remember { mutableStateOf(false) }
@@ -356,7 +357,7 @@ fun PremiumSpeakUp() {
         listening = listeningMastered,
         scenarios = scenarioMastered + careerAwards,
         puzzles = puzzleAwarded,
-        quests = MintRewards.uniqueMintEventKeys(mintRewardLedger) + rwCompleted
+        quests = MintRewards.uniqueMintEventKeys(mintRewardLedger) + rwCompleted + grammarChallengeAwards
     )
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
@@ -1517,6 +1518,24 @@ fun PremiumSpeakUp() {
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
                             Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             val grammarAnalytics = MintGrammarAnalytics.snapshot(grammarQuestions.size,grammarMastered,grammarBookmarks,grammarRevisionMissed)
+                            Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    Text("🏅 ${MintGrammarChallenges.title}",color = primaryTextColor,fontWeight = FontWeight.Bold)
+                                    Text("Master 6 different grammar questions to unlock one Quest Emblem. No timer or paid entry.",color = secondaryTextColor)
+                                    val verified = MintGrammarChallenges.verifiedCount(grammarQuestions.size,grammarMastered)
+                                    Text("${minOf(verified,MintGrammarChallenges.target)} / ${MintGrammarChallenges.target} verified",color = primaryTextColor)
+                                    LinearProgressIndicator(progress = { minOf(verified,MintGrammarChallenges.target).toFloat()/MintGrammarChallenges.target },modifier = Modifier.fillMaxWidth())
+                                    if (MintGrammarChallenges.newlyEligible(grammarQuestions.size,grammarMastered,grammarChallengeAwards)) {
+                                        Button(onClick = {
+                                            grammarChallengeAwards = grammarChallengeAwards + MintGrammarChallenges.achievementKey
+                                            preferences.edit().putStringSet("mint_grammar_challenge_awards",grammarChallengeAwards).apply()
+                                        },modifier = Modifier.fillMaxWidth()) { Text("Collect Quest Emblem 🏅") }
+                                    } else if (MintGrammarChallenges.achievementKey in grammarChallengeAwards) {
+                                        Text("🏅 Quest Emblem collected! Replays do not create duplicates.",color = primaryTextColor)
+                                    }
+                                }
+                            }
+
                             Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(5.dp)) {
                                     Text("📊 My grammar progress", color = primaryTextColor,fontWeight = FontWeight.Bold)
