@@ -52,6 +52,15 @@ class ValidationTests(unittest.TestCase):
         failures, _ = self.run_rows([dict(BASE, option_b="BRIGHTLY")])
         self.assertTrue(any(f["field"] == "options" for f in failures))
 
+    def test_capitalization_choices_may_differ_only_by_case(self):
+        question = dict(BASE, topic_id="GRAMMAR-22",
+                        prompt="Which capitalization is correct?",
+                        option_a="We visited Lake Victoria.",
+                        option_b="We visited lake Victoria.",
+                        option_c="We visited Lake victoria.")
+        failures, _ = self.run_rows([question])
+        self.assertFalse(failures, failures)
+
     def test_unapproved_cannot_be_published(self):
         failures, _ = self.run_rows([dict(BASE, status="published")])
         fields = {f["field"] for f in failures}
