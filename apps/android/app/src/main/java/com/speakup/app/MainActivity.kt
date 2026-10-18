@@ -263,6 +263,11 @@ fun PremiumSpeakUp() {
     var coachEnabled by remember { mutableStateOf(preferences.getBoolean("mint_coach_opt_in", false)) }
     var coachDraft by remember { mutableStateOf("") }
     var coachReviewed by remember { mutableStateOf(false) }
+    var careerTrack by remember { mutableStateOf("Interview") }
+    var careerIndex by remember { mutableIntStateOf(0) }
+    var careerChoice by remember { mutableIntStateOf(-1) }
+    var careerChecked by remember { mutableStateOf(false) }
+    var careerAwards by remember { mutableStateOf((preferences.getStringSet("mint_career_awards", emptySet()) ?: emptySet()).toSet()) }
     var gameMode by remember { mutableStateOf("Mint Quests") }
     BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
         when {
@@ -343,7 +348,7 @@ fun PremiumSpeakUp() {
         vocabulary = vocabularyMastered,
         reading = readingMastered + if (coopAwarded) setOf(MintCoopStory.rewardKey) else emptySet(),
         listening = listeningMastered,
-        scenarios = scenarioMastered,
+        scenarios = scenarioMastered + careerAwards,
         puzzles = puzzleAwarded,
         quests = MintRewards.uniqueMintEventKeys(mintRewardLedger) + rwCompleted
     )
@@ -976,12 +981,58 @@ fun PremiumSpeakUp() {
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
                         Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Mint Quests", "Real-World Quests", "Co-op Stories", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
+                            listOf("Mint Quests", "Real-World Quests", "Co-op Stories", "Career & Exam", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
                         }
-                        if (gameMode == "Co-op Stories") {
+                        if (gameMode == "Career & Exam") {
+                            Text("💼 Career & Exam Practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                            Text("Original, unofficial English practice. No accredited exam score or certificate.", color = secondaryTextColor)
+                            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                listOf("Interview","Travel","Unofficial Exam Practice").forEach { track ->
+                                    FilterChip(selected = careerTrack == track, onClick = {
+                                        careerTrack = track; careerIndex = 0; careerChoice = -1; careerChecked = false
+                                    }, label = { Text(track) })
+                                }
+                            }
+                            val pack = MintCareerPacks.questions.filter { it.track == careerTrack }
+                            val current = pack[careerIndex.coerceIn(0,pack.lastIndex)]
+                            val completed = MintCareerPacks.key(current) in careerAwards
+                            Text("Question ${careerIndex + 1} of ${pack.size} · ${current.difficulty}", color = accentTextColor)
+                            Text(current.situation, color = primaryTextColor, style = MaterialTheme.typography.titleMedium)
+                            current.choices.forEachIndexed { i, option ->
+                                OutlinedButton(onClick = { careerChoice = i; careerChecked = false },
+                                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (careerChoice == i) softSurfaceColor else surfaceColor)) {
+                                    Text("${listOf("A","B","C")[i]}. $option", color = primaryTextColor, modifier = Modifier.fillMaxWidth())
+                                }
+                            }
+                            Button(onClick = {
+                                careerChecked = true
+                                if (MintCareerPacks.result(current,careerChoice) && !completed) {
+                                    careerAwards = careerAwards + MintCareerPacks.key(current)
+                                    preferences.edit().putStringSet("mint_career_awards", careerAwards).apply()
+                                }
+                            }, enabled = careerChoice >= 0, modifier = Modifier.fillMaxWidth()) { Text("Check answer") }
+                            if (careerChecked) {
+                                Text(if (MintCareerPacks.result(current,careerChoice)) "✓ Correct — Mint Bloom collected on first completion"
+                                     else "Not quite — try another answer.", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text(current.explanation, color = secondaryTextColor)
+                                if (MintCareerPacks.result(current,careerChoice)) {
+                                    Text("Optional speaking practice: ${current.speakingPrompt}", color = primaryTextColor)
+                                    OutlinedButton(onClick = {
+                                        mintSpeakingMission = current.speakingPrompt
+                                        speakingView = "Lessons"; page = "Speak"
+                                        practiceResponse = ""; practiceChecked = false
+                                    }, modifier = Modifier.fillMaxWidth()) { Text("Try speaking or typing →") }
+                                }
+                            }
+                            OutlinedButton(onClick = {
+                                careerIndex = (careerIndex + 1) % pack.size
+                                careerChoice = -1; careerChecked = false
+                            }, modifier = Modifier.fillMaxWidth()) { Text("Next practice question →") }
+                        } else if (gameMode == "Co-op Stories") {
                             Text("📖 Co-op Stories · Library Adventure", style = MaterialTheme.typography.titleLarge,
                                 color = primaryTextColor, fontWeight = FontWeight.Bold)
                             Text("Private pass-the-device story. Take turns as Explorer and Helper, or play both roles yourself. No online rooms, chat or sharing.",
