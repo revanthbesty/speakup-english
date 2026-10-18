@@ -318,9 +318,9 @@ fun PremiumSpeakUp() {
                 practiceChecked = false
                 speakingAttempts += 1
                 preferences.edit().putInt("speaking_attempts", speakingAttempts).apply()
-                speechStatus = "Speech captured. Review your words and check your reply."
-            } else { guidedVoiceReceived = false; speechStatus = "No words were recognized. Please try again." }
-        } else { guidedVoiceReceived = false; speechStatus = "Speech recognition was cancelled or unavailable." }
+                speechStatus = MintSpeechSafety.feedback(MintSpeechOutcome.RECOGNIZED)
+            } else { guidedVoiceReceived = false; speechStatus = "No words recognized. Please retry or type your response; no voice attempt was recorded." }
+        } else { guidedVoiceReceived = false; speechStatus = MintSpeechSafety.feedback(MintSpeechOutcome.CANCELLED) }
     }
     val launchSpeechRecognition: (String) -> Unit = { prompt ->
         speechStatus = ""
@@ -332,9 +332,9 @@ fun PremiumSpeakUp() {
         }
         try { speechLauncher.launch(intent) }
         catch (_: android.content.ActivityNotFoundException) {
-            speechStatus = "Speech recognition is unavailable on this device. Try quiet text practice."
+            speechStatus = MintSpeechSafety.feedback(MintSpeechOutcome.UNAVAILABLE)
         } catch (_: SecurityException) {
-            speechStatus = "Microphone access was denied. You can still use quiet text practice."
+            speechStatus = "Microphone access was denied. No voice attempt was recorded; type your response instead."
         }
     }
     val answer = lesson.answer
@@ -348,15 +348,15 @@ fun PremiumSpeakUp() {
         if (showSpeechConsent) {
             AlertDialog(
                 onDismissRequest = { showSpeechConsent = false },
-                title = { Text("Use your microphone?") },
-                text = { Text("Your device's speech recognition provider may process spoken audio. English Mint does not save raw recordings or upload them to its own server in this mode. You can cancel or use quiet text practice.") },
+                title = { Text("Optional speech recognition") },
+                text = { Text("Your device's speech recognition provider may process spoken audio. English Mint does not store raw audio in this flow. Your device speech provider may process audio. Cancel or type instead; recognition is not a pronunciation score.") },
                 confirmButton = {
                     TextButton(onClick = {
                         showSpeechConsent = false
                         launchSpeechRecognition(pendingSpeechPrompt)
                     }) { Text("Continue to speech") }
                 },
-                dismissButton = { TextButton(onClick = { showSpeechConsent = false }) { Text("Not now") } }
+                dismissButton = { TextButton(onClick = { showSpeechConsent = false; speechStatus = MintSpeechSafety.feedback(MintSpeechOutcome.SKIPPED) }) { Text("Use text instead") } }
             )
         }
         Surface(color = backgroundColor, contentColor = primaryTextColor) {
