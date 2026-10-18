@@ -270,6 +270,14 @@ fun PremiumSpeakUp() {
     var mintGameFeedback by remember { mutableStateOf("") }
     var mintGameXpAward by remember { mutableIntStateOf(0) }
     var mintSpeakingMission by remember { mutableStateOf("") }
+    var rwQuestIndex by remember { mutableIntStateOf(0) }
+    var rwChoice by remember { mutableIntStateOf(-1) }
+    var rwChecked by remember { mutableStateOf(false) }
+    var rwSpeakingStep by remember { mutableStateOf("none") }
+    var rwCompleted by remember {
+        mutableStateOf((preferences.getStringSet("mint_real_world_quests_completed", emptySet()) ?: emptySet()).toSet())
+    }
+    var rwJustEarned by remember { mutableStateOf(false) }
 
     var dialogueIndex by remember { mutableIntStateOf(0) }
     var dialogueChoice by remember { mutableStateOf("") }
@@ -322,7 +330,7 @@ fun PremiumSpeakUp() {
         listening = listeningMastered,
         scenarios = scenarioMastered,
         puzzles = puzzleAwarded,
-        quests = MintRewards.uniqueMintEventKeys(mintRewardLedger)
+        quests = MintRewards.uniqueMintEventKeys(mintRewardLedger) + rwCompleted
     )
     var speakingAttempts by remember { mutableIntStateOf(preferences.getInt("speaking_attempts", 0)) }
     var speechStatus by remember { mutableStateOf("") }
@@ -876,12 +884,104 @@ fun PremiumSpeakUp() {
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
                         Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Mint Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
+                            listOf("Mint Quests", "Real-World Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
                         }
-                        if (gameMode == "Mint Quests") {
+                        if (gameMode == "Real-World Quests") {
+                            val scenario = MintRealWorldQuests.scenarios[rwQuestIndex]
+                            val rewardKey = MintRealWorldQuests.rewardKey(scenario)
+                            val alreadyFinished = rewardKey in rwCompleted
+                            val answerRight = rwChecked && rwChoice == scenario.correctIndex
+                            val speechStep = if (rwSpeakingStep == "voice" && !guidedVoiceReceived) "none" else rwSpeakingStep
+                            Text("🌍 Real-World Quests", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("Two original offline missions · Real-world practice without pressure.", color = secondaryTextColor)
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                MintRealWorldQuests.scenarios.forEachIndexed { index, quest ->
+                                    FilterChip(selected = index == rwQuestIndex, onClick = {
+                                        rwQuestIndex = index
+                                        rwChoice = -1
+                                        rwChecked = false
+                                        rwSpeakingStep = "none"
+                                        rwJustEarned = false
+                                        practiceResponse = ""
+                                        guidedVoiceReceived = false
+                                    }, label = { Text(if (index == 0) "Café" else "Station") })
+                                }
+                            }
+                            Surface(color = surfaceColor, shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Text(scenario.title, color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                    Text(scenario.context, color = secondaryTextColor)
+                                    Text(scenario.characterLine, color = primaryTextColor, fontWeight = FontWeight.Medium)
+                                    scenario.choices.forEachIndexed { index, option ->
+                                        OutlinedButton(onClick = { rwChoice = index; rwChecked = false; rwSpeakingStep = "none" },
+                                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                                            colors = ButtonDefaults.outlinedButtonColors(containerColor = if (rwChoice == index) softSurfaceColor else surfaceColor)) {
+                                            Text("${listOf("A", "B", "C")[index]}. $option", modifier = Modifier.fillMaxWidth(), color = primaryTextColor)
+                                        }
+                                    }
+                                    Button(onClick = { rwChecked = true }, enabled = rwChoice >= 0, modifier = Modifier.fillMaxWidth()) { Text("Check my reply") }
+                                    if (rwChecked) {
+                                        Text(if (answerRight) "✓ Correct reply!" else "Not quite — choose another reply.",
+                                            color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                        Text(scenario.explanation, color = secondaryTextColor)
+                                    }
+                                    if (answerRight) {
+                                        Text("Optional speaking moment", color = primaryTextColor, style = MaterialTheme.typography.titleMedium)
+                                        Text(scenario.speakingPrompt, color = secondaryTextColor)
+                                        Text("You may speak, type, or skip without a penalty. Skipping does not count as a voice attempt.",
+                                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                        OutlinedButton(onClick = {
+                                            practiceResponse = ""
+                                            guidedVoiceReceived = false
+                                            rwSpeakingStep = "none"
+                                            pendingSpeechPrompt = scenario.speakingPrompt
+                                            showSpeechConsent = true
+                                        }, modifier = Modifier.fillMaxWidth()) { Text("🎙 Try voice (optional)") }
+                                        if (guidedVoiceReceived && practiceResponse.isNotBlank() && rwSpeakingStep != "skipped") {
+                                            rwSpeakingStep = "voice"
+                                        }
+                                        OutlinedTextField(value = practiceResponse,
+                                            onValueChange = { practiceResponse = it; guidedVoiceReceived = false; rwSpeakingStep = if (it.isBlank()) "none" else "typed" },
+                                            label = { Text("Your spoken transcript or typed reply") },
+                                            modifier = Modifier.fillMaxWidth())
+                                        TextButton(onClick = {
+                                            rwSpeakingStep = "skipped"
+                                            practiceResponse = ""
+                                            guidedVoiceReceived = false
+                                        }) { Text("Skip speaking without penalty") }
+                                        if (rwSpeakingStep == "skipped") Text("Speaking skipped · No voice attempt recorded.", color = secondaryTextColor)
+                                        if (rwSpeakingStep == "voice") Text("Voice recognised; please check the transcript.", color = secondaryTextColor)
+                                        if (rwSpeakingStep == "typed") Text("Quiet text response ready.", color = secondaryTextColor)
+                                        if (MintRealWorldQuests.canFinish(answerRight, speechStep, practiceResponse)) {
+                                            Button(onClick = {
+                                                rwJustEarned = !alreadyFinished
+                                                if (!alreadyFinished) {
+                                                    rwCompleted = rwCompleted + rewardKey
+                                                    preferences.edit().putStringSet("mint_real_world_quests_completed", rwCompleted).apply()
+                                                }
+                                                rwSpeakingStep = "completed"
+                                            }, modifier = Modifier.fillMaxWidth()) { Text("Complete this quest →") }
+                                        }
+                                    }
+                                    if (rwSpeakingStep == "completed") {
+                                        MintRealWorldQuestCelebration(
+                                            title = scenario.title, newlyEarned = rwJustEarned,
+                                            speakingMode = if (guidedVoiceReceived) "voice" else if (practiceResponse.isNotBlank()) "text" else "skipped",
+                                            reducedMotion = motionReduced
+                                        )
+                                        Button(onClick = {
+                                            rwQuestIndex = (rwQuestIndex + 1) % MintRealWorldQuests.scenarios.size
+                                            rwChoice = -1; rwChecked = false; rwSpeakingStep = "none"
+                                            rwJustEarned = false; practiceResponse = ""; guidedVoiceReceived = false
+                                        }, modifier = Modifier.fillMaxWidth()) { Text(if (rwQuestIndex == 0) "Next quest: Train station →" else "Review café quest →") }
+                                        OutlinedButton(onClick = { page = "Today" }, modifier = Modifier.fillMaxWidth()) { Text("View My Mint Garden") }
+                                    }
+                                }
+                            }
+                        } else if (gameMode == "Mint Quests") {
                             
                             if (showGameFilters) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
