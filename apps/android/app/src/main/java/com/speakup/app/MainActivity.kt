@@ -194,7 +194,7 @@ fun PremiumSpeakUp() {
         MintPlacementBank.session(selectedPlacementLevel, placementAttempt)
     }
     var showPlacement by remember { mutableStateOf(false) }
-    BackHandler(enabled = !showPathSetup && !showPlacement && page != "Today") { page = "Today" }
+    var storyOpenedFromGames by remember { mutableStateOf(false) }
     var completedIds by remember { mutableStateOf((preferences.getStringSet("completed_lessons", emptySet()) ?: emptySet()).toSet() + if (preferences.getBoolean("cafe_lesson_complete", false)) setOf("0") else emptySet()) }
     var lessonIndex by remember { mutableIntStateOf(0) }
     val lesson = lessons[lessonIndex]
@@ -234,6 +234,14 @@ fun PremiumSpeakUp() {
         mutableStateOf((preferences.getStringSet("mint_story_completed", emptySet()) ?: emptySet()).toSet())
     }
     var gameMode by remember { mutableStateOf("Mint Quests") }
+    BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
+        when {
+            page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
+            page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
+            else -> page = "Today"
+        }
+    }
+
     var mintDifficulty by remember { mutableStateOf(when (chosenDifficulty) { "Hard" -> MintDifficulty.HARD; "Medium" -> MintDifficulty.MEDIUM; else -> MintDifficulty.EASY }) }
     var mintMechanic by remember { mutableStateOf(MintMechanic.CHOOSE_REPLY) }
     var mintGameId by remember { mutableStateOf("") }
@@ -243,6 +251,7 @@ fun PremiumSpeakUp() {
     var mintShowHint by remember { mutableStateOf(false) }
     var mintRewardLedger by remember { mutableStateOf((preferences.getStringSet("mint_game_awards", emptySet()) ?: emptySet()).toSet()) }
     var mintGameFeedback by remember { mutableStateOf("") }
+    var mintGameXpAward by remember { mutableIntStateOf(0) }
     var mintSpeakingMission by remember { mutableStateOf("") }
 
     var dialogueIndex by remember { mutableIntStateOf(0) }
@@ -742,9 +751,22 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
-                        Text("Play a game", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Choose the answer to begin.", color = secondaryTextColor)
-                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide game choices" else "Change game or difficulty") }
+                        Text("Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        Text("Play, learn, grow.", color = secondaryTextColor)
+                        if (!showGameFilters && gameMode == "Mint Quests") {
+                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text("🌟  Today's featured game", color = primaryTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                                    Text("Mint Quests", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                    Text("A quick challenge from your existing game collection.", color = secondaryTextColor)
+                                }
+                            }
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = "" }, modifier = Modifier.weight(1f)) { Text("Grammar") }
+                            OutlinedButton(onClick = { storyOpenedFromGames = true; page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
+                        }
+                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
                         if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
                         val suggestedModes = when (learningGoal) {
@@ -756,7 +778,7 @@ fun PremiumSpeakUp() {
                             else -> listOf("Vocabulary", "Situations", "Word Builder")
                         }
                         Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
-                        Text("Choose a game world, challenge level or skill. Play at your pace and speak when you are ready.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("Mint Quests", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
@@ -893,6 +915,7 @@ fun PremiumSpeakUp() {
                                                 } else mintChoice
                                                 val result = MintGameEngine.reward(activeQuest, response, mintRewardLedger)
                                                 mintChecked = true
+                                                mintGameXpAward = result.xpAward
                                                 mintGameFeedback = if (result.correct) "Correct! ${activeQuest.explanation}" else "Not quite. Try again or reveal a hint."
                                                 if (result.xpAward > 0 && result.rewardKey != null) {
                                                     mintRewardLedger = mintRewardLedger + result.rewardKey
@@ -904,11 +927,13 @@ fun PremiumSpeakUp() {
                                             modifier = Modifier.fillMaxWidth()
                                         ) { Text("Check answer") }
                                         if (mintChecked) {
-                                            Text(mintGameFeedback, color = primaryTextColor)
+                                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                                Text(mintGameFeedback, modifier = Modifier.padding(16.dp), color = primaryTextColor, fontWeight = FontWeight.SemiBold)
+                                            }
                                             if (activeQuest.evaluate(if (isTapOrder) {
                                                     if (activeQuest.mechanic == MintMechanic.WORD_SCRAMBLE) mintSelectedTokens.joinToString("") else mintSelectedTokens.joinToString(" ")
                                                 } else mintChoice)) {
-                                                Text("+15 XP on first mastery • replay any time", color = accentTextColor)
+                                                Text(if (mintGameXpAward > 0) "+$mintGameXpAward XP earned!" else "Already mastered · no additional XP", color = accentTextColor, fontWeight = FontWeight.Bold)
                                                 Text("Speak next: ${activeQuest.speakingPrompt}", color = primaryTextColor)
                                                 OutlinedButton(onClick = {
                                                     mintSpeakingMission = activeQuest.speakingPrompt
@@ -1032,17 +1057,27 @@ fun PremiumSpeakUp() {
                                 vocabularyChecked = false
                             }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
                         } else if (gameMode == "Grammar") {
+                            Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            Text("${grammarQuestions.size} available practice questions", color = secondaryTextColor)
+                            LinearProgressIndicator(progress = { (grammarIndex + 1f) / grammarQuestions.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
                             Text("Grammar ${grammarIndex + 1} of ${grammarQuestions.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
-                            question.options.forEach { choice ->
-                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (grammarChoice == choice) "✓ " else "") + choice)
+                            question.options.forEachIndexed { index, choice ->
+                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (grammarChoice == choice) softSurfaceColor else surfaceColor)) {
+                                    Text(MintGrammarUiContract.optionLabel(index, choice), color = primaryTextColor, modifier = Modifier.fillMaxWidth())
                                 }
                             }
                             if (grammarChecked) {
                                 val correct = grammarChoice == question.correct
-                                Text(if (correct) "Correct! ${question.explanation}" else "Try again. Hint: ${question.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Text(if (correct) "✓ Correct!" else "Not quite — try another answer", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                        Text("WHY?", color = accentTextColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                        Text(question.explanation, color = primaryTextColor)
+                                    }
+                                }
                             }
                             Button(onClick = {
                                 grammarChecked = true
@@ -1053,7 +1088,7 @@ fun PremiumSpeakUp() {
                                     preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
                                 }
                             }, enabled = grammarChoice.isNotBlank()) { Text("Check grammar") }
-                            Text("Grammar mastered: ${grammarMastered.size} / ${grammarQuestions.size} • +10 XP per new correct answer", color = accentTextColor)
+                            Text("Mastered ${grammarMastered.size} of ${grammarQuestions.size} · XP once per new correct answer", color = accentTextColor)
                             OutlinedButton(onClick = {
                                 grammarIndex = (grammarIndex + 1) % grammarQuestions.size
                                 grammarChoice = ""
