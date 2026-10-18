@@ -1197,7 +1197,7 @@ fun PremiumSpeakUp() {
                             if (grammarSetComplete) {
                                 androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
                                 Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Column(Modifier.heightIn(max = 620.dp).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         MintGrammarCelebration(
                                             setNumber = grammarSet + 1,
                                             firstTryCorrect = grammarFirstTryCorrect,
