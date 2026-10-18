@@ -324,7 +324,7 @@ fun PremiumSpeakUp() {
     val accentTextColor = if (darkAppearance) NightAccent else Violet
     val surfaceColor = if (darkAppearance) NightCard else Color.White
     val softSurfaceColor = if (darkAppearance) NightCard else Soft
-    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, background = Night, surface = NightCard, onSurface = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
+    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, onPrimary = Color(0xFF062B24), background = Night, onBackground = Color.White, surface = NightCard, onSurface = Color.White, onSurfaceVariant = Color(0xFFD3DFE6), surfaceContainer = NightCard, surfaceContainerLow = NightCard, primaryContainer = Color(0xFF20534A), onPrimaryContainer = Color.White) else lightColorScheme(primary = Violet, background = Cream)) {
         if (showSpeechConsent) {
             AlertDialog(
                 onDismissRequest = { showSpeechConsent = false },
