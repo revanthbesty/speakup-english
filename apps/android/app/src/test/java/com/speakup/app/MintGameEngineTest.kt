@@ -44,6 +44,13 @@ class MintGameEngineTest {
         assertEquals(0, MintGameEngine.reward(game, "wrong", emptySet()).xpAward)
     }
 
+    @Test fun ageFilteringDoesNotExposeAdvancedOrTeenContentToYoungChildren() {
+        assertTrue(MintGameCatalog.listFor(MintDifficulty.EASY, 4).isNotEmpty())
+        assertTrue(MintGameCatalog.listFor(MintDifficulty.MEDIUM, 4).isEmpty())
+        assertTrue(MintGameCatalog.listFor(MintDifficulty.HARD, 8).isEmpty())
+        assertEquals(8, MintGameCatalog.listFor(MintDifficulty.HARD, 13).size)
+    }
+
     @Test fun allActivitiesHaveSpeakingFollowUpAndUsefulHints() {
         assertTrue(MintGameCatalog.definitions.all {
             it.speakingPrompt.length > 8 && it.hint.length > 8 && it.explanation.length > 8
