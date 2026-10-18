@@ -10,6 +10,8 @@ import java.util.Locale
 import androidx.compose.ui.platform.LocalContext
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -40,11 +42,11 @@ private val NightAccent = Color(0xFF72D9BA)
 
 private data class LearningPath(val id: String, val title: String, val subtitle: String, val nextStep: String)
 private val learningPaths = listOf(
-    LearningPath("zero", "Start from zero", "Letters, everyday words and first sentences", "Begin with friendly introductions and simple phrases."),
-    LearningPath("basic", "I know a little English", "Build vocabulary, grammar and daily conversation", "Practise the four beginner conversation lessons."),
-    LearningPath("speaking", "I understand but cannot speak", "Gain confidence through guided speaking", "Open Speaking Studio and practise one short response."),
-    LearningPath("advanced", "I want advanced English", "Fluency, presentations and precise vocabulary", "Start with speaking practice while advanced courses are developed."),
-    LearningPath("exams", "I am preparing for exams", "IELTS and other English exam pathways", "Practise reading and speaking while exam modules are developed.")
+    LearningPath("zero", "English Explorer", "Letters, everyday words and first sentences", "Begin with friendly introductions and simple phrases."),
+    LearningPath("basic", "Confidence Builder", "Build vocabulary, grammar and daily conversation", "Practise the four beginner conversation lessons."),
+    LearningPath("speaking", "Speaking Accelerator", "Gain confidence through guided speaking", "Open Speaking Studio and practise one short response."),
+    LearningPath("advanced", "English Pro", "Fluency, presentations and precise vocabulary", "Start with speaking practice while advanced courses are developed."),
+    LearningPath("exams", "Exam Champion", "IELTS and other English exam pathways", "Practise reading and speaking while exam modules are developed.")
 )
 
 
@@ -161,6 +163,7 @@ fun PremiumSpeakUp() {
     val preferences = remember(context) { context.getSharedPreferences(MintIdentity.legacyPreferencesFile, android.content.Context.MODE_PRIVATE) }
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
+    var learnerAgeBand by remember { mutableStateOf(preferences.getString("mint_age_band", MintExperiencePolicy.initialAgeBand(learnerAge)) ?: MintExperiencePolicy.initialAgeBand(learnerAge)) }
     var dailyGoal by remember { mutableIntStateOf(preferences.getInt("daily_goal", 10)) }
     var learningGoal by remember { mutableStateOf(preferences.getString("learning_goal", "Everyday conversation") ?: "Everyday conversation") }
     var chosenDifficulty by remember { mutableStateOf(preferences.getString("learning_difficulty", "Easy") ?: "Easy") }
@@ -169,7 +172,12 @@ fun PremiumSpeakUp() {
     val learningGoals = listOf("Start speaking", "Everyday conversation", "School & exams", "Work & interviews", "Reading & writing", "Travel")
     val followSystemDark = isSystemInDarkTheme()
     var themePreference by remember { mutableStateOf(preferences.getString("mint_theme_mode", if (preferences.getBoolean("dark_appearance", false)) "dark" else "system") ?: "system") }
-    val darkAppearance = when (themePreference) { "dark" -> true; "light" -> false; else -> followSystemDark }
+    var reduceMotion by remember { mutableStateOf(preferences.getBoolean("mint_reduce_motion", false)) }
+    var eyeComfort by remember { mutableStateOf(preferences.getBoolean("mint_eye_comfort", false)) }
+    val accessibilityScale = android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
+    val motionReduced = MintExperiencePolicy.reducedMotion(reduceMotion, accessibilityScale == 0f)
+    val localHour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+    val darkAppearance = MintExperiencePolicy.nightModeEnabled(themePreference, followSystemDark, localHour)
     var showPathSetup by remember { mutableStateOf(chosenPath.isBlank()) }
     var placementDone by remember { mutableStateOf(preferences.getBoolean("placement_done", false)) }
     var placementScore by remember { mutableIntStateOf(preferences.getInt("placement_score", -1)) }
@@ -292,10 +300,20 @@ fun PremiumSpeakUp() {
                     Text("Your name (optional)", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
                     OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                     Text("Who is learning?", fontWeight = FontWeight.SemiBold, color = primaryTextColor)
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf("Kids", "Teen", "Adult").forEach { age ->
-                            FilterChip(selected = learnerAge == age, onClick = { learnerAge = age }, label = { Text(age) })
+                    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        MintExperiencePolicy.ageBands.forEach { band ->
+                            FilterChip(
+                                selected = learnerAgeBand == band,
+                                onClick = {
+                                    learnerAgeBand = band
+                                    learnerAge = MintExperiencePolicy.legacyAge(band)
+                                },
+                                label = { Text(band) }
+                            )
                         }
+                    }
+                    if (MintExperiencePolicy.childSafetyEnabled(learnerAgeBand)) {
+                        Text("Child and teen accounts stay private. Public chat and sharing are not enabled.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                     }
                     Spacer(Modifier.height(10.dp))
                     Text("Why are you learning English?", color = primaryTextColor, fontWeight = FontWeight.SemiBold)
@@ -326,7 +344,8 @@ fun PremiumSpeakUp() {
                     }
                     Spacer(Modifier.height(12.dp))
                     Button(onClick = {
-                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putInt("daily_goal", dailyGoal).putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty).putString("profile_name", profileName).apply()
+                        preferences.edit().putString("learning_path", chosenPath).putString("learner_age", learnerAge).putString("mint_age_band", learnerAgeBand).putInt("daily_goal", dailyGoal).putString("mint_age_band", learnerAgeBand)
+                                .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty).putString("profile_name", profileName).apply()
                         showPathSetup = false
                         showPlacement = !placementDone
                         page = "Today"
@@ -967,9 +986,13 @@ fun PremiumSpeakUp() {
                         Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
                         OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                         Text("Age group", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("Kids", "Teen", "Adult").forEach { age ->
-                                FilterChip(selected = learnerAge == age, onClick = { learnerAge = age; profileFeedback = "" }, label = { Text(age) })
+                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            MintExperiencePolicy.ageBands.forEach { band ->
+                                FilterChip(selected = learnerAgeBand == band, onClick = {
+                                    learnerAgeBand = band
+                                    learnerAge = MintExperiencePolicy.legacyAge(band)
+                                    profileFeedback = ""
+                                }, label = { Text(band) })
                             }
                         }
                         Text("Learning purpose", color = primaryTextColor, fontWeight = FontWeight.Bold)
