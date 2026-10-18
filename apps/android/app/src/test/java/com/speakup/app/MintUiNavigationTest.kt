@@ -12,6 +12,7 @@ class MintUiNavigationTest {
     @Test fun preservedDestinationsResolveToTheirParentTabs() {
         assertEquals("Today", MintUiNavigation.mainTab("Learn"))
         assertEquals("Today", MintUiNavigation.mainTab("Review"))
+        assertEquals("Today", MintUiNavigation.mainTab("Professional"))
         assertEquals("Profile", MintUiNavigation.mainTab("Privacy"))
         assertEquals("Profile", MintUiNavigation.mainTab("Membership"))
         assertEquals("Profile", MintUiNavigation.mainTab("Help"))
@@ -23,5 +24,7 @@ class MintUiNavigationTest {
         assertEquals("Today", MintUiNavigation.restoredTab(null))
         assertEquals("Today", MintUiNavigation.restoredTab("NotARealRoute"))
         assertEquals("Games", MintUiNavigation.restoredTab("Games"))
+        assertEquals("Today", MintUiNavigation.restoredTab("FiveWord"))
+        assertEquals("Today", MintUiNavigation.restoredTab("Professional"))
     }
 }
