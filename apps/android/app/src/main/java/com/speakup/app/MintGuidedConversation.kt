@@ -33,12 +33,17 @@ internal fun MintGuidedConversation(
     var result by remember { mutableStateOf<MintVoiceFeedback?>(null) }
     var hintShown by remember { mutableStateOf(false) }
     var showTranscript by remember { mutableStateOf(false) }
+    var showConversationOptions by remember { mutableStateOf(false) }
     val options = MintConversationEngine.scenarios(chosenLevel, learnerAge)
     val scenario = options.firstOrNull { it.id == selectedScenarioId } ?: options.firstOrNull()
     val turn = scenario?.turns?.getOrNull(turnIndex)
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("AI-style Conversation Quests", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Private guided conversations, available offline. Responses use scripted coaching, not a live AI provider or pronunciation score.")
+        Text("Let’s talk", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("Listen, say your answer, and keep going. Three short turns.", color = MaterialTheme.colorScheme.onBackground)
+        TextButton(onClick = { showConversationOptions = !showConversationOptions }) {
+            Text(if (showConversationOptions) "Hide conversation choices ↑" else "Change topic or level ↓")
+        }
+        if (showConversationOptions) {
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintConversationLevel.entries.forEach { level ->
                 FilterChip(
@@ -55,9 +60,11 @@ internal fun MintGuidedConversation(
                 )
             }
         }
+        }
         if (options.isEmpty()) {
             Text("No age-appropriate conversation is available at this difficulty. Choose another level.")
         } else {
+            if (showConversationOptions) {
             Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 options.forEach { item ->
                     FilterChip(
@@ -73,11 +80,11 @@ internal fun MintGuidedConversation(
                     )
                 }
             }
+            }
             if (scenario != null && turn != null) {
                 val progress = (turnIndex + 1).toFloat() / scenario.turns.size
                 LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
-                Text("TURN ${turnIndex + 1} / ${scenario.turns.size} • ${scenario.title}", fontWeight = FontWeight.Bold)
-                Text(scenario.description)
+                Text("${scenario.title} · Step ${turnIndex + 1} of ${scenario.turns.size}", fontWeight = FontWeight.Bold)
                 Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
                     Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("${turn.speaker} says:", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
@@ -102,7 +109,7 @@ internal fun MintGuidedConversation(
                 Button(onClick = { requestMicrophone(turn.prompt) }, modifier = Modifier.fillMaxWidth()) {
                     Text("🎙 Speak privately")
                 }
-                Text("Microphone starts only when you choose it. External speech recognition may process audio under your device provider's terms.")
+                Text("You can type instead of speaking.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 OutlinedTextField(
                     value = response,
                     onValueChange = { onResponseChange(it); result = null },
