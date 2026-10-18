@@ -37,6 +37,7 @@ internal fun MintProfessionalHub(
     val progressPreferences = remember(context) {
         context.getSharedPreferences("speakup_learning", Context.MODE_PRIVATE)
     }
+    var confirmClearPractice by remember { mutableStateOf(false) }
     var completedPracticeIds by remember(progressPreferences) {
         mutableStateOf(
             (progressPreferences.getStringSet(MintProfessionalReview.storageKey, emptySet()) ?: emptySet()).toSet()
@@ -54,6 +55,23 @@ internal fun MintProfessionalHub(
         section = if (section == "Industry") "Industries" else "Hub"
     }
     val industries = listOf("Business", "IT & Technology", "Healthcare", "Finance", "Customer Service", "Education", "Hospitality", "Retail")
+    if (confirmClearPractice) {
+        AlertDialog(
+            onDismissRequest = { confirmClearPractice = false },
+            title = { Text("Delete Professional practice history?") },
+            text = { Text("Only saved verified Professional practice IDs will be deleted on this device. General lesson progress and Mint rewards remain unchanged.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    progressPreferences.edit().remove(MintProfessionalReview.storageKey).apply()
+                    completedPracticeIds = emptySet()
+                    confirmClearPractice = false
+                }) { Text("Delete practice history") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmClearPractice = false }) { Text("Cancel") }
+            }
+        )
+    }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         TextButton(onClick = { if (section == "Hub") onBack() else section = "Hub" }) { Text("← " + if (section == "Hub") "Home" else "Professional English") }
         when (section) {
@@ -78,10 +96,15 @@ internal fun MintProfessionalHub(
                 Surface(shape = RoundedCornerShape(16.dp),color=MaterialTheme.colorScheme.surfaceVariant) {
                     Column(Modifier.fillMaxWidth().padding(14.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
                         Text("Your professional practice suggestion",fontWeight=FontWeight.Bold)
-                        Text("Based on your selected goal: $learningGoal. Suggestions are deterministic and are not AI proficiency ratings.")
+                        Text("Your goal: $learningGoal. Suggestions prioritize original exercises not yet completed on this device; they do not estimate proficiency.")
                         Text("Verified original practice: ${MintProfessionalReview.completed(completedPracticeIds)} of ${MintProfessionalReview.validIds.size} items on this device.")
                         Text("Suggested next: ${MintProfessionalReview.label(MintProfessionalReview.next(completedPracticeIds,null))}",style=MaterialTheme.typography.bodySmall)
                         Text("Practice completion is recorded after checked-correct answers; workplace roleplays require all three turns. No XP, badges or certificates are granted.",style=MaterialTheme.typography.bodySmall)
+                        if (completedPracticeIds.isNotEmpty()) {
+                            TextButton(onClick = { confirmClearPractice = true }) {
+                                Text("Delete Professional practice history")
+                            }
+                        }
                     }
                 }
 
