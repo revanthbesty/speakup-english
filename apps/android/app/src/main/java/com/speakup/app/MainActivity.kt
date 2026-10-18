@@ -1195,6 +1195,7 @@ fun PremiumSpeakUp() {
                             val question = grammarQuestions[grammarIndex]
                             Text("Question ${grammarIndex - grammarSet * grammarSetSize + 1} of ${grammarSetEndExclusive - grammarSet * grammarSetSize}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             if (grammarSetComplete) {
+                                androidx.compose.ui.window.Dialog(onDismissRequest = { }) {
                                 Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         MintGrammarCelebration(
@@ -1221,12 +1222,14 @@ fun PremiumSpeakUp() {
                                             grammarChoice = ""
                                             grammarChecked = false
                                         }, modifier = Modifier.fillMaxWidth()) { Text(if (grammarSetEndExclusive < grammarQuestions.size) "Start next set →" else "Review from Set 1 →") }
+                                        OutlinedButton(onClick = { page = "Today" }, modifier = Modifier.fillMaxWidth()) { Text("View My Mint Garden") }
                                     }
+                                }
                                 }
                             } else {
                             Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                             question.options.forEachIndexed { index, choice ->
-                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, enabled = !(grammarChecked && grammarChoice == question.correct), modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                                     colors = ButtonDefaults.outlinedButtonColors(containerColor = if (grammarChoice == choice) softSurfaceColor else surfaceColor)) {
                                     Text(MintGrammarUiContract.optionLabel(index, choice), color = primaryTextColor, modifier = Modifier.fillMaxWidth())
                                 }
@@ -1247,7 +1250,6 @@ fun PremiumSpeakUp() {
                                     grammarWrongCount += 1
                                     grammarMissedNotes = grammarMissedNotes + "${question.prompt} — ${question.explanation}"
                                 }
-                                if (!grammarChecked && grammarChoice == question.correct && !grammarHadError) grammarFirstTryCorrect += 1
                                 grammarChecked = true
                                 val id = grammarIndex.toString()
                                 if (grammarChoice == question.correct && id !in grammarMastered) {
@@ -1256,9 +1258,10 @@ fun PremiumSpeakUp() {
                                     grammarSetNewXp += 10
                                     preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
                                 }
-                            }, enabled = grammarChoice.isNotBlank()) { Text("Check grammar") }
+                            }, enabled = grammarChoice.isNotBlank() && !(grammarChecked && grammarChoice == question.correct)) { Text("Check grammar") }
                             Text("🌸 ${grammarMastered.size} of ${grammarQuestions.size} grammar blooms growing", color = accentTextColor)
                             OutlinedButton(onClick = {
+                                if (!grammarHadError) grammarFirstTryCorrect += 1
                                 if (grammarIndex + 1 >= grammarSetEndExclusive) {
                                     grammarBloomEarned = grammarSetNewXp > 0
                                     grammarSetComplete = true
