@@ -1640,10 +1640,12 @@ fun PremiumSpeakUp() {
                                 }
                                 grammarChecked = true
                                 val id = grammarIndex.toString()
-                                if (grammarChoice == question.correct && id !in grammarMastered) {
-                                    grammarMastered = grammarMastered + id
+                                if (grammarChoice == question.correct) {
                                     grammarRevisionMissed = grammarRevisionMissed - MintGrammarRevision.missedKey(grammarIndex)
                                     preferences.edit().putStringSet("mint_grammar_revision_missed",grammarRevisionMissed).apply()
+                                }
+                                if (grammarChoice == question.correct && id !in grammarMastered) {
+                                    grammarMastered = grammarMastered + id
                                     xp += 10
                                     grammarSetNewXp += 10
                                     preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
