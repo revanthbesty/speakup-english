@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -248,6 +249,9 @@ fun PremiumSpeakUp() {
     var mintStoryCompletions by remember {
         mutableStateOf((preferences.getStringSet("mint_story_completed", emptySet()) ?: emptySet()).toSet())
     }
+    var coachEnabled by remember { mutableStateOf(preferences.getBoolean("mint_coach_opt_in", false)) }
+    var coachDraft by remember { mutableStateOf("") }
+    var coachReviewed by remember { mutableStateOf(false) }
     var gameMode by remember { mutableStateOf("Mint Quests") }
     BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
         when {
@@ -521,6 +525,41 @@ fun PremiumSpeakUp() {
                                 Text("Keep exploring. Replaying activities is always welcome.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             }
                         }
+                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("🤖 Mint Coach · two-minute practice", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                Text("Free on-device suggestions, not a cloud AI tutor. Personalization is optional.", color = secondaryTextColor)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Personalized suggestions", color = primaryTextColor, modifier = Modifier.weight(1f))
+                                    Switch(checked = coachEnabled, onCheckedChange = { coachEnabled = it
+                                        preferences.edit().putBoolean("mint_coach_opt_in", it).apply()
+                                    })
+                                }
+                                if (coachEnabled) {
+                                    val plan = MintCoachPlanner.build(learningGoal, chosenDifficulty, completedIds.size, rwCompleted.size)
+                                    Text(plan.reason, color = secondaryTextColor)
+                                    plan.steps.forEachIndexed { index, step ->
+                                        OutlinedButton(onClick = {
+                                            if (step.gameMode != null) { gameMode = step.gameMode; showGameFilters = false }
+                                            if (step.route == "Learn") { learnMode = "Lessons" }
+                                            page = step.route
+                                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                                            Text("${index + 1}. ${step.label} →")
+                                        }
+                                    }
+                                    OutlinedTextField(value = coachDraft, onValueChange = { coachDraft = it; coachReviewed = false },
+                                        label = { Text("Optional: Write a practice reply") }, modifier = Modifier.fillMaxWidth())
+                                    Button(onClick = { coachReviewed = true }, enabled = coachDraft.isNotBlank(), modifier = Modifier.fillMaxWidth()) {
+                                        Text("Get a writing tip")
+                                    }
+                                    if (coachReviewed) Text(MintCoachPlanner.feedback(coachDraft), color = primaryTextColor)
+                                    Text("Tips are simple writing prompts, not assessed fluency or pronunciation.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                } else {
+                                    Text("Off · No coach recommendations based on your goals or activity history.", color = secondaryTextColor)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(14.dp))
                         Spacer(Modifier.height(14.dp))
                         Surface(color = Color(0xFF087665), shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
