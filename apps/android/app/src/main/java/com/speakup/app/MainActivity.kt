@@ -342,17 +342,13 @@ fun PremiumSpeakUp() {
             )
         }
         Column(Modifier.fillMaxSize().background(backgroundColor)) {
-            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(20.dp)) {
+            Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).statusBarsPadding().padding(20.dp)) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
                         Text(MintIdentity.displayName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
                         Text(MintIdentity.tagline, color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     }
-                    if (!showPathSetup && !showPlacement) {
-                        TextButton(onClick = { page = "Profile" }) {
-                            Text("◉  Profile", color = accentTextColor, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
+
                 }
                 Spacer(Modifier.height(12.dp))
                 if (showPathSetup) {
