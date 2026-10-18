@@ -4,11 +4,11 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class MintExpandedCatalogTest {
-    @Test fun exactlyFortyEightAuthoredPlayableQuestsAcrossSixMechanics() {
+    @Test fun seventyTwoAuthoredPlayableQuestsAcrossEightMechanics() {
         val all = MintGameCatalog.allDefinitions
-        assertEquals(48, all.size)
-        assertEquals(48, all.map { it.id }.toSet().size)
-        assertEquals(6, all.map { it.mechanic }.toSet().size)
+        assertEquals(72, all.size)
+        assertEquals(72, all.map { it.id }.toSet().size)
+        assertEquals(8, all.map { it.mechanic }.toSet().size)
         assertTrue(all.all { it.isValid() })
         assertTrue(all.all { it.evaluate(it.answer) })
     }
@@ -24,6 +24,20 @@ class MintExpandedCatalogTest {
                 assertTrue(quests.all { it.tokens.size == 3 && it.tokens.count { t -> t == it.answer } == 1 })
             }
         }
+    }
+
+    @Test fun visualVocabularyPackCoversAllLevelsAndValidPictures() {
+        val pack = MintVisualVocabularyPack.definitions
+        assertEquals(24, pack.size)
+        listOf(MintMechanic.WORD_CONNECT,MintMechanic.PICTURE_MATCH).forEach { mechanic ->
+            MintDifficulty.entries.forEach { level ->
+                val items = pack.filter { it.mechanic == mechanic && it.difficulty == level }
+                assertEquals(4, items.size)
+                assertTrue(items.all { it.isValid() && it.evaluate(it.answer) })
+            }
+        }
+        assertTrue(pack.filter { it.mechanic == MintMechanic.PICTURE_MATCH }
+            .all { it.prompt.isNotBlank() && it.speakingPrompt.isNotBlank() })
     }
 
     @Test fun spokenListeningLinesExistOnlyForListeningMechanic() {
@@ -49,7 +63,7 @@ class MintExpandedCatalogTest {
         assertTrue(MintGameCatalog.listFor(MintDifficulty.MEDIUM,4).isEmpty())
         assertTrue(MintGameCatalog.listFor(MintDifficulty.EASY,4).isNotEmpty())
         MintDifficulty.entries.forEach { level ->
-            assertEquals(16, MintGameCatalog.listFor(level,18).size)
+            assertEquals(24, MintGameCatalog.listFor(level,18).size)
         }
     }
 
