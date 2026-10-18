@@ -14,7 +14,7 @@ internal fun MintWorkplaceRoleplayScreen(onVerified: (String) -> Unit = {}) {
     var checked by remember { mutableStateOf(false) }
     val story = MintWorkplaceRoleplays.samples[scenario]
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Workplace conversation practice", style = MaterialTheme.typography.titleLarge)
+        MintScreenHeading("Workplace Conversations", "Practise realistic, private roleplay conversations.", "PROFESSIONAL ENGLISH")
         Text("Private, offline practice. No live AI, scores or certificates.")
         MintWorkplaceRoleplays.samples.forEachIndexed { index, sample ->
             OutlinedButton(onClick = {
