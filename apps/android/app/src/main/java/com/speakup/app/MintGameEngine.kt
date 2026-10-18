@@ -8,7 +8,7 @@ package com.speakup.app
  */
 internal enum class MintMechanic { CHOOSE_REPLY, MISSING_WORD, WORD_SCRAMBLE, SENTENCE_ORDER, LISTEN_AND_CHOOSE, STORY_DECISION }
 internal enum class MintDifficulty { EASY, MEDIUM, HARD }
-internal enum class MintSkill { VOCABULARY, GRAMMAR, SPEAKING, READING }
+internal enum class MintSkill { VOCABULARY, GRAMMAR, SPEAKING, READING, LISTENING }
 
 internal data class MintGameDefinition(
     val id: String,
