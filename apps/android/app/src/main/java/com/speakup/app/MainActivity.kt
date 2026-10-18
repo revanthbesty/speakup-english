@@ -228,6 +228,7 @@ fun PremiumSpeakUp() {
     var showProfileAdvanced by remember { mutableStateOf(false) }
     var showHomeHelp by remember { mutableStateOf(false) }
     var showHomeExtras by remember { mutableStateOf(false) }
+    var showProgressDetails by remember { mutableStateOf(false) }
     var grammarLanding by remember { mutableStateOf(true) }
     var familyPilotEnabled by remember { mutableStateOf(preferences.getBoolean("mint_family_local_enabled", false)) }
     var passportConsent by remember { mutableStateOf(preferences.getBoolean("mint_passport_consent", false)) }
@@ -277,7 +278,7 @@ fun PremiumSpeakUp() {
             page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
             page == "FiveWord" -> page = "Feed"
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
-            page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
+            page == "Help" || page == "Privacy" || page == "Membership" || page == "Settings" -> page = "Profile"
             else -> page = "Today"
         }
     }
@@ -699,7 +700,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         if (learnMode == "Lessons") {
-                        LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
+                        MintProgressBar(completedIds.size.toFloat() / lessons.size.coerceAtLeast(1))
                         Text("LESSON ${lessonIndex + 1} OF ${lessons.size} • ${lesson.title.uppercase()}", color = accentTextColor, fontWeight = FontWeight.Bold)
                         Text("Finish one lesson to unlock the next. Previously completed lessons stay unlocked.", color = secondaryTextColor)
                         lessons.forEachIndexed { index, item ->
@@ -1957,18 +1958,29 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
-                        Text("My learning space", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                        Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
-                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Your progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                                Text("$xp XP earned · ${completedIds.size} of ${lessons.size} lessons completed", color = secondaryTextColor)
-                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                                OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("View progress & achievements →") }
-                            }
-                        }
+                        MintSectionHeading("My profile", "Your English learning journey")
+                        MintProfileHero(
+                            displayName = profileName, journey = MintExperiencePolicy.selectedJourney(chosenPath),
+                            lessons = completedIds.size, totalLessons = lessons.size, xp = xp
+                        )
+                        Text("$chosenDifficulty learning • $dailyGoal minute daily goal",
+                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        OutlinedButton(
+                            onClick = { page = "Review" },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)
+                        ) { Text("My progress & achievements  →") }
                         OutlinedButton(onClick = { page = "Help" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Help & guidance →") }
+                        OutlinedButton(
+                            onClick = { page = "Settings" },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)
+                        ) { Text("Settings, appearance & privacy  →") }
+                        MintInfoBanner("Your learning stays yours",
+                            "Privacy, optional speech, offline learning and accessibility controls are under Settings.",
+                            MintVisualTokens.blue)
+                    }
+                    "Settings" -> {
+                        TextButton(onClick = { page = "Profile" }) { Text("← Profile") }
+                        MintSectionHeading("Settings", "Personalise your English Mint experience")
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Text("🛡 Beta readiness", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -1977,10 +1989,7 @@ fun PremiumSpeakUp() {
                                     color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             }
                         }
-                        Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
-                            Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
-                        }
-                        if (showProfileSettings) {
+
                         Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
                             Column(Modifier.padding(14.dp)) {
                                 Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
@@ -2091,7 +2100,6 @@ fun PremiumSpeakUp() {
                         if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
                         OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
                         }
-                        }
                     }
                     "Review" -> {
                         val progressEvidence = MintProgressEvidence(
@@ -2108,14 +2116,27 @@ fun PremiumSpeakUp() {
                         )
                         val progressLevel = MintRewards.level(xp)
                         val coins = MintRewards.cosmeticCoins(mintRewardLedger)
-                        Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                        MintSectionHeading("My Progress", "A real view of your completed learning")
                         Spacer(Modifier.height(16.dp))
-                        FeatureCard("✓  ${completedIds.size} of ${lessons.size} lessons completed", "Each new lesson earns 50 XP.", { page = "Learn" })
+                        MintInfoBanner("Continue your learning path",
+                            "${completedIds.size} of ${lessons.size} lessons completed · ${xp} XP earned",
+                            MintVisualTokens.mint)
+                        Button(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth().heightIn(min=50.dp)) {
+                            Text("Continue learning  →")
+                        }
                         LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size }, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp))
                         Spacer(Modifier.height(12.dp))
-                        Text("Total XP: $xp  •  Speaking attempts: $speakingAttempts", color = accentTextColor, fontWeight = FontWeight.Bold)
+                        Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                            MintDestinationTile("XP", "$xp earned", "⭐", MintVisualTokens.orange,Modifier.weight(1f)) { showProgressDetails = true }
+                            MintDestinationTile("Speaking", "$speakingAttempts attempts", "🎤", MintVisualTokens.blue,Modifier.weight(1f)) { page = "Speak" }
+                        }
                         Text("Reading passages mastered: ${readingMastered.size} of ${readingPassages.size}", color = secondaryTextColor)
                         Spacer(Modifier.height(12.dp))
+                        OutlinedButton(
+                            onClick = { showProgressDetails = !showProgressDetails },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
+                        ) { Text(if (showProgressDetails) "Hide skill details & badges" else "See skill details & earned badges  →") }
+                        if (showProgressDetails) {
                         Text("Speaking confidence practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Text("$independentReplies of $confidenceAttempts checked replies attempted without the example", color = secondaryTextColor)
                         if (confidenceAttempts > 0) {
@@ -2171,6 +2192,7 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(14.dp))
+                        }
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         val now = System.currentTimeMillis()
                         val dueLessons = reviewable.filter { (revisionSchedule[it.toString()] ?: 0L) <= now }

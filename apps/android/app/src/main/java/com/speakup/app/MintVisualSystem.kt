@@ -258,3 +258,46 @@ internal fun MintProgressBar(value:Float, modifier:Modifier=Modifier) {
         }
     }
 }
+
+@Composable
+internal fun MintProfileHero(displayName:String,journey:String,lessons:Int,totalLessons:Int,xp:Int) {
+    Surface(color=MaterialTheme.colorScheme.primaryContainer,
+        shape=RoundedCornerShape(24.dp),modifier=Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+            Row(verticalAlignment=Alignment.CenterVertically,
+                horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+                Surface(color=MaterialTheme.colorScheme.surface,
+                    shape=RoundedCornerShape(22.dp)) {
+                    Image(painter=painterResource(R.drawable.mint_mark),
+                        contentDescription="English Mint learner profile",
+                        modifier=Modifier.size(64.dp).padding(8.dp))
+                }
+                Column {
+                    Text(displayName.ifBlank{"English learner"},
+                        style=MaterialTheme.typography.titleLarge,fontWeight=FontWeight.Bold)
+                    Text(journey, style=MaterialTheme.typography.bodySmall,
+                        color=MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+            Row(horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                Surface(shape=RoundedCornerShape(16.dp),
+                    color=MaterialTheme.colorScheme.surface,modifier=Modifier.weight(1f)) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("$lessons/$totalLessons",fontWeight=FontWeight.ExtraBold,
+                            style=MaterialTheme.typography.titleLarge,color=MaterialTheme.colorScheme.primary)
+                        Text("Lessons",style=MaterialTheme.typography.labelSmall)
+                    }
+                }
+                Surface(shape=RoundedCornerShape(16.dp),
+                    color=MaterialTheme.colorScheme.surface,modifier=Modifier.weight(1f)) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("$xp",fontWeight=FontWeight.ExtraBold,
+                            style=MaterialTheme.typography.titleLarge,color=MaterialTheme.colorScheme.primary)
+                        Text("Earned XP",style=MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+            MintProgressBar(lessons.toFloat()/totalLessons.coerceAtLeast(1))
+        }
+    }
+}
