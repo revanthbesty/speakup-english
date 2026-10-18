@@ -161,8 +161,8 @@ fun PremiumSpeakUp() {
     var checked by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val preferences = remember(context) { context.getSharedPreferences(MintIdentity.legacyPreferencesFile, android.content.Context.MODE_PRIVATE) }
-    var page by remember { mutableStateOf(preferences.getString("mint_selected_tab", "Today").orEmpty().takeIf { it in setOf("Today", "Games", "Feed", "Speak", "Profile") } ?: "Today") }
-    LaunchedEffect(page) { if (page in setOf("Today", "Games", "Feed", "Speak", "Profile")) preferences.edit().putString("mint_selected_tab", page).apply() }
+    var page by remember { mutableStateOf(MintUiNavigation.restoredTab(preferences.getString("mint_selected_tab", "Today"))) }
+    LaunchedEffect(page) { if (page in MintUiNavigation.tabs) preferences.edit().putString("mint_selected_tab", page).apply() }
     var chosenPath by remember { mutableStateOf(preferences.getString("learning_path", "") ?: "") }
     var learnerAge by remember { mutableStateOf(preferences.getString("learner_age", "Adult") ?: "Adult") }
     var learnerAgeBand by remember { mutableStateOf(preferences.getString("mint_age_band", MintExperiencePolicy.initialAgeBand(learnerAge)) ?: MintExperiencePolicy.initialAgeBand(learnerAge)) }
@@ -1480,7 +1480,7 @@ fun PremiumSpeakUp() {
             }
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
-                listOf("Today", "Games", "Feed", "Speak", "Profile").forEach { tab ->
+                MintUiNavigation.tabs.forEach { tab ->
                     val symbol = when (tab) {
                         "Today" -> "⌂"
                         "Speak" -> "♩"
@@ -1489,7 +1489,7 @@ fun PremiumSpeakUp() {
                         "Review" -> "▥"
                         else -> "◉"
                     }
-                    val isActive = page == tab || (page == "Learn" && tab == "Today")
+                    val isActive = MintUiNavigation.mainTab(page) == tab
                     val iconColor by animateColorAsState(
                         targetValue = if (isActive) accentTextColor else secondaryTextColor,
                         animationSpec = tween(durationMillis = if (motionReduced) 0 else 200), label = "nav-$tab"
@@ -1498,7 +1498,7 @@ fun PremiumSpeakUp() {
                         selected = isActive,
                         onClick = { page = tab },
                         icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab navigation" }, color = iconColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
-                        label = { Text(when (tab) { "Today" -> "Home"; "Feed" -> "Clips"; else -> tab }, maxLines = 1, style = MaterialTheme.typography.labelSmall) },
+                        label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = accentTextColor,
