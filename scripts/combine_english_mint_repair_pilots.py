@@ -18,8 +18,9 @@ PATCH_FILES = (
     "external_workbook_repair_b1_second_pilot_8.json",
     "external_workbook_repair_b2_second_pilot_8.json",
     "external_workbook_repair_c1_second_pilot_8.json",
+    "external_workbook_repair_cross_level_batch_40.json",
 )
-EXPECTED_COUNTS = {"A1": 24, "A2": 16, "B1": 16, "B2": 16, "C1": 16}
+EXPECTED_COUNTS = {"A1": 32, "A2": 24, "B1": 24, "B2": 24, "C1": 24}
 CATEGORIES = {"word_builder", "riddles", "vocabulary", "situations",
               "listening", "reading", "dialogues", "stories"}
 
@@ -49,14 +50,14 @@ def build_repair_patch(base):
                 raise ValueError(f"{ident}: incomplete educational content")
             validate_answer(item)
             rows.append(item)
-    if len(rows) != 88:
-        raise ValueError(f"Expected 88 pilots, received {len(rows)}")
+    if len(rows) != 128:
+        raise ValueError(f"Expected 128 pilots, received {len(rows)}")
     by_level = Counter(x["cefr_level"] for x in rows)
     if by_level != EXPECTED_COUNTS:
         raise ValueError(f"Incorrect level distribution: {by_level}")
     by_category = Counter(x["category"] for x in rows)
-    if set(by_category) != CATEGORIES or any(n != 11 for n in by_category.values()):
-        raise ValueError(f"Expected 11 drafts per category: {by_category}")
+    if set(by_category) != CATEGORIES or any(n != 16 for n in by_category.values()):
+        raise ValueError(f"Expected 16 drafts per category: {by_category}")
     return {"schema_version": "1.0", "review_status": "needs_human_review",
             "warning": "DRAFT replacement content; no editorial approval or Android import",
             "activities": rows}
@@ -70,7 +71,7 @@ def main():
     document = build_repair_patch(args.content_dir)
     if args.out:
         args.out.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("PASS: 88 non-approved repair pilots, eleven per category, levels 24/16/16/16/16")
+    print("PASS: 128 non-approved repair pilots, sixteen per category, levels 32/24/24/24/24")
 
 
 if __name__ == "__main__":
