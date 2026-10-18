@@ -19,7 +19,7 @@ PATCH_FILES = (
     "external_workbook_repair_b2_second_pilot_8.json",
     "external_workbook_repair_c1_second_pilot_8.json",
 )
-EXPECTED_COUNTS = {"A1": 24, "A2": 16, "B1": 16, "B2": 16, "C1": 8}
+EXPECTED_COUNTS = {"A1": 24, "A2": 16, "B1": 16, "B2": 16, "C1": 16}
 CATEGORIES = {"word_builder", "riddles", "vocabulary", "situations",
               "listening", "reading", "dialogues", "stories"}
 
