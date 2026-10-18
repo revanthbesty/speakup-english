@@ -511,6 +511,9 @@ fun PremiumSpeakUp() {
                                 TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
                             }
                         }
+                        OutlinedButton(onClick = { page = "Professional" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            Text("Explore Professional English →")
+                        }
                         TextButton(onClick = { showHomeHelp = !showHomeHelp }) { Text(if (showHomeHelp) "Hide guidance" else "Where do I start?") }
                         if (showHomeHelp) {
                             Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
@@ -520,6 +523,18 @@ fun PremiumSpeakUp() {
                                 }
                             }
                         }
+                    }
+                    "Professional" -> {
+                        MintProfessionalHub(
+                            completedLessons = completedIds.size.coerceAtMost(lessons.size),
+                            totalLessons = lessons.size,
+                            dailyGoal = dailyGoal,
+                            learningGoal = learningGoal,
+                            onBack = { page = "Today" },
+                            onLessons = { page = "Learn"; learnMode = "Lessons" },
+                            onRoleplay = { page = "Speak"; speakingView = "Conversations" },
+                            onReview = { page = "Review" }
+                        )
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
