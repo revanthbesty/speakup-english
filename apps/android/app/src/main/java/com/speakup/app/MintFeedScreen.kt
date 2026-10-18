@@ -79,9 +79,8 @@ internal fun MintFeedScreen(
 
     Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Mint Clips", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-        Text("Offline captioned stories · Watch, read and practise", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("Unfinished stories first · Finite, age-safe local recommendations", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+        MintSectionHeading("Mint Clips", "Short stories • Real English • Real life")
+        MintInfoBanner("Watch, read & practise", "Browse the offline captioned story collection and try a short English activity.",MintVisualTokens.pink)
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintClipLevel.entries.forEach { option ->
                 FilterChip(selected = level == option, onClick = { level = option; reset(0) },
@@ -113,14 +112,14 @@ internal fun MintFeedScreen(
             ) {
                 Column(
                     Modifier.background(
-                        Brush.verticalGradient(listOf(Color(0xFF0A6D68), Color(0xFF133B4C), Color(0xFF10202C))),
+                        Brush.verticalGradient(listOf(Color(0xFF38227D), Color(0xFF233F8C), Color(0xFF0B3C50))),
                         RoundedCornerShape(28.dp)
                     ).padding(22.dp).then(if (reducedMotion) Modifier else Modifier.animateContentSize()),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text("ENGLISH MINT ORIGINAL • CAPTIONED STORY", color = Color.White.copy(alpha = 0.8f),
                         style = MaterialTheme.typography.labelSmall)
-                    Box(Modifier.fillMaxWidth().height(128.dp).semantics { contentDescription = frame.caption }, contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    Box(Modifier.fillMaxWidth().height(214.dp).semantics { contentDescription = frame.caption }, contentAlignment = androidx.compose.ui.Alignment.Center) {
                         Text(frame.visual, style = MaterialTheme.typography.displayLarge)
                     }
                     Text(if (captionVisible) frame.caption else "Captions hidden",
@@ -180,7 +179,7 @@ internal fun MintFeedScreen(
                 confirmButton = { TextButton(onClick = { wordSheetOpen = false }) { Text("Back to clip") } }
             )
             if (showListening) ListeningAudio(frame.spokenLine)
-            Text(clip.description, style = MaterialTheme.typography.bodyMedium)
+            MintInfoBanner("About this story", clip.description, MintVisualTokens.blue)
             Text("Original offline story · no public chat", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = { playing = false; onReact(clip.id) }) {
