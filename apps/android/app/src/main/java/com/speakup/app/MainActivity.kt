@@ -292,6 +292,7 @@ fun PremiumSpeakUp() {
     var grammarChoice by remember { mutableStateOf("") }
     var grammarSetComplete by remember { mutableStateOf(false) }
     var grammarSetNewXp by remember { mutableIntStateOf(0) }
+    var latestActivityXp by remember { mutableIntStateOf(0) }
     var grammarChecked by remember { mutableStateOf(false) }
     var grammarMastered by remember { mutableStateOf((preferences.getStringSet("grammar_mastered", emptySet()) ?: emptySet()).toSet()) }
     var vocabularyIndex by remember { mutableIntStateOf(0) }
@@ -1081,6 +1082,7 @@ fun PremiumSpeakUp() {
                             }
                             Button(onClick = {
                                 riddleChecked = true
+                                latestActivityXp = if (riddleChoice == riddle.answer && riddleIndex.toString() !in riddleAwards) 10 else 0
                                 val id = riddleIndex.toString()
                                 if (riddleChoice == riddle.answer && id !in riddleAwards) {
                                     riddleAwards = riddleAwards + id
@@ -1089,6 +1091,20 @@ fun PremiumSpeakUp() {
                                 }
                             }, enabled = riddleChoice.isNotBlank()) { Text("Check answer") }
                             Text("Riddles mastered: ${riddleAwards.size} / ${riddles.size} • +10 XP per new correct riddle", color = accentTextColor)
+                            if (riddleChecked && riddleChoice == riddle.answer) {
+                                MintActivityCompletion(
+                                    activity = "Riddles",
+                                    newXp = latestActivityXp,
+                                    nextLabel = "Next riddle →",
+                                    onNext = {
+                                        riddleIndex = (riddleIndex + 1) % riddles.size
+                                        riddleChoice = ""
+                                        riddleChecked = false
+                                        latestActivityXp = 0
+                                    },
+                                    onDashboard = { page = "Today" }
+                                )
+                            }
                             OutlinedButton(onClick = {
                                 riddleIndex = (riddleIndex + 1) % riddles.size
                                 riddleChoice = ""
@@ -1111,6 +1127,7 @@ fun PremiumSpeakUp() {
                             }
                             Button(onClick = {
                                 vocabularyChecked = true
+                                latestActivityXp = if (vocabularyChoice == card.meaning && vocabularyIndex.toString() !in vocabularyMastered) 10 else 0
                                 val id = vocabularyIndex.toString()
                                 if (vocabularyChoice == card.meaning && id !in vocabularyMastered) {
                                     vocabularyMastered = vocabularyMastered + id
@@ -1119,6 +1136,20 @@ fun PremiumSpeakUp() {
                                 }
                             }, enabled = vocabularyChoice.isNotBlank()) { Text("Check meaning") }
                             Text("Words mastered: ${vocabularyMastered.size} / ${vocabularyCards.size} • +10 XP for each new word", color = accentTextColor)
+                            if (vocabularyChecked && vocabularyChoice == card.meaning) {
+                                MintActivityCompletion(
+                                    activity = "Vocabulary",
+                                    newXp = latestActivityXp,
+                                    nextLabel = "Next word →",
+                                    onNext = {
+                                        vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
+                                        vocabularyChoice = ""
+                                        vocabularyChecked = false
+                                        latestActivityXp = 0
+                                    },
+                                    onDashboard = { page = "Today" }
+                                )
+                            }
                             OutlinedButton(onClick = {
                                 vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
                                 vocabularyChoice = ""
@@ -1199,6 +1230,7 @@ fun PremiumSpeakUp() {
                             }
                             Button(onClick = {
                                 scenarioChecked = true
+                                latestActivityXp = if (scenarioChoice == scenario.correct && scenarioIndex.toString() !in scenarioMastered) 10 else 0
                                 val id = scenarioIndex.toString()
                                 if (scenarioChoice == scenario.correct && id !in scenarioMastered) {
                                     scenarioMastered = scenarioMastered + id
@@ -1207,6 +1239,20 @@ fun PremiumSpeakUp() {
                                 }
                             }, enabled = scenarioChoice.isNotBlank()) { Text("Check response") }
                             Text("Situations mastered: ${scenarioMastered.size} / ${conversationScenarios.size} • +10 XP for each new success", color = accentTextColor)
+                            if (scenarioChecked && scenarioChoice == scenario.correct) {
+                                MintActivityCompletion(
+                                    activity = "Situations",
+                                    newXp = latestActivityXp,
+                                    nextLabel = "Next situation →",
+                                    onNext = {
+                                        scenarioIndex = (scenarioIndex + 1) % conversationScenarios.size
+                                        scenarioChoice = ""
+                                        scenarioChecked = false
+                                        latestActivityXp = 0
+                                    },
+                                    onDashboard = { page = "Today" }
+                                )
+                            }
                             OutlinedButton(onClick = {
                                 scenarioIndex = (scenarioIndex + 1) % conversationScenarios.size
                                 scenarioChoice = ""
@@ -1234,6 +1280,7 @@ fun PremiumSpeakUp() {
                             }
                             Button(onClick = {
                                 listeningChecked = true
+                                latestActivityXp = if (listeningChoice == listening.correct && listeningIndex.toString() !in listeningMastered) 10 else 0
                                 val id = listeningIndex.toString()
                                 if (listeningChoice == listening.correct && id !in listeningMastered) {
                                     listeningMastered = listeningMastered + id
@@ -1242,6 +1289,20 @@ fun PremiumSpeakUp() {
                                 }
                             }, enabled = listeningChoice.isNotBlank()) { Text("Check comprehension") }
                             Text("Checks mastered: ${listeningMastered.size} / ${listeningChecks.size} • +10 XP for a first correct answer", color = accentTextColor)
+                            if (listeningChecked && listeningChoice == listening.correct) {
+                                MintActivityCompletion(
+                                    activity = "Listening",
+                                    newXp = latestActivityXp,
+                                    nextLabel = "Next listening →",
+                                    onNext = {
+                                        listeningIndex = (listeningIndex + 1) % listeningChecks.size
+                                        listeningChoice = ""
+                                        listeningChecked = false
+                                        latestActivityXp = 0
+                                    },
+                                    onDashboard = { page = "Today" }
+                                )
+                            }
                             OutlinedButton(onClick = {
                                 listeningIndex = (listeningIndex + 1) % listeningChecks.size
                                 listeningChoice = ""
@@ -1268,6 +1329,7 @@ fun PremiumSpeakUp() {
                             }
                             Button(onClick = {
                                 readingChecked = true
+                                latestActivityXp = if (readingChoice == passage.answer && readingIndex.toString() !in readingMastered) 10 else 0
                                 val id = readingIndex.toString()
                                 if (readingChoice == passage.answer && id !in readingMastered) {
                                     readingMastered = readingMastered + id
@@ -1276,6 +1338,20 @@ fun PremiumSpeakUp() {
                                 }
                             }, enabled = readingChoice.isNotBlank()) { Text("Check reading answer") }
                             Text("Passages mastered: ${readingMastered.size} / ${readingPassages.size} • +10 XP once per passage", color = accentTextColor)
+                            if (readingChecked && readingChoice == passage.answer) {
+                                MintActivityCompletion(
+                                    activity = "Reading",
+                                    newXp = latestActivityXp,
+                                    nextLabel = "Next reading →",
+                                    onNext = {
+                                        readingIndex = (readingIndex + 1) % readingPassages.size
+                                        readingChoice = ""
+                                        readingChecked = false
+                                        latestActivityXp = 0
+                                    },
+                                    onDashboard = { page = "Today" }
+                                )
+                            }
                             OutlinedButton(onClick = {
                                 readingIndex = (readingIndex + 1) % readingPassages.size
                                 readingChoice = ""
