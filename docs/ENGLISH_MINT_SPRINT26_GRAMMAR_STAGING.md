@@ -41,3 +41,11 @@ The complete 500-record JSON asset is now committed at `apps/android/app/src/mai
 **This supersedes earlier notes saying the JSON was not checked in.** No scored Grammar Arena screen or rewards were connected. This is staging integration, not a playable release.
 
 Outstanding: correct four repeated prompts and 15 missing examples; independent editorial review; UI preview integration, Android compilation/instrumentation, real-device accessibility and navigation tests. Do not merge or deploy.
+
+## Sprint 26 draft-review panel update
+
+- The checked-in 500-question authoring asset now has 500 distinct IDs and 500 distinct normalized prompts. Four repeated prompts were rewritten; 15 missing example sentences were supplied. All records remain `draft`.
+- `MintGrammarDraftReviewPanel()` is available inside the existing Grammar Arena screen, with A/B/C explanations and grammar rules shown after selecting an answer.
+- The preview is explicitly unscored, never modifies learner records, and leaves the existing scored quiz intact. No draft record is promoted to approved.
+- No claim of independent editorial validation: 500 items still need human language review. Semantic near-duplicates and ambiguous answer keys are still possible.
+- Android tests, lint and APK build have **not been executed** for this update. These must pass before any merge.
