@@ -1059,7 +1059,13 @@ fun PremiumSpeakUp() {
                             }
                             if (grammarChecked) {
                                 val correct = grammarChoice == question.correct
-                                Text(if (correct) "Correct! ${question.explanation}" else "Try again. Hint: ${question.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Text(if (correct) "✓ Correct!" else "Not quite — try another answer", color = primaryTextColor, fontWeight = FontWeight.Bold)
+                                        Text("WHY?", color = accentTextColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                        Text(question.explanation, color = primaryTextColor)
+                                    }
+                                }
                             }
                             Button(onClick = {
                                 grammarChecked = true
@@ -1070,7 +1076,7 @@ fun PremiumSpeakUp() {
                                     preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
                                 }
                             }, enabled = grammarChoice.isNotBlank()) { Text("Check grammar") }
-                            Text("Grammar mastered: ${grammarMastered.size} / ${grammarQuestions.size} • +10 XP per new correct answer", color = accentTextColor)
+                            Text("Mastered ${grammarMastered.size} of ${grammarQuestions.size} · XP once per new correct answer", color = accentTextColor)
                             OutlinedButton(onClick = {
                                 grammarIndex = (grammarIndex + 1) % grammarQuestions.size
                                 grammarChoice = ""
