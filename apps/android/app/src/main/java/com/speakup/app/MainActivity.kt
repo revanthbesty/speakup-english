@@ -208,6 +208,7 @@ fun PremiumSpeakUp() {
     var showOnboardingOptions by remember { mutableStateOf(false) }
     var showJourneyPicker by remember { mutableStateOf(false) }
     var showProfileAdvanced by remember { mutableStateOf(false) }
+    var showHomeHelp by remember { mutableStateOf(false) }
     var speakingView by remember { mutableStateOf("Conversations") }
     var guidedVoiceReceived by remember { mutableStateOf(false) }
     var showSpeechConsent by remember { mutableStateOf(false) }
@@ -453,41 +454,63 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
-                        Text(if (profileName.isBlank()) "Welcome to English Mint" else "Hello, $profileName!", color = primaryTextColor, style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
-                        Text("Your next step is ready.", color = secondaryTextColor)
-                        Spacer(Modifier.height(16.dp))
+                        Text(if (profileName.isBlank()) "Good to see you! 👋" else "Hi, $profileName! 👋",
+                            color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $xp XP earned", color = secondaryTextColor)
+                        Spacer(Modifier.height(14.dp))
                         Surface(color = Color(0xFF087665), shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("START HERE", color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Bold)
-                                Text("Let's speak English!", color = Color.White, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                                Text("Play one short game, then practise speaking. About five minutes.", color = Color.White)
-                                Button(onClick = { showGameFilters = false; gameMode = "Mint Quests"; page = "Games" },
-                                    modifier = Modifier.fillMaxWidth(),
+                                Text("TODAY'S ADVENTURE", color = Color.White.copy(alpha = 0.9f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+                                Text("Speak about your day", style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("One short game, then a friendly conversation.", color = Color.White)
+                                Button(onClick = {
+                                    showGameFilters = false
+                                    gameMode = "Mint Quests"
+                                    page = "Games"
+                                }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))) {
-                                    Text("Start my 5-minute English adventure →", fontWeight = FontWeight.Bold)
+                                    Text("Start today's adventure →", fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
-                        Spacer(Modifier.height(18.dp))
-                        Text("Discover more", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp)) {
-                            Column(Modifier.fillMaxWidth().padding(16.dp)) {
-                                TextButton(onClick = { page = "Games" }, modifier = Modifier.fillMaxWidth()) { Text("🎮  Play a quick game →") }
-                                HorizontalDivider()
-                                TextButton(onClick = { page = "Learn" }, modifier = Modifier.fillMaxWidth()) { Text("📖  Learn a phrase →") }
-                                HorizontalDivider()
-                                TextButton(onClick = { page = "Feed" }, modifier = Modifier.fillMaxWidth()) { Text("▶  Explore Clips →") }
+                        Spacer(Modifier.height(14.dp))
+                        OutlinedButton(onClick = {
+                            lessonIndex = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
+                            selected = ""
+                            checked = false
+                            page = if (completedIds.size >= lessons.size) "Review" else "Learn"
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            Text("Continue learning →")
+                        }
+                        Spacer(Modifier.height(14.dp))
+                        Text("Explore", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf("Games" to "Games", "Clips" to "Feed").forEach { (label, route) ->
+                                OutlinedButton(onClick = { page = route }, modifier = Modifier.weight(1f)) { Text(label) }
                             }
                         }
-                        Spacer(Modifier.height(16.dp))
-                        Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                            Column(Modifier.weight(1f)) {
-                                Text("Your progress", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                Text("$xp XP · ${completedIds.size} lessons completed", color = secondaryTextColor)
-                            }
-                            TextButton(onClick = { page = "Review" }) { Text("View →") }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
+                            OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.weight(1f)) { Text("My progress") }
                         }
-                        TextButton(onClick = { page = "Profile" }) { Text("Change my learning journey") }
+                        Spacer(Modifier.height(12.dp))
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("Your learning path", color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                Text("${completedIds.size} of ${lessons.size} lessons completed · $dailyGoal min daily goal", color = secondaryTextColor)
+                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
+                                TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
+                            }
+                        }
+                        TextButton(onClick = { showHomeHelp = !showHomeHelp }) { Text(if (showHomeHelp) "Hide guidance" else "Where do I start?") }
+                        if (showHomeHelp) {
+                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                Column(Modifier.padding(16.dp)) {
+                                    Text("Start with today's adventure, play a short game and practise speaking. You can also browse games, clips or continue a lesson.", color = primaryTextColor)
+                                    TextButton(onClick = { page = "Speak" }) { Text("Try speaking →") }
+                                }
+                            }
+                        }
                     }
                     "Learn" -> {
                         Text("Everyday English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
