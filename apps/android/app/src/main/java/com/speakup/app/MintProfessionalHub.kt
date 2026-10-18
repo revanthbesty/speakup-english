@@ -52,6 +52,7 @@ internal fun MintProfessionalHub(
                 OutlinedButton(onClick = onRoleplay, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Practise a workplace conversation →") }
                 OutlinedButton(onClick = { section = "Workplace" }, modifier = Modifier.fillMaxWidth()) { Text("Offline workplace roleplay pilot →") }
                 OutlinedButton(onClick = { section = "Interviews" }, modifier = Modifier.fillMaxWidth()) { Text("Interview preparation pilot →") }
+                OutlinedButton(onClick = { section = "Meetings" }, modifier = Modifier.fillMaxWidth()) { Text("Meetings & presentations pilot →") }
                 OutlinedButton(onClick = { section = "AI Life" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Everyday real-life scenarios →") }
                 Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -68,6 +69,7 @@ internal fun MintProfessionalHub(
             }
             "Workplace" -> { MintWorkplaceRoleplayScreen() }
             "Interviews" -> { MintInterviewPrepScreen() }
+            "Meetings" -> { MintMeetingPracticeScreen() }
             "Industries" -> {
                 Text("Choose your industry", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                 Text("Browse possible professional pathways. Only existing general lessons are playable today.", color = MaterialTheme.colorScheme.onSurfaceVariant)
