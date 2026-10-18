@@ -42,3 +42,15 @@ python3 -m unittest discover -s content/grammar-arena/tests -v
 The audit rejects exact duplicate IDs/hashes/prompts and flags similar prompts for independent review. It has quadratic runtime; for the full 10,000-question bank replace the all-pairs comparison with a scalable indexing strategy before running in CI. This cannot establish semantic uniqueness or review approval.
 
 The original 100-item pilot was scanned locally in isolation: 100 records and zero duplicate/near-duplicate flags at the default 0.90 threshold. The existing repository question bank has **not** been scanned. Do not report this pilot-only result as whole-bank clearance.
+
+## Staging-only export adapter (no database writes)
+
+The codebase currently models lesson content in `activities` and `activity_versions.payload` and routes through `apps/api/src/app.ts`. No dedicated Grammar Arena question importer has been verified. Until integration contracts and learner-progress behavior are reviewed, export JSON offline only:
+
+```sh
+python3 content/grammar-arena/tools/export_approved.py reviewed-questions.csv --output reviewed-staging.json
+```
+
+All rows must be approved with reviewer/approval/rights evidence, or export is blocked. This approval evidence is checked for presence only: independent verification is still required. Export JSON is **not** imported, deployed or published by this script. Draft pilot content intentionally fails this gate. Run tests with `python3 -m unittest discover -s content/grammar-arena/tests -v`.
+
+Before wiring the export to the API, review canonical schema migrations and the learner activity, progress and rewards routes. Require non-destructive migration plans, rollback tests, learner data preservation, and separately approved deployment.
