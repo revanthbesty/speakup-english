@@ -33,6 +33,7 @@ internal fun MintProfessionalHub(
     var industryQuery by remember { mutableStateOf("") }
     var selectedAnswer by remember { mutableIntStateOf(-1) }
     var answerChecked by remember { mutableStateOf(false) }
+    var showAllPractice by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val progressPreferences = remember(context) {
         context.getSharedPreferences("speakup_learning", Context.MODE_PRIVATE)
@@ -76,9 +77,20 @@ internal fun MintProfessionalHub(
         TextButton(onClick = { if (section == "Hub") onBack() else section = "Hub" }) { Text("← " + if (section == "Hub") "Home" else "Professional English") }
         when (section) {
             "Hub" -> {
-                Text("Professional English", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                Text("Practice English for work, at your own pace.", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Core text practice works without a paid AI account or internet. Optional audio availability depends on the installed device engine.", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                Surface(shape=RoundedCornerShape(25.dp),
+                    color=MaterialTheme.colorScheme.primaryContainer) {
+                    Row(Modifier.fillMaxWidth().padding(18.dp),
+                        verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,
+                        horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                            Text("Professional English",style=MaterialTheme.typography.headlineSmall,
+                                fontWeight=FontWeight.ExtraBold,color=MaterialTheme.colorScheme.onPrimaryContainer)
+                            Text("Confident conversations at work, one short practice at a time.",
+                                color=MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                        Text("💼",style=MaterialTheme.typography.displayLarge)
+                    }
+                }
                 Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
                     Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text("Your next step", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
@@ -88,8 +100,31 @@ internal fun MintProfessionalHub(
                 }
                 OutlinedButton(onClick = { section = "Industries" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Explore career topics →") }
                 OutlinedButton(onClick = onRoleplay, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Practise a workplace conversation →") }
-                OutlinedButton(onClick = { section = "Workplace" }, modifier = Modifier.fillMaxWidth()) { Text("Offline workplace roleplay pilot →") }
-                OutlinedButton(onClick = { section = "Interviews" }, modifier = Modifier.fillMaxWidth()) { Text("Interview preparation pilot →") }
+                Text("Featured practice",style=MaterialTheme.typography.titleMedium,fontWeight=FontWeight.Bold)
+                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                    Surface(onClick={section="Workplace"},shape=RoundedCornerShape(18.dp),
+                        color=MaterialTheme.colorScheme.secondaryContainer,modifier=Modifier.weight(1f)) {
+                        Column(Modifier.padding(15.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                            Text("💬",style=MaterialTheme.typography.headlineSmall)
+                            Text("Roleplays",fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.onSecondaryContainer)
+                            Text("Practise a conversation",color=MaterialTheme.colorScheme.onSecondaryContainer,
+                                style=MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                    Surface(onClick={section="Interviews"},shape=RoundedCornerShape(18.dp),
+                        color=MaterialTheme.colorScheme.tertiaryContainer,modifier=Modifier.weight(1f)) {
+                        Column(Modifier.padding(15.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                            Text("🎯",style=MaterialTheme.typography.headlineSmall)
+                            Text("Interviews",fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.onTertiaryContainer)
+                            Text("Prepare clear answers",color=MaterialTheme.colorScheme.onTertiaryContainer,
+                                style=MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+                TextButton(onClick={showAllPractice=!showAllPractice},modifier=Modifier.fillMaxWidth()) {
+                    Text(if(showAllPractice)"Hide other practice and my progress ↑" else "Browse more practice and progress ↓")
+                }
+                if(showAllPractice) {
                 OutlinedButton(onClick = { section = "Meetings" }, modifier = Modifier.fillMaxWidth()) { Text("Meetings & presentations pilot →") }
                 OutlinedButton(onClick = { section = "Writing" }, modifier = Modifier.fillMaxWidth()) { Text("Email & business writing pilot →") }
                 OutlinedButton(onClick = { section = "Negotiation" }, modifier = Modifier.fillMaxWidth()) { Text("Negotiation & problem-solving pilot →") }
@@ -108,6 +143,7 @@ internal fun MintProfessionalHub(
                     }
                 }
 
+                }
                 OutlinedButton(onClick = { section = "AI Life" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Everyday real-life scenarios →") }
                 Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surface) {
                     Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
