@@ -227,6 +227,7 @@ fun PremiumSpeakUp() {
     var showJourneyPicker by remember { mutableStateOf(false) }
     var showProfileAdvanced by remember { mutableStateOf(false) }
     var showHomeHelp by remember { mutableStateOf(false) }
+    var familyPilotEnabled by remember { mutableStateOf(preferences.getBoolean("mint_family_local_enabled", false)) }
     var passportConsent by remember { mutableStateOf(preferences.getBoolean("mint_passport_consent", false)) }
     var passportPrompt by remember { mutableStateOf("week") }
     var passportReflection by remember { mutableStateOf("") }
@@ -621,6 +622,7 @@ fun PremiumSpeakUp() {
                                 TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
                             }
                         }
+                        TextButton(onClick = { page = "FamilyPilot" }, modifier = Modifier.fillMaxWidth()) { Text("Teacher & Family · private pilot →") }
                         TextButton(onClick = { page = "CreatorLab" }, modifier = Modifier.fillMaxWidth()) { Text("Creator Content Lab · private draft preview →") }
                         OutlinedButton(onClick = { page = "Professional" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                             Text("Explore Professional English →")
@@ -634,6 +636,34 @@ fun PremiumSpeakUp() {
                                 }
                             }
                         }
+                    }
+                    "FamilyPilot" -> {
+                        Text("Teacher & Family Studio · private pilot", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                        Text("On-device sample activities only. No invitations, teacher accounts, student roster or access to another learner's records.", color = secondaryTextColor)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Enable private activity preview", color = primaryTextColor, modifier = Modifier.weight(1f))
+                            Switch(checked = familyPilotEnabled, onCheckedChange = { enabled ->
+                                familyPilotEnabled = enabled
+                                preferences.edit().putBoolean("mint_family_local_enabled", enabled).apply()
+                            })
+                        }
+                        if (familyPilotEnabled) {
+                            MintFamilyPilot.templates.forEach { item ->
+                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        Text(item.title, fontWeight = FontWeight.Bold, color = primaryTextColor)
+                                        Text("Sample activity · ${item.assignedBy} · local only", color = secondaryTextColor)
+                                        OutlinedButton(onClick = {
+                                            if (item.gameMode != null) { gameMode = item.gameMode; showGameFilters = false }
+                                            if (item.route == "Speak") speakingView = "Conversations"
+                                            page = item.route
+                                        }, modifier = Modifier.fillMaxWidth()) { Text("Open practice →") }
+                                    }
+                                }
+                            }
+                            Text("This preview does not share or track children's progress. Learning completion remains managed by existing activities.", color = secondaryTextColor)
+                        } else Text("Preview off. No family or classroom access is active.", color = secondaryTextColor)
+                        TextButton(onClick = { page = "Today" }) { Text("Back to Home") }
                     }
                     "CreatorLab" -> { MintCreatorLab(onBack = { page = "Today" }) }
                     "Professional" -> {
