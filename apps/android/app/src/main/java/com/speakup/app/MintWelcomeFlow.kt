@@ -74,7 +74,7 @@ internal fun MintWelcomeFlow(
         } else if(step==1) {
             Text("Who is learning?",style=MaterialTheme.typography.headlineLarge,
                 fontWeight=FontWeight.Bold,color=ink)
-            Text("We'll tailor examples and privacy settings for the learner.",color=subtle)
+            Text("Choose an age group for suitable activities and privacy options.",color=subtle)
             listOf(
                 "4–7" to "🌈", "8–12" to "🎒", "13–17" to "🎧",
                 "18–49" to "💼", "50+" to "🌟"
@@ -130,7 +130,7 @@ internal fun MintWelcomeFlow(
                 RoundedCornerShape(24.dp)),contentAlignment=Alignment.Center) {
                 Text("🌱  ✨  🏆",style=MaterialTheme.typography.displayMedium)
             }
-            Text("You're ready to grow!",style=MaterialTheme.typography.headlineLarge,
+            Text("Your adventure begins! ✨",style=MaterialTheme.typography.headlineLarge,
                 fontWeight=FontWeight.ExtraBold,color=ink)
             Text("Your first adventure is waiting. Start with a short game and try speaking when ready.",color=subtle)
             OutlinedTextField(value=name,onValueChange={onName(it.take(40))},
