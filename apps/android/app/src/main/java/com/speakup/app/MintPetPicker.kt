@@ -1,6 +1,12 @@
 package com.speakup.app
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -33,11 +39,41 @@ internal object MintPetCatalog {
     fun find(id: String?): MintPetOption? = pets.firstOrNull { it.id == id }
 }
 
+/** Pose profiles keep the six companions distinctive even before final vector assets arrive. */
+internal object MintPetMotion {
+    fun celebrationRotation(id: String): Float = when (id) {
+        "mint_fox" -> -11f
+        "buddy_panda" -> 5f
+        "spark_cat" -> 14f
+        "wise_owl" -> -6f
+        "joy_rabbit" -> 9f
+        "tiny_dragon" -> -15f
+        else -> 0f
+    }
+}
 /** Original simple geometric character previews; final illustrated art is a separate acceptance gate. */
 @Composable
-internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifier: Modifier = Modifier) {
+internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifier: Modifier = Modifier, celebrate: Boolean = false) {
+    val pose = remember(pet.id) { Animatable(0f) }
+    LaunchedEffect(pet.id, celebrate, reducedMotion) {
+        pose.snapTo(0f)
+        if (celebrate && !reducedMotion) {
+            pose.animateTo(1f, animationSpec = keyframes {
+                durationMillis = 520
+                0.2f at 90
+                1f at 255
+                0.55f at 390
+                1f at 520
+            })
+        }
+    }
     val growth = animateFloatAsState(1f, tween(if (reducedMotion) 0 else 300), label = "pet-portrait")
-    Canvas(modifier.size(74.dp).semantics { contentDescription = pet.name + " companion illustration" }) {
+    Canvas(modifier.size(74.dp).graphicsLayer {
+        rotationZ = MintPetMotion.celebrationRotation(pet.id) * pose.value
+        translationY = -7.dp.toPx() * pose.value
+        scaleX = 1f + .06f * pose.value
+        scaleY = 1f + .06f * pose.value
+    }.semantics { contentDescription = pet.name + " companion illustration" }) {
         val radius = size.minDimension * .31f * growth.value
         val center = Offset(size.width / 2, size.height * .54f)
         drawCircle(pet.color.copy(alpha = .2f), size.minDimension * .48f, center)
