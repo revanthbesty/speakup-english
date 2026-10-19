@@ -5,6 +5,7 @@ import android.media.AudioManager
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
+import android.media.AudioFocusRequest
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -12,18 +13,28 @@ import kotlin.math.sin
 internal object MintPetSound {
     enum class Cue { GREETING, ENCOURAGEMENT, ACHIEVEMENT }
 
-    fun play(context: Context, enabled: Boolean, cue: Cue) {
+    fun play(context: Context, enabled: Boolean, cue: Cue, petId: String = "") {
         if (!enabled) return
         val audio = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
         if (audio.ringerMode != AudioManager.RINGER_MODE_NORMAL) return
         if (audio.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) return
         // A soft two-note chime, generated locally; never blocks the UI thread.
         Thread {
-            val notes = when (cue) {
+            // Stable pitch families give every selected companion an identifiable sound.
+            val transpose = when (petId) {
+                "mint_fox" -> 1.0
+                "buddy_panda" -> .75
+                "spark_cat" -> 1.20
+                "wise_owl" -> .90
+                "joy_rabbit" -> 1.12
+                "tiny_dragon" -> 1.34
+                else -> 1.0
+            }
+            val notes = (when (cue) {
                 Cue.GREETING -> doubleArrayOf(523.25, 659.25)
                 Cue.ENCOURAGEMENT -> doubleArrayOf(440.0, 523.25)
                 Cue.ACHIEVEMENT -> doubleArrayOf(659.25, 880.0)
-            }
+            }).map { it * transpose }.toDoubleArray()
             val rate = 22050
             val samplesPerNote = rate / 10
             val samples = ShortArray(samplesPerNote * notes.size)
@@ -50,7 +61,7 @@ internal object MintPetSound {
                     track.play()
                     Thread.sleep(250)
                 } finally {
-                    track.stop()
+                    if (track.playState == AudioTrack.PLAYSTATE_PLAYING) track.stop()
                     track.release()
                 }
             }
