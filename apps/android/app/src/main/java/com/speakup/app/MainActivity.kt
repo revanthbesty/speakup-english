@@ -553,6 +553,8 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
+                        MintverseGarden(completedLessons = completedIds.size.coerceIn(0, lessons.size),
+                            reducedMotion = motionReduced)
                         Text(if (profileName.isBlank()) "Good to see you! 👋" else "Hi, $profileName! 👋",
                             color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(MintExperiencePolicy.selectedJourney(chosenPath), color = secondaryTextColor)
