@@ -20,6 +20,16 @@ internal object MintUiNavigation {
         else -> route.takeIf { it in tabs } ?: "Today"
     }
 
+    /** Single source of truth for parent destinations when leaving a secondary route. */
+    fun backDestination(route: String, gameActive: Boolean = false, storyFromGames: Boolean = false): String = when {
+        route == "Games" && gameActive -> "Games"
+        route == "FiveWord" -> "Feed"
+        route == "Feed" && storyFromGames -> "Games"
+        route in listOf("Privacy", "Membership", "Help") -> "Profile"
+        route == "Today" -> "Today"
+        else -> "Today"
+    }
+
     fun restoredTab(saved: String?): String =
         saved?.takeIf { it in tabs } ?: "Today"
 }
