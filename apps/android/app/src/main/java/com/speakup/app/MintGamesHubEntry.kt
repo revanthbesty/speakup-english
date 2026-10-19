@@ -44,7 +44,7 @@ internal fun MintGamesHubEntry(
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("🌟  Today's featured game", color = primaryTextColor,
                     fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                Text("Mint Quests", color = primaryTextColor,
+                Text(MintFeaturedGame.mode, color = primaryTextColor,
                     style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text("A quick challenge from your existing game collection.", color = secondaryTextColor)
                 Button(onClick = onFeatured, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
