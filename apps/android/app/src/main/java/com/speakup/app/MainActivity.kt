@@ -1088,25 +1088,16 @@ fun PremiumSpeakUp() {
                             onStories = { storyOpenedFromGames = true; page = "Feed" },
                             onChooseMode = { mode -> gameMode = mode; showGameFilters = false }
                         )
-                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide all game categories ↑" else "Browse all games & levels →") }
-                        if (showGameFilters) {
-                        Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
-                        val suggestedModes = when (learningGoal) {
-                            "Start speaking" -> listOf("Dialogues", "Word Builder", "Listening")
-                            "School & exams" -> listOf("Grammar", "Reading", "Vocabulary")
-                            "Work & interviews" -> listOf("Dialogues", "Situations", "Vocabulary")
-                            "Reading & writing" -> listOf("Reading", "Grammar", "Word Builder")
-                            "Travel" -> listOf("Dialogues", "Situations", "Listening")
-                            else -> listOf("Vocabulary", "Situations", "Word Builder")
-                        }
-                        Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
-                        Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Mint Quests", "Real-World Quests", "Co-op Stories", "Career & Exam", "Grammar Formats", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
-                                FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
-                            }
-                        }
-                        }
+                        MintGamesFilterBar(
+                            expanded = showGameFilters,
+                            learningGoal = learningGoal,
+                            difficulty = chosenDifficulty,
+                            selectedMode = gameMode,
+                            accentTextColor = accentTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            onToggle = { showGameFilters = !showGameFilters },
+                            onSelectMode = { mode -> gameMode = mode }
+                        )
                         } else {
                             TextButton(onClick = {
                                 gameMode = "Mint Quests"
