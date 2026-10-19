@@ -64,3 +64,10 @@ Tester reported **8 of 10** guided Sprint 1 scenarios completed with **no proble
 **GitHub verification at feedback intake:** PR #94 head `f32617de78fcba88200bf056ca051c216abeffe0`; CI, Android debug APK and release-gates completed successfully for that commit. PR remains draft and unmerged.
 
 **Triage outcome:** No reproducible device defect was identified by the 8 completed checks; no speculative runtime fix is warranted. Complete the two remaining scenarios and visual/accessibility matrix before Sprint 1 sign-off.
+
+## New product-owner animation direction (19 October 2026)
+Apply tasteful, consistent animation to **all screens** where user feedback benefits: button press, navigation, loading, progress, answer feedback, appreciation, daily motivation, streaks, XP rewards, badges, awards and milestone celebrations. Never animate every element continuously; avoid distraction during reading/listening/speaking.
+
+Use one shared motion language: micro-feedback about 150–300ms and screen transitions about 250–450ms; respect Android animator scale and the existing reduced-motion preference. Provide immediate static equivalents, readable text and screen-reader labels when motion is disabled. Never award XP twice or animate fabricated awards. Reward celebrations must consume existing verified progression/reward events.
+
+Implemented foundation: `MintAchievementCelebration` in `MintApprovedUi.kt` accepts caller-controlled visibility, verified award copy and `reduceMotion`. Wiring to the reward engine and screen-by-screen coverage remains pending; do not claim every screen is animated yet.
