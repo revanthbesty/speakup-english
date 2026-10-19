@@ -597,12 +597,29 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(12.dp))
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Your learning path", color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                Text("${completedIds.size} of ${lessons.size} lessons completed · $dailyGoal min daily goal", color = secondaryTextColor)
-                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                                TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Text("🌿", style = MaterialTheme.typography.headlineMedium)
+                                    Spacer(Modifier.width(10.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Your learning path", color = primaryTextColor,
+                                            style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                        Text(MintExperiencePolicy.selectedJourney(chosenPath),
+                                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                    }
+                                }
+                                val completedLessonCount = completedIds.size.coerceIn(0, lessons.size)
+                                Text("$completedLessonCount of ${lessons.size} lessons completed",
+                                    color = primaryTextColor, fontWeight = FontWeight.Medium)
+                                LinearProgressIndicator(
+                                    progress = { completedLessonCount.toFloat() / lessons.size.coerceAtLeast(1) },
+                                    modifier = Modifier.fillMaxWidth().height(9.dp))
+                                Text("Daily goal: $dailyGoal minutes", color = secondaryTextColor,
+                                    style = MaterialTheme.typography.bodySmall)
+                                TextButton(onClick = { page = if (completedLessonCount >= lessons.size) "Review" else "Learn" }) {
+                                    Text(if (completedLessonCount >= lessons.size) "Review what I learned →" else "Continue my path →")
+                                }
                             }
                         }
                         OutlinedButton(onClick = { showHomeDetails = !showHomeDetails },
