@@ -73,7 +73,7 @@ internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifie
                 0.2f at 90
                 1f at 255
                 0.55f at 390
-                1f at 520
+                0f at 520
             })
         } else if (encourage && !reducedMotion) {
             pose.animateTo(1f, animationSpec = keyframes {
@@ -81,7 +81,7 @@ internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifie
                 0.25f at 110
                 1f at 230
                 0.45f at 330
-                1f at 440
+                0f at 440
             })
         }
     }
