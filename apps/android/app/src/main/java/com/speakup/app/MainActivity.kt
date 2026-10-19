@@ -270,17 +270,17 @@ fun PremiumSpeakUp() {
     var careerChecked by remember { mutableStateOf(false) }
     var careerAwards by remember { mutableStateOf((preferences.getStringSet("mint_career_awards", emptySet()) ?: emptySet()).toSet()) }
     var gameMode by remember { mutableStateOf("Mint Quests") }
-    BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
+    BackHandler(enabled = !showPathSetup && !showPlacement && page != "Today") {
         when {
-            page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
-            page == "FiveWord" -> page = "Feed"
-            page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
-            page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
-            page == "Games" -> page = "Today"
-            page == "Feed" -> page = "Today"
-            page == "Speak" -> page = "Today"
-            page in listOf("AILifePilot", "FamilyPilot", "CreatorLab", "Professional", "Learn", "Review") -> page = "Today"
-            else -> page = MintUiNavigation.mainTab(page).takeIf { it != page } ?: "Today"
+            page == "Games" && gameMode != "Mint Quests" -> {
+                gameMode = "Mint Quests"
+                showGameFilters = false
+            }
+            page == "Feed" && storyOpenedFromGames -> {
+                page = MintUiNavigation.backDestination(page, storyFromGames = true)
+                storyOpenedFromGames = false
+            }
+            else -> page = MintUiNavigation.backDestination(page)
         }
     }
 
