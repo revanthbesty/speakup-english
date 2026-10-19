@@ -22,7 +22,7 @@ internal fun MintFiveWordStoryScreen(age: Int, onBack: () -> Unit, onSpeaking: (
     val pack = packs.getOrNull(packIndex.coerceIn(0, (packs.size - 1).coerceAtLeast(0)))
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onBack) { Text("← Clips") }
-        Text("Five-Word Story", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        MintScreenHeading("Five-Word Story", "Five words, one little adventure.", "CLIPS • STORIES")
         if (pack == null) {
             Text("No age-appropriate stories are available yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
@@ -57,12 +57,9 @@ internal fun MintFiveWordStoryScreen(age: Int, onBack: () -> Unit, onSpeaking: (
                 Text("Story challenge", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                 Text(pack.question)
                 pack.choices.forEach { option ->
-                    OutlinedButton(onClick = { selected = option; checked = false }, modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.outlinedButtonColors(containerColor = if (selected == option) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)) {
-                        Text(option, modifier = Modifier.fillMaxWidth())
-                    }
+                    MintAnswerChoice(option, selected == option, onClick = { selected = option; checked = false })
                 }
-                Button(onClick = { checked = true }, enabled = selected.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("Check answer") }
+                MintPrimaryAction("Check answer", onClick = { checked = true }, enabled = selected.isNotBlank())
                 if (checked) Text(if (selected == pack.correctAnswer) "Correct! Well done." else "Try again. You can revisit the story.")
                 OutlinedButton(onClick = { showSampleReply = false; speakPromptOpen = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text("Pause & speak (optional)")

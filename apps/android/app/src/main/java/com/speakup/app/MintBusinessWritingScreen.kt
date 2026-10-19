@@ -16,7 +16,7 @@ internal fun MintBusinessWritingScreen(onVerified: (String) -> Unit = {}) {
  val items=MintBusinessWriting.items.filter{it.topic==topic}
  val item=items[index]
  Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-  Text("Email & Business Writing · offline pilot",style=MaterialTheme.typography.titleLarge)
+  MintScreenHeading("Email & Business Writing", "Practise professional written communication privately.", "PROFESSIONAL ENGLISH")
   Text("Practise clear written English. Your optional draft stays on this screen and is not sent or automatically graded.")
   Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
    listOf("Email","Business Writing").forEach { name ->
@@ -26,9 +26,8 @@ internal fun MintBusinessWritingScreen(onVerified: (String) -> Unit = {}) {
   Text("Question ${index+1} of ${items.size}")
   Text(item.context,style=MaterialTheme.typography.titleMedium)
   item.options.forEachIndexed { i,answer ->
-   OutlinedButton(onClick={selected=i;checked=false},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
-    Text("${if(selected==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
-   }
+   MintAnswerChoice(label = "${i+1}. $answer", selected = selected == i,
+                onClick = { selected = i; checked = false })
   }
   Button(onClick={checked=true;if(selected==item.best)onVerified(item.id)},enabled=selected>=0,modifier=Modifier.fillMaxWidth()){Text("Check answer")}
   if(checked) { Text(if(selected==item.best)"Suitable response!" else "Try a clearer choice.");Text(item.explanation) }

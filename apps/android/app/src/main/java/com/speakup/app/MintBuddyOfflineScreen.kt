@@ -13,7 +13,7 @@ internal fun MintBuddyOfflineScreen() {
     var typed by remember { mutableStateOf("") }
     var lastReply by remember { mutableStateOf<String?>(null) }
     Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-        Text("Mint Buddy · offline text practice",style=MaterialTheme.typography.titleLarge)
+        MintScreenHeading("Chat with Mint Buddy", "Short, private English practice at your pace.", "SPEAK • OFFLINE")
         Text("Choose a level and write a sentence. Replies are scripted practice prompts, not generative AI or proficiency scores.",
             color=MaterialTheme.colorScheme.onSurfaceVariant)
         Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
@@ -30,8 +30,7 @@ internal fun MintBuddyOfflineScreen() {
             modifier=Modifier.fillMaxWidth(),
             minLines=2
         )
-        Button(onClick={lastReply=MintBuddyOffline.response(level,typed)},
-            modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {Text("Get a practice prompt")}
+        MintPrimaryAction("Get a practice prompt", onClick = { lastReply=MintBuddyOffline.response(level,typed) })
         lastReply?.let { reply ->
             Surface(color=MaterialTheme.colorScheme.secondaryContainer,
                 shape=androidx.compose.foundation.shape.RoundedCornerShape(14.dp)) {

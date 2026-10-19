@@ -79,9 +79,21 @@ internal fun MintFeedScreen(
 
     Surface(color = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.onBackground) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Mint Clips", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold)
-        Text("Offline captioned stories · Watch, read and practise", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text("Unfinished stories first · Finite, age-safe local recommendations", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+        Surface(shape=RoundedCornerShape(24.dp),
+            color=MaterialTheme.colorScheme.primaryContainer,modifier=Modifier.fillMaxWidth()) {
+            Row(Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,
+                horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp)) {
+                    Text("Mint Clips",style=MaterialTheme.typography.headlineSmall,
+                        color=MaterialTheme.colorScheme.onPrimaryContainer,fontWeight=FontWeight.ExtraBold)
+                    Text("Watch a story. Learn a phrase. Practise speaking.",
+                        color=MaterialTheme.colorScheme.onPrimaryContainer,
+                        style=MaterialTheme.typography.bodyMedium)
+                }
+                Text("🎬",style=MaterialTheme.typography.displayMedium)
+            }
+        }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             MintClipLevel.entries.forEach { option ->
                 FilterChip(selected = level == option, onClick = { level = option; reset(0) },

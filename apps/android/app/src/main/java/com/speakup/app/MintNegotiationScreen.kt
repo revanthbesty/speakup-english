@@ -15,7 +15,7 @@ internal fun MintNegotiationScreen(onVerified: (String) -> Unit = {}) {
  val items=MintNegotiationPilot.items.filter{it.category==category}
  val item=items[index]
  Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-  Text("Negotiation & Problem-Solving · offline pilot",style=MaterialTheme.typography.titleLarge)
+  MintScreenHeading("Negotiation & Problem-Solving", "Practise respectful workplace communication.", "PROFESSIONAL ENGLISH")
   Text("Original practice for respectful workplace communication. Not professional certification.")
   Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
    listOf("Negotiation","Problem-Solving").forEach { name ->
@@ -25,9 +25,8 @@ internal fun MintNegotiationScreen(onVerified: (String) -> Unit = {}) {
   Text("Scenario ${index+1} of ${items.size}")
   Text(item.context,style=MaterialTheme.typography.titleMedium)
   item.choices.forEachIndexed { i,answer ->
-   OutlinedButton(onClick={choice=i;checked=false},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
-    Text("${if(choice==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
-   }
+   MintAnswerChoice(label = "${i+1}. $answer", selected = choice == i,
+                onClick = { choice = i; checked = false })
   }
   Button(onClick={checked=true;if(choice==item.best)onVerified(item.id)},enabled=choice>=0,modifier=Modifier.fillMaxWidth()){Text("Check response")}
   if(checked){Text(if(choice==item.best)"Suitable response!" else "Consider a more constructive option.");Text(item.explanation)}

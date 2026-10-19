@@ -188,6 +188,8 @@ fun PremiumSpeakUp() {
     val followSystemDark = isSystemInDarkTheme()
     var themePreference by remember { mutableStateOf(preferences.getString("mint_theme_mode", if (preferences.getBoolean("dark_appearance", false)) "dark" else "system") ?: "system") }
     var reduceMotion by remember { mutableStateOf(preferences.getBoolean("mint_reduce_motion", false)) }
+    var petSoundsEnabled by remember { mutableStateOf(preferences.getBoolean("mint_pet_sounds_enabled", false)) }
+    var selectedPetId by remember { mutableStateOf(MintPetCatalog.normalized(preferences.getString("mint_pet_id", null))) }
     var eyeComfort by remember { mutableStateOf(preferences.getBoolean("mint_eye_comfort", false)) }
     val accessibilityScale = android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
     val motionReduced = MintExperiencePolicy.reducedMotion(reduceMotion, accessibilityScale == 0f)
@@ -270,13 +272,17 @@ fun PremiumSpeakUp() {
     var careerChecked by remember { mutableStateOf(false) }
     var careerAwards by remember { mutableStateOf((preferences.getStringSet("mint_career_awards", emptySet()) ?: emptySet()).toSet()) }
     var gameMode by remember { mutableStateOf("Mint Quests") }
-    BackHandler(enabled = !showPathSetup && !showPlacement && (page != "Today" || (page == "Games" && gameMode != "Mint Quests"))) {
+    BackHandler(enabled = !showPathSetup && !showPlacement && page != "Today") {
         when {
-            page == "Games" && gameMode != "Mint Quests" -> { gameMode = "Mint Quests"; showGameFilters = false }
-            page == "FiveWord" -> page = "Feed"
-            page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
-            page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
-            else -> page = "Today"
+            page == "Games" && gameMode != "Mint Quests" -> {
+                gameMode = "Mint Quests"
+                showGameFilters = false
+            }
+            page == "Feed" && storyOpenedFromGames -> {
+                page = MintUiNavigation.backDestination(page, storyFromGames = true)
+                storyOpenedFromGames = false
+            }
+            else -> page = MintUiNavigation.backDestination(page)
         }
     }
 
@@ -317,6 +323,10 @@ fun PremiumSpeakUp() {
     var scenarioChoice by remember { mutableStateOf("") }
     var scenarioChecked by remember { mutableStateOf(false) }
     var scenarioMastered by remember { mutableStateOf((preferences.getStringSet("scenario_mastered", emptySet()) ?: emptySet()).toSet()) }
+    var showHomeDetails by remember { mutableStateOf(false) }
+    var showGrammarInsights by remember { mutableStateOf(false) }
+    var showSpeakingPassport by remember { mutableStateOf(false) }
+    var showReviewDetails by remember { mutableStateOf(false) }
     var grammarIndex by remember { mutableIntStateOf(0) }
     var grammarBookmarks by remember { mutableStateOf((preferences.getStringSet("mint_grammar_bookmarks", emptySet()) ?: emptySet()).toSet()) }
     var grammarRevisionMissed by remember { mutableStateOf((preferences.getStringSet("mint_grammar_revision_missed", emptySet()) ?: emptySet()).toSet()) }
@@ -413,7 +423,7 @@ fun PremiumSpeakUp() {
     val accentTextColor = if (darkAppearance) NightAccent else Violet
     val surfaceColor = if (darkAppearance) NightCard else Color.White
     val softSurfaceColor = if (darkAppearance) NightCard else Soft
-    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, onPrimary = Color(0xFF062B24), background = Night, onBackground = Color(0xFFE8F3F3), surface = NightCard, onSurface = Color(0xFFE8F3F3), surfaceVariant = Color(0xFF253643), onSurfaceVariant = Color(0xFFB5CACF), surfaceContainer = NightCard, surfaceContainerLow = NightCard, primaryContainer = Color(0xFF20534A), onPrimaryContainer = Color.White, outline = Color(0xFF9DB9BE)) else lightColorScheme(primary = Violet, onPrimary = Color.White, background = Cream, onBackground = Navy, surface = Color.White, onSurface = Navy, surfaceVariant = Color(0xFFE5F0EF), onSurfaceVariant = Color(0xFF46606A), surfaceContainer = Color(0xFFF0F6F5), surfaceContainerLow = Color(0xFFF6FAFA), primaryContainer = Soft, onPrimaryContainer = Navy, outline = Color(0xFF607D82))) {
+    MaterialTheme(colorScheme = if (darkAppearance) darkColorScheme(primary = NightAccent, secondary = Color(0xFFC4B5FD), tertiary = Color(0xFF67E8F9), onPrimary = Color(0xFF062B24), background = Night, onBackground = Color(0xFFE8F3F3), surface = NightCard, onSurface = Color(0xFFE8F3F3), surfaceVariant = Color(0xFF253643), onSurfaceVariant = Color(0xFFB5CACF), surfaceContainer = NightCard, surfaceContainerLow = NightCard, primaryContainer = Color(0xFF20534A), onPrimaryContainer = Color.White, outline = Color(0xFF9DB9BE)) else lightColorScheme(primary = Color(0xFF059669), secondary = Color(0xFF7C3AED), tertiary = Color(0xFF0891B2), onPrimary = Color.White, background = Cream, onBackground = Navy, surface = Color.White, onSurface = Navy, surfaceVariant = Color(0xFFE5F0EF), onSurfaceVariant = Color(0xFF46606A), surfaceContainer = Color(0xFFF0F6F5), surfaceContainerLow = Color(0xFFF6FAFA), primaryContainer = Soft, onPrimaryContainer = Navy, outline = Color(0xFF607D82))) {
         if (showSpeechConsent) {
             AlertDialog(
                 onDismissRequest = { showSpeechConsent = false },
@@ -429,16 +439,27 @@ fun PremiumSpeakUp() {
             )
         }
         Surface(color = backgroundColor, contentColor = primaryTextColor) {
-        Column(Modifier.fillMaxSize().statusBarsPadding()) {
+        Column(Modifier.fillMaxSize()
+            .background(Brush.verticalGradient(
+                if (darkAppearance) listOf(Color(0xFF101D32),Night,Color(0xFF101D32))
+                else listOf(Color(0xFFEAFBF6),Cream,Color(0xFFF5F1FF))
+            )).statusBarsPadding()) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 12.dp)) {
+                if (showPathSetup || page == "Today") {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text(MintIdentity.displayName, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.ExtraBold, color = primaryTextColor)
+                        Row(verticalAlignment=Alignment.CenterVertically) {
+                            Text("English",style=MaterialTheme.typography.headlineMedium,
+                                fontWeight=FontWeight.ExtraBold,color=primaryTextColor)
+                            Text("Mint",style=MaterialTheme.typography.headlineMedium,
+                                fontWeight=FontWeight.ExtraBold,color=Color(0xFF10B981))
+                        }
                         Text(MintIdentity.tagline, color = accentTextColor, style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
                     }
 
                 }
-                Spacer(Modifier.height(12.dp))
+                }
+                Spacer(Modifier.height(if (showPathSetup || page == "Today") 12.dp else 4.dp))
                 if (showPathSetup) {
                     MintWelcomeFlow(
                         ageBand = learnerAgeBand,
@@ -450,7 +471,11 @@ fun PremiumSpeakUp() {
                         },
                         onGoal = { learningGoal = it },
                         onName = { profileName = it },
+                        selectedPetId = selectedPetId,
+                        onPetSelect = { selectedPetId = it },
+                        reducedMotion = motionReduced,
                         onFinish = { takePlacement ->
+                            preferences.edit().putString("mint_pet_id", selectedPetId).apply()
                             chosenPath = when (learningGoal) {
                                 "Start speaking" -> "speaking"
                                 "School & exams" -> "exams"
@@ -534,9 +559,90 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
+                        MintHomeCompanionCard(selectedPetId, motionReduced)
+                        MintverseGarden(completedLessons = completedIds.size.coerceIn(0, lessons.size),
+                            reducedMotion = motionReduced)
+                        MintHomeAdventureCard(completedIds.size.coerceIn(0, lessons.size),
+                            onExploreGames = { page = "Games" })
                         Text(if (profileName.isBlank()) "Good to see you! 👋" else "Hi, $profileName! 👋",
                             color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(MintExperiencePolicy.selectedJourney(chosenPath), color = secondaryTextColor)
+                        Surface(color = Color(0xFF087665), shape = RoundedCornerShape(28.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text("TODAY'S ADVENTURE", color = Color.White.copy(alpha = 0.9f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+                                Text("Your 5-minute English adventure", style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Bold)
+                                Text("Play a quick game, practise a sentence and watch your progress grow.", color = Color.White)
+                                Button(onClick = {
+                                    showGameFilters = false
+                                    gameMode = "Mint Quests"
+                                    page = "Games"
+                                }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))) {
+                                    Text("Start today's adventure →", fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(14.dp))
+                        OutlinedButton(onClick = {
+                            lessonIndex = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
+                            selected = ""
+                            checked = false
+                            page = if (completedIds.size >= lessons.size) "Review" else "Learn"
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                            Text("Continue my learning →")
+                        }
+                        Spacer(Modifier.height(14.dp))
+                        Text("Explore your way", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        listOf(
+                            listOf(Triple("🎮", "Games", "Games"), Triple("🎬", "Clips", "Feed")),
+                            listOf(Triple("🎤", "Speak", "Speak"), Triple("🌟", "My progress", "Review"))
+                        ).forEach { pair ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                pair.forEach { (symbol, label, destination) ->
+                                    Surface(onClick = { page = destination }, modifier = Modifier.weight(1f).heightIn(min = 104.dp),
+                                        shape = RoundedCornerShape(22.dp), color = softSurfaceColor,
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+                                        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text(symbol, style = MaterialTheme.typography.headlineMedium)
+                                            Text(label, color = primaryTextColor, style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        Surface(color = surfaceColor, shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Text("🌿", style = MaterialTheme.typography.headlineMedium)
+                                    Spacer(Modifier.width(10.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        Text("Your learning path", color = primaryTextColor,
+                                            style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                                        Text(MintExperiencePolicy.selectedJourney(chosenPath),
+                                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                    }
+                                }
+                                val completedLessonCount = completedIds.size.coerceIn(0, lessons.size)
+                                Text("$completedLessonCount of ${lessons.size} lessons completed",
+                                    color = primaryTextColor, fontWeight = FontWeight.Medium)
+                                LinearProgressIndicator(
+                                    progress = { completedLessonCount.toFloat() / lessons.size.coerceAtLeast(1) },
+                                    modifier = Modifier.fillMaxWidth().height(9.dp))
+                                Text("Daily goal: $dailyGoal minutes", color = secondaryTextColor,
+                                    style = MaterialTheme.typography.bodySmall)
+                                TextButton(onClick = { page = if (completedLessonCount >= lessons.size) "Review" else "Learn" }) {
+                                    Text(if (completedLessonCount >= lessons.size) "Review what I learned →" else "Continue my path →")
+                                }
+                            }
+                        }
+                        OutlinedButton(onClick = { showHomeDetails = !showHomeDetails },
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                            shape = RoundedCornerShape(18.dp)) {
+                            Text(if (showHomeDetails) "Show less ↑" else "Explore more activities and rewards ↓")
+                        }
+                        if (showHomeDetails) {
                         Surface(color = surfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                 Text("🌱 My Mint Garden", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -582,57 +688,14 @@ fun PremiumSpeakUp() {
                                 }
                             }
                         }
-                        Spacer(Modifier.height(14.dp))
-                        Spacer(Modifier.height(14.dp))
-                        Surface(color = Color(0xFF087665), shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("TODAY'S ADVENTURE", color = Color.White.copy(alpha = 0.9f), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
-                                Text("Speak about your day", style = MaterialTheme.typography.headlineMedium, color = Color.White, fontWeight = FontWeight.Bold)
-                                Text("One short game, then a friendly conversation.", color = Color.White)
-                                Button(onClick = {
-                                    showGameFilters = false
-                                    gameMode = "Mint Quests"
-                                    page = "Games"
-                                }, modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color(0xFF075847))) {
-                                    Text("Start today's adventure →", fontWeight = FontWeight.Bold)
-                                }
-                            }
                         }
-                        Spacer(Modifier.height(14.dp))
-                        OutlinedButton(onClick = {
-                            lessonIndex = lessons.indices.firstOrNull { it.toString() !in completedIds } ?: 0
-                            selected = ""
-                            checked = false
-                            page = if (completedIds.size >= lessons.size) "Review" else "Learn"
-                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                            Text("Continue learning →")
-                        }
-                        Spacer(Modifier.height(14.dp))
-                        Text("Explore", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Games" to "Games", "Clips" to "Feed").forEach { (label, route) ->
-                                OutlinedButton(onClick = { page = route }, modifier = Modifier.weight(1f)) { Text(label) }
-                            }
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
-                            OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.weight(1f)) { Text("My progress") }
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Your learning path", color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                Text("${completedIds.size} of ${lessons.size} lessons completed · $dailyGoal min daily goal", color = secondaryTextColor)
-                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                                TextButton(onClick = { page = "Learn" }) { Text("See next lesson →") }
-                            }
-                        }
+                        if (showHomeDetails) {
                         TextButton(onClick = { page = "FamilyPilot" }, modifier = Modifier.fillMaxWidth()) { Text("Teacher & Family · private pilot →") }
                         OutlinedButton(onClick = { page = "AILifePilot" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("AI Life · private offline pilot →") }
                         TextButton(onClick = { page = "CreatorLab" }, modifier = Modifier.fillMaxWidth()) { Text("Creator Content Lab · private draft preview →") }
                         OutlinedButton(onClick = { page = "Professional" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                             Text("Explore Professional English →")
+                        }
                         }
                         TextButton(onClick = { showHomeHelp = !showHomeHelp }) { Text(if (showHomeHelp) "Hide guidance" else "Where do I start?") }
                         if (showHomeHelp) {
@@ -766,6 +829,20 @@ fun PremiumSpeakUp() {
                     "Speak" -> {
                         Text("Speak with Mint Buddy", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Try a short, private English conversation.", color = secondaryTextColor)
+                        Surface(color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) {
+                                Text("🎤  Your speaking studio",style=MaterialTheme.typography.titleLarge,
+                                    fontWeight=FontWeight.Bold,color=MaterialTheme.colorScheme.onPrimaryContainer)
+                                Text("Try a short conversation. Use your voice if you choose, or type instead.",
+                                    color=MaterialTheme.colorScheme.onPrimaryContainer)
+                            }
+                        }
+                        TextButton(onClick = { showSpeakingPassport = !showSpeakingPassport },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text(if(showSpeakingPassport)"Hide Speaking Passport and practice stats ↑" else "Speaking Passport and practice stats ↓")
+                        }
+                        if(showSpeakingPassport) {
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text("📘 Speaking Growth Passport", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -815,6 +892,7 @@ fun PremiumSpeakUp() {
                                 Text("${completedGuidedVoiceTurns.size} guided speaking turns completed on this device", color = secondaryTextColor)
                                 Text("Voice recognition uses your device's speech provider. Quiet text is available without microphone permission.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             }
+                        }
                         }
                         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(selected = speakingView == "Conversations", onClick = {
@@ -992,39 +1070,41 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
-                        Text("Games Hub", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Play, learn, grow.", color = secondaryTextColor)
-                        if (!showGameFilters && gameMode == "Mint Quests") {
-                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
-                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Text("🌟  Today's featured game", color = primaryTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                                    Text("Mint Quests", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                                    Text("A quick challenge from your existing game collection.", color = secondaryTextColor)
-                                }
+                        // Sprint 3: keep activity screens focused on a single challenge.
+                        if (gameMode == "Mint Quests") {
+                        MintGamesHubEntry(
+                            showFilters = showGameFilters,
+                            darkAppearance = darkAppearance,
+                            primaryTextColor = primaryTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            softSurfaceColor = softSurfaceColor,
+                            onFeatured = { gameMode = "Mint Quests"; showGameFilters = false },
+                            onGrammar = {
+                                gameMode = "Grammar"; showGameFilters = false
+                                grammarChecked = false; grammarChoice = ""; grammarSetComplete = false
+                                grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0
+                                grammarHadError = false; grammarMissedNotes = emptyList()
+                            },
+                            onStories = { storyOpenedFromGames = true; page = "Feed" },
+                            onChooseMode = { mode -> gameMode = mode; showGameFilters = false }
+                        )
+                        MintGamesFilterBar(
+                            expanded = showGameFilters,
+                            learningGoal = learningGoal,
+                            difficulty = chosenDifficulty,
+                            selectedMode = gameMode,
+                            accentTextColor = accentTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            onToggle = { showGameFilters = !showGameFilters },
+                            onSelectMode = { mode -> gameMode = mode }
+                        )
+                        } else {
+                            TextButton(onClick = {
+                                gameMode = "Mint Quests"
+                                showGameFilters = false
+                            }, modifier = Modifier.heightIn(min = 48.dp)) {
+                                Text("← All games")
                             }
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { gameMode = "Grammar"; showGameFilters = false; grammarChecked = false; grammarChoice = ""; grammarSetComplete = false; grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0; grammarHadError = false; grammarMissedNotes = emptyList() }, modifier = Modifier.weight(1f)) { Text("Grammar") }
-                            OutlinedButton(onClick = { storyOpenedFromGames = true; page = "Feed" }, modifier = Modifier.weight(1f)) { Text("Stories") }
-                        }
-                        TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide categories" else "All games & levels →") }
-                        if (showGameFilters) {
-                        Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
-                        val suggestedModes = when (learningGoal) {
-                            "Start speaking" -> listOf("Dialogues", "Word Builder", "Listening")
-                            "School & exams" -> listOf("Grammar", "Reading", "Vocabulary")
-                            "Work & interviews" -> listOf("Dialogues", "Situations", "Vocabulary")
-                            "Reading & writing" -> listOf("Reading", "Grammar", "Word Builder")
-                            "Travel" -> listOf("Dialogues", "Situations", "Listening")
-                            else -> listOf("Vocabulary", "Situations", "Word Builder")
-                        }
-                        Text("Suggested: ${suggestedModes.joinToString(" • ")}", color = secondaryTextColor)
-                        Text("Select a game to practise.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Mint Quests", "Real-World Quests", "Co-op Stories", "Career & Exam", "Grammar Formats", "Word Builder", "Riddles", "Vocabulary", "Grammar", "Situations", "Listening", "Reading", "Dialogues").forEach { mode ->
-                                FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
-                            }
-                        }
                         }
                         if (gameMode == "Career & Exam") {
                             Text("💼 Career & Exam Practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
@@ -1423,104 +1503,104 @@ fun PremiumSpeakUp() {
                         }, modifier = Modifier.fillMaxWidth()) { Text("Next puzzle →") }
                         } else if (gameMode == "Riddles") {
                             val riddle = riddles[riddleIndex]
-                            Text("Riddle ${riddleIndex + 1} of ${riddles.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
-                            Text(riddle.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
-                            riddle.options.forEach { option ->
-                                OutlinedButton(onClick = { riddleChoice = option; riddleChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (riddleChoice == option) "✓ " else "") + option)
-                                }
-                            }
-                            if (riddleChecked) {
-                                Text(if (riddleChoice == riddle.answer) "Correct! ${riddle.explanation}" else "Try again. Think about the clue.", color = if (riddleChoice == riddle.answer) Color(0xFF177B57) else Color(0xFF9D5417))
-                            }
-                            Button(onClick = {
-                                riddleChecked = true
-                                latestActivityXp = if (riddleChoice == riddle.answer && riddleIndex.toString() !in riddleAwards) 10 else 0
-                                val id = riddleIndex.toString()
-                                if (riddleChoice == riddle.answer && id !in riddleAwards) {
-                                    riddleAwards = riddleAwards + id
-                                    xp += 10
-                                    preferences.edit().putStringSet("riddle_awards", riddleAwards).putInt("total_xp", xp).apply()
-                                }
-                            }, enabled = riddleChoice.isNotBlank()) { Text("Check answer") }
-                            Text("Riddles mastered: ${riddleAwards.size} / ${riddles.size} • +10 XP per new correct riddle", color = accentTextColor)
-                            if (riddleChecked && riddleChoice == riddle.answer) {
-                                MintActivityCompletion(
-                                    activity = "Riddles",
-                                    newXp = latestActivityXp,
-                                    reducedMotion = motionReduced,
-                                    nextLabel = "Next riddle →",
-                                    onNext = {
-                                        riddleIndex = (riddleIndex + 1) % riddles.size
-                                        riddleChoice = ""
-                                        riddleChecked = false
-                                        latestActivityXp = 0
-                                    },
-                                    onDashboard = { page = "Today" }
-                                )
-                            }
-                            OutlinedButton(onClick = {
-                                riddleIndex = (riddleIndex + 1) % riddles.size
-                                riddleChoice = ""
-                                riddleChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next riddle →") }
+                            MintRiddlesScreen(
+                                index = riddleIndex,
+                                total = riddles.size,
+                                question = riddle.question,
+                                options = riddle.options,
+                                answer = riddle.answer,
+                                explanation = riddle.explanation,
+                                selectedOption = riddleChoice,
+                                checked = riddleChecked,
+                                awardsCount = riddleAwards.size,
+                                latestActivityXp = latestActivityXp,
+                                reducedMotion = motionReduced,
+                                accentTextColor = accentTextColor,
+                                primaryTextColor = primaryTextColor,
+                                onSelectOption = { option ->
+                                    riddleChoice = option
+                                    riddleChecked = false
+                                },
+                                onCheck = {
+                                    riddleChecked = true
+                                    latestActivityXp = if (riddleChoice == riddle.answer &&
+                                        riddleIndex.toString() !in riddleAwards) 10 else 0
+                                    val id = riddleIndex.toString()
+                                    if (riddleChoice == riddle.answer && id !in riddleAwards) {
+                                        riddleAwards = riddleAwards + id
+                                        xp += 10
+                                        preferences.edit().putStringSet("riddle_awards", riddleAwards)
+                                            .putInt("total_xp", xp).apply()
+                                    }
+                                },
+                                onCompletionNext = {
+                                    riddleIndex = (riddleIndex + 1) % riddles.size
+                                    riddleChoice = ""
+                                    riddleChecked = false
+                                    latestActivityXp = 0
+                                },
+                                onSkipNext = {
+                                    riddleIndex = (riddleIndex + 1) % riddles.size
+                                    riddleChoice = ""
+                                    riddleChecked = false
+                                },
+                                onDashboard = { page = "Today" }
+                            )
                         } else if (gameMode == "Vocabulary") {
                             val card = vocabularyCards[vocabularyIndex]
-                            Text("Vocabulary ${vocabularyIndex + 1} of ${vocabularyCards.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
-                            Text(card.word, style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            Text("What does this word mean?", color = secondaryTextColor)
-                            Spacer(Modifier.height(8.dp))
-                            card.choices.forEach { choice ->
-                                OutlinedButton(onClick = { vocabularyChoice = choice; vocabularyChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (vocabularyChoice == choice) "✓ " else "") + choice)
-                                }
-                            }
-                            if (vocabularyChecked) {
-                                val correct = vocabularyChoice == card.meaning
-                                Text(if (correct) "Correct! ${card.example}" else "Not quite. Try another meaning.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
-                            }
-                            Button(onClick = {
-                                vocabularyChecked = true
-                                latestActivityXp = if (vocabularyChoice == card.meaning && vocabularyIndex.toString() !in vocabularyMastered) 10 else 0
-                                val id = vocabularyIndex.toString()
-                                if (vocabularyChoice == card.meaning && id !in vocabularyMastered) {
-                                    vocabularyMastered = vocabularyMastered + id
-                                    xp += 10
-                                    preferences.edit().putStringSet("vocabulary_mastered", vocabularyMastered).putInt("total_xp", xp).apply()
-                                }
-                            }, enabled = vocabularyChoice.isNotBlank()) { Text("Check meaning") }
-                            Text("Words mastered: ${vocabularyMastered.size} / ${vocabularyCards.size} • +10 XP for each new word", color = accentTextColor)
-                            if (vocabularyChecked && vocabularyChoice == card.meaning) {
-                                MintActivityCompletion(
-                                    activity = "Vocabulary",
-                                    newXp = latestActivityXp,
-                                    reducedMotion = motionReduced,
-                                    nextLabel = "Next word →",
-                                    onNext = {
-                                        vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
-                                        vocabularyChoice = ""
-                                        vocabularyChecked = false
-                                        latestActivityXp = 0
-                                    },
-                                    onDashboard = { page = "Today" }
-                                )
-                            }
-                            OutlinedButton(onClick = {
-                                vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
-                                vocabularyChoice = ""
-                                vocabularyChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
+                            MintVocabularyScreen(
+                                index = vocabularyIndex,
+                                total = vocabularyCards.size,
+                                word = card.word,
+                                choices = card.choices,
+                                meaning = card.meaning,
+                                example = card.example,
+                                selectedChoice = vocabularyChoice,
+                                checked = vocabularyChecked,
+                                masteredCount = vocabularyMastered.size,
+                                latestActivityXp = latestActivityXp,
+                                reducedMotion = motionReduced,
+                                accentTextColor = accentTextColor,
+                                primaryTextColor = primaryTextColor,
+                                secondaryTextColor = secondaryTextColor,
+                                onSelectChoice = { choice ->
+                                    vocabularyChoice = choice
+                                    vocabularyChecked = false
+                                },
+                                onCheck = {
+                                    vocabularyChecked = true
+                                    latestActivityXp = if (vocabularyChoice == card.meaning &&
+                                        vocabularyIndex.toString() !in vocabularyMastered) 10 else 0
+                                    val id = vocabularyIndex.toString()
+                                    if (vocabularyChoice == card.meaning && id !in vocabularyMastered) {
+                                        vocabularyMastered = vocabularyMastered + id
+                                        xp += 10
+                                        preferences.edit().putStringSet("vocabulary_mastered", vocabularyMastered)
+                                            .putInt("total_xp", xp).apply()
+                                    }
+                                },
+                                onCompletionNext = {
+                                    vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
+                                    vocabularyChoice = ""
+                                    vocabularyChecked = false
+                                    latestActivityXp = 0
+                                },
+                                onSkipNext = {
+                                    vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
+                                    vocabularyChoice = ""
+                                    vocabularyChecked = false
+                                },
+                                onDashboard = { page = "Today" }
+                            )
                         } else if (gameMode == "Grammar Formats") {
                             MintGrammarFormatsScreen()
                         } else if (gameMode == "Grammar") {
-                            Text("Grammar Arena", style = MaterialTheme.typography.titleLarge, color = primaryTextColor, fontWeight = FontWeight.Bold)
+                            MintScreenHeading("Grammar Arena", "One question at a time. Learn why every answer works.", "GAMES • GRAMMAR")
                             val grammarSetSize = MintGrammarPilotEngine.setSize
                             val grammarTotalSets = (grammarQuestions.size + grammarSetSize - 1) / grammarSetSize
                             val grammarSet = grammarIndex / grammarSetSize
                             val grammarSetEndExclusive = minOf((grammarSet + 1) * grammarSetSize, grammarQuestions.size)
-                            Text("Offline pilot practice · 18 authored questions (not the 10,000-question bank)", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                            Text("Release readiness: NOT APPROVED · independently reviewed content, accessibility, migrations and owner sign-off still required.",
-                                color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+
 
                             val grammarQualityIssues = remember {
                                 MintGrammarQuality.collectionIssues(grammarQuestions.map {
@@ -1533,6 +1613,14 @@ fun PremiumSpeakUp() {
                             }
 
                             val grammarAnalytics = MintGrammarAnalytics.snapshot(grammarQuestions.size,grammarMastered,grammarBookmarks,grammarRevisionMissed)
+                            TextButton(onClick = { showGrammarInsights = !showGrammarInsights },
+                                modifier = Modifier.fillMaxWidth()) {
+                                Text(if (showGrammarInsights) "Hide progress and challenge details ↑" else "View progress, review and rewards ↓")
+                            }
+                            if (showGrammarInsights) {
+                                Text("Offline pilot: ${grammarQuestions.size} authored questions; the planned larger bank is not included.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                Text("Development preview · curriculum and device accessibility review pending.",
+                                    color=secondaryTextColor,style=MaterialTheme.typography.bodySmall)
                             Surface(color = softSurfaceColor,shape = RoundedCornerShape(16.dp),modifier = Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(14.dp),verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Text("🏅 ${MintGrammarChallenges.title}",color = primaryTextColor,fontWeight = FontWeight.Bold)
@@ -1588,9 +1676,9 @@ fun PremiumSpeakUp() {
                                 grammarHadError = false; grammarWrongCount = 0; grammarFirstTryCorrect = 0
                                 grammarSetNewXp = 0; grammarMissedNotes = emptyList()
                             }, modifier = Modifier.fillMaxWidth()) { Text("Review first question →") }
+                            }
                             Text("Grammar Hub · ${MintGrammarHub.packCount(grammarQuestions.size)} practice packs · ${MintGrammarHub.savedCount(grammarBookmarks, grammarQuestions.size)} bookmarked questions",
                                 color = primaryTextColor, fontWeight = FontWeight.SemiBold)
-                            Text("Pilot packs are not verified topic classifications or Easy/Medium/Hard assessments.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Show saved questions", color = primaryTextColor, modifier = Modifier.weight(1f))
                                 Switch(checked = grammarSavedOnly, onCheckedChange = { grammarSavedOnly = it })
@@ -1625,7 +1713,7 @@ fun PremiumSpeakUp() {
                                     }, label = { Text("Pack ${pack + 1}") })
                                 }
                             }
-                            LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
+                            LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + if (grammarChecked && grammarChoice == grammarQuestions[grammarIndex].correct) 1f else 0f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 val savedKey = MintGrammarHub.bookmarkId(grammarIndex)
@@ -1636,10 +1724,7 @@ fun PremiumSpeakUp() {
                                     preferences.edit().putStringSet("mint_grammar_bookmarks", grammarBookmarks).apply()
                                 }) { Text(if (savedKey in grammarBookmarks) "Remove ★" else "Save ☆") }
                             }
-                            TextButton(onClick = { grammarShowExplanation = !grammarShowExplanation }) {
-                                Text(if (grammarShowExplanation) "Hide grammar explanation" else "Read grammar explanation")
-                            }
-                            if (grammarShowExplanation) Text(question.explanation, color = secondaryTextColor)
+                            // Explanations appear with answer feedback, not before an attempt.
 
                             Text("Question ${grammarIndex - grammarSet * grammarSetSize + 1} of ${grammarSetEndExclusive - grammarSet * grammarSetSize}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             if (grammarSetComplete) {
@@ -1675,73 +1760,76 @@ fun PremiumSpeakUp() {
                                 }
                                 }
                             } else {
-                            Text(question.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
-                            question.options.forEachIndexed { index, choice ->
-                                OutlinedButton(onClick = { grammarChoice = choice; grammarChecked = false }, enabled = !(grammarChecked && grammarChoice == question.correct), modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(containerColor = if (grammarChoice == choice) softSurfaceColor else surfaceColor)) {
-                                    Text(MintGrammarUiContract.optionLabel(index, choice), color = primaryTextColor,
-                                        modifier = Modifier.fillMaxWidth().semantics {
-                                            contentDescription = "Option ${index + 1} of ${question.options.size}: $choice"
-                                        })
-                                }
-                            }
-                            if (grammarChecked) {
-                                val correct = grammarChoice == question.correct
-                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Text(if (correct) "✓ Correct!" else "Not quite — try another answer", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                        Text("WHY?", color = accentTextColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                                        Text(question.explanation, color = primaryTextColor)
+                            MintGrammarQuestionScreen(
+                                prompt = question.prompt,
+                                options = question.options,
+                                correctAnswer = question.correct,
+                                explanation = question.explanation,
+                                selectedChoice = grammarChoice,
+                                checked = grammarChecked,
+                                darkAppearance = darkAppearance,
+                                reducedMotion = motionReduced,
+                                primaryTextColor = primaryTextColor,
+                                secondaryTextColor = secondaryTextColor,
+                                accentTextColor = accentTextColor,
+                                softSurfaceColor = softSurfaceColor,
+                                surfaceColor = surfaceColor,
+                                masteredCount = grammarMastered.size,
+                                totalQuestions = grammarQuestions.size,
+                                isLastQuestionInSet = grammarIndex + 1 >= grammarSetEndExclusive,
+                                onSelectChoice = { choice ->
+                                    grammarChoice = choice
+                                    grammarChecked = false
+                                },
+                                onCheck = {
+                                    if (!grammarChecked && grammarChoice != question.correct && !grammarHadError) {
+                                        grammarHadError = true
+                                        grammarWrongCount += 1
+                                        grammarMissedNotes = grammarMissedNotes + "${question.prompt} — ${question.explanation}"
+                                        grammarRevisionMissed = grammarRevisionMissed + MintGrammarRevision.missedKey(grammarIndex)
+                                        preferences.edit().putStringSet("mint_grammar_revision_missed", grammarRevisionMissed).apply()
                                     }
+                                    grammarChecked = true
+                                    val id = grammarIndex.toString()
+                                    if (grammarChoice == question.correct) {
+                                        grammarRevisionMissed = grammarRevisionMissed - MintGrammarRevision.missedKey(grammarIndex)
+                                        preferences.edit().putStringSet("mint_grammar_revision_missed", grammarRevisionMissed).apply()
+                                    }
+                                    if (grammarChoice == question.correct && id !in grammarMastered) {
+                                        grammarMastered = grammarMastered + id
+                                        xp += 10
+                                        grammarSetNewXp += 10
+                                        preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
+                                    }
+                                },
+                                onContinue = {
+                                    if (!grammarHadError) grammarFirstTryCorrect += 1
+                                    if (grammarIndex + 1 >= grammarSetEndExclusive) {
+                                        grammarBloomEarned = grammarSetNewXp > 0
+                                        grammarSetComplete = true
+                                    } else grammarIndex += 1
+                                    grammarChoice = ""
+                                    grammarChecked = false
+                                    grammarHadError = false
                                 }
-                            }
-                            Button(onClick = {
-                                if (!grammarChecked && grammarChoice != question.correct && !grammarHadError) {
-                                    grammarHadError = true
-                                    grammarWrongCount += 1
-                                    grammarMissedNotes = grammarMissedNotes + "${question.prompt} — ${question.explanation}"
-                                    grammarRevisionMissed = grammarRevisionMissed + MintGrammarRevision.missedKey(grammarIndex)
-                                    preferences.edit().putStringSet("mint_grammar_revision_missed",grammarRevisionMissed).apply()
-                                }
-                                grammarChecked = true
-                                val id = grammarIndex.toString()
-                                if (grammarChoice == question.correct) {
-                                    grammarRevisionMissed = grammarRevisionMissed - MintGrammarRevision.missedKey(grammarIndex)
-                                    preferences.edit().putStringSet("mint_grammar_revision_missed",grammarRevisionMissed).apply()
-                                }
-                                if (grammarChoice == question.correct && id !in grammarMastered) {
-                                    grammarMastered = grammarMastered + id
-                                    xp += 10
-                                    grammarSetNewXp += 10
-                                    preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
-                                }
-                            }, enabled = grammarChoice.isNotBlank() && !(grammarChecked && grammarChoice == question.correct)) { Text("Check grammar") }
-                            Text("🌸 ${grammarMastered.size} of ${grammarQuestions.size} grammar blooms growing", color = accentTextColor)
-                            OutlinedButton(onClick = {
-                                if (!grammarHadError) grammarFirstTryCorrect += 1
-                                if (grammarIndex + 1 >= grammarSetEndExclusive) {
-                                    grammarBloomEarned = grammarSetNewXp > 0
-                                    grammarSetComplete = true
-                                } else grammarIndex += 1
-                                grammarChoice = ""
-                                grammarChecked = false
-                                grammarHadError = false
-                            }, enabled = grammarChecked && grammarChoice == question.correct, modifier = Modifier.fillMaxWidth()) { Text(if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Next grammar question →") }
+                            )
                             }
                         } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
                             Text("Situation ${scenarioIndex + 1} of ${conversationScenarios.size}: ${scenario.situation}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            LinearProgressIndicator(progress = { (scenarioIndex + if (scenarioChecked && scenarioChoice == scenario.correct) 1f else 0f) / conversationScenarios.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
                             Text(scenario.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                             scenario.options.forEach { choice ->
-                                OutlinedButton(onClick = { scenarioChoice = choice; scenarioChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (scenarioChoice == choice) "✓ " else "") + choice)
-                                }
+                                MintAnswerChoice(choice, selected = scenarioChoice == choice,
+                                    enabled = !(scenarioChecked && scenarioChoice == scenario.correct),
+                                    onClick = { scenarioChoice = choice; scenarioChecked = false })
                             }
                             if (scenarioChecked) {
                                 val correct = scenarioChoice == scenario.correct
                                 Text(if (correct) "Great response! ${scenario.explanation}" else "Try again. ${scenario.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = scenarioChecked, correct = correct, reducedMotion = motionReduced)
                             }
-                            Button(onClick = {
+                            if (!(scenarioChecked && scenarioChoice == scenario.correct)) MintPrimaryAction("Check response", enabled = scenarioChoice.isNotBlank(), onClick = {
                                 scenarioChecked = true
                                 latestActivityXp = if (scenarioChoice == scenario.correct && scenarioIndex.toString() !in scenarioMastered) 10 else 0
                                 val id = scenarioIndex.toString()
@@ -1750,7 +1838,7 @@ fun PremiumSpeakUp() {
                                     xp += 10
                                     preferences.edit().putStringSet("scenario_mastered", scenarioMastered).putInt("total_xp", xp).apply()
                                 }
-                            }, enabled = scenarioChoice.isNotBlank()) { Text("Check response") }
+                            })
                             Text("Situations mastered: ${scenarioMastered.size} / ${conversationScenarios.size} • +10 XP for each new success", color = accentTextColor)
                             if (scenarioChecked && scenarioChoice == scenario.correct) {
                                 MintActivityCompletion(
@@ -1767,11 +1855,6 @@ fun PremiumSpeakUp() {
                                     onDashboard = { page = "Today" }
                                 )
                             }
-                            OutlinedButton(onClick = {
-                                scenarioIndex = (scenarioIndex + 1) % conversationScenarios.size
-                                scenarioChoice = ""
-                                scenarioChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next situation →") }
                         } else if (gameMode == "Listening") {
                             val listening = listeningChecks[listeningIndex]
                             Text("Listening comprehension ${listeningIndex + 1} of ${listeningChecks.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
@@ -1782,17 +1865,19 @@ fun PremiumSpeakUp() {
                                     Text(listening.phrase, modifier = Modifier.padding(16.dp), color = primaryTextColor)
                                 }
                             }
+                            LinearProgressIndicator(progress = { (listeningIndex + if (listeningChecked && listeningChoice == listening.correct) 1f else 0f) / listeningChecks.size.coerceAtLeast(1) },modifier = Modifier.fillMaxWidth())
                             Text(listening.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                             listening.options.forEach { choice ->
-                                OutlinedButton(onClick = { listeningChoice = choice; listeningChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (listeningChoice == choice) "✓ " else "") + choice)
-                                }
+                                MintAnswerChoice(choice, selected = listeningChoice == choice,
+                                    enabled = !(listeningChecked && listeningChoice == listening.correct),
+                                    onClick = { listeningChoice = choice; listeningChecked = false })
                             }
                             if (listeningChecked) {
                                 val correct = listeningChoice == listening.correct
                                 Text(if (correct) "Correct! ${listening.explanation}" else "Try again. ${listening.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = listeningChecked, correct = correct, reducedMotion = motionReduced)
                             }
-                            Button(onClick = {
+                            if (!(listeningChecked && listeningChoice == listening.correct)) MintPrimaryAction("Check answer", enabled = listeningChoice.isNotBlank(), onClick = {
                                 listeningChecked = true
                                 latestActivityXp = if (listeningChoice == listening.correct && listeningIndex.toString() !in listeningMastered) 10 else 0
                                 val id = listeningIndex.toString()
@@ -1801,7 +1886,7 @@ fun PremiumSpeakUp() {
                                     xp += 10
                                     preferences.edit().putStringSet("listening_mastered", listeningMastered).putInt("total_xp", xp).apply()
                                 }
-                            }, enabled = listeningChoice.isNotBlank()) { Text("Check comprehension") }
+                            })
                             Text("Checks mastered: ${listeningMastered.size} / ${listeningChecks.size} • +10 XP for a first correct answer", color = accentTextColor)
                             if (listeningChecked && listeningChoice == listening.correct) {
                                 MintActivityCompletion(
@@ -1818,12 +1903,6 @@ fun PremiumSpeakUp() {
                                     onDashboard = { page = "Today" }
                                 )
                             }
-                            OutlinedButton(onClick = {
-                                listeningIndex = (listeningIndex + 1) % listeningChecks.size
-                                listeningChoice = ""
-                                listeningChecked = false
-                                showListeningTranscript = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next comprehension check →") }
                         } else if (gameMode == "Reading") {
                             val passage = readingPassages[readingIndex]
                             Text("Reading ${readingIndex + 1} of ${readingPassages.size} • ${passage.level}", color = accentTextColor, fontWeight = FontWeight.Bold)
@@ -1832,17 +1911,19 @@ fun PremiumSpeakUp() {
                                 Text(passage.passage, modifier = Modifier.padding(16.dp), color = primaryTextColor)
                             }
                             Spacer(Modifier.height(12.dp))
+                            LinearProgressIndicator(progress = { (readingIndex + if (readingChecked && readingChoice == passage.answer) 1f else 0f) / readingPassages.size.coerceAtLeast(1) },modifier = Modifier.fillMaxWidth())
                             Text(passage.question, style = MaterialTheme.typography.titleMedium, color = primaryTextColor)
                             passage.options.forEach { choice ->
-                                OutlinedButton(onClick = { readingChoice = choice; readingChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (readingChoice == choice) "✓ " else "") + choice)
-                                }
+                                MintAnswerChoice(choice, selected = readingChoice == choice,
+                                    enabled = !(readingChecked && readingChoice == passage.answer),
+                                    onClick = { readingChoice = choice; readingChecked = false })
                             }
                             if (readingChecked) {
                                 val correct = readingChoice == passage.answer
                                 Text(if (correct) "Correct! ${passage.explanation}" else "Try again. Re-read the passage and find the clue.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = readingChecked, correct = correct, reducedMotion = motionReduced)
                             }
-                            Button(onClick = {
+                            if (!(readingChecked && readingChoice == passage.answer)) MintPrimaryAction("Check answer", enabled = readingChoice.isNotBlank(), onClick = {
                                 readingChecked = true
                                 latestActivityXp = if (readingChoice == passage.answer && readingIndex.toString() !in readingMastered) 10 else 0
                                 val id = readingIndex.toString()
@@ -1851,7 +1932,7 @@ fun PremiumSpeakUp() {
                                     xp += 10
                                     preferences.edit().putStringSet("reading_mastered", readingMastered).putInt("total_xp", xp).apply()
                                 }
-                            }, enabled = readingChoice.isNotBlank()) { Text("Check reading answer") }
+                            })
                             Text("Passages mastered: ${readingMastered.size} / ${readingPassages.size} • +10 XP once per passage", color = accentTextColor)
                             if (readingChecked && readingChoice == passage.answer) {
                                 MintActivityCompletion(
@@ -1868,11 +1949,6 @@ fun PremiumSpeakUp() {
                                     onDashboard = { page = "Today" }
                                 )
                             }
-                            OutlinedButton(onClick = {
-                                readingIndex = (readingIndex + 1) % readingPassages.size
-                                readingChoice = ""
-                                readingChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next reading passage →") }
                         } else {
                             val availableDialogues = guidedDialogues.filter { it.level == chosenDifficulty }
                             val dialogue = availableDialogues[dialogueIndex % availableDialogues.size]
@@ -1936,140 +2012,110 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
-                        Text("My learning space", color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                        Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
-                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Your progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                                Text("$xp XP earned · ${completedIds.size} of ${lessons.size} lessons completed", color = secondaryTextColor)
-                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                                OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("View progress & achievements →") }
-                            }
+                        MintSectionCard("My Mint Pet") {
+                            MintPetPicker(selectedId = selectedPetId, onSelect = { id ->
+                                selectedPetId = id
+                                preferences.edit().putString("mint_pet_id", id).apply()
+                            }, reducedMotion = motionReduced)
                         }
-                        OutlinedButton(onClick = { page = "Help" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Help & guidance →") }
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text("🛡 Beta readiness", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                Text("Development build only · no production launch authorized.", color = secondaryTextColor)
-                                Text("${MintBetaReadiness.required.size} release safeguards must be verified separately. An APK build alone does not mean the app is ready to publish.",
-                                    color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
-                        Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
-                            Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
-                        }
+
+                        MintProfileOverview(
+                            profileName = profileName,
+                            journey = MintExperiencePolicy.selectedJourney(chosenPath),
+                            difficulty = chosenDifficulty,
+                            dailyGoalMinutes = dailyGoal,
+                            xp = xp,
+                            completedLessons = completedIds.size,
+                            lessonCount = lessons.size,
+                            surfaceColor = surfaceColor,
+                            primaryTextColor = primaryTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            onReview = { page = "Review" },
+                            onHelp = { page = "Help" },
+                            settingsExpanded = showProfileSettings,
+                            onToggleSettings = { showProfileSettings = !showProfileSettings }
+                        )
                         if (showProfileSettings) {
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                            Column(Modifier.padding(14.dp)) {
-                                Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                Text("Export saved learning history or manage local feed interactions.", color = secondaryTextColor)
-                                OutlinedButton(onClick = { page = "Privacy" }) { Text("Open privacy controls →") }
+                        MintProfileSettings(
+                            primaryTextColor = primaryTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            softSurfaceColor = softSurfaceColor,
+                            surfaceColor = surfaceColor,
+                            onOpenPrivacy = { page = "Privacy" },
+                            onOpenMembership = { page = "Membership" },
+                            themePreference = themePreference,
+                            onThemeChange = { mode ->
+                                themePreference = mode
+                                preferences.edit().putString("mint_theme_mode", mode).apply()
+                            },
+                            eyeComfort = eyeComfort,
+                            onEyeComfortChange = { enabled ->
+                                eyeComfort = enabled
+                                preferences.edit().putBoolean("mint_eye_comfort", enabled).apply()
+                            },
+                            petSoundsEnabled = petSoundsEnabled,
+                            onPetSoundsEnabledChange = { enabled ->
+                                petSoundsEnabled = enabled
+                                preferences.edit().putBoolean("mint_pet_sounds_enabled", enabled).apply()
+                            },
+                            reduceMotion = reduceMotion,
+                            onReduceMotionChange = { enabled ->
+                                reduceMotion = enabled
+                                preferences.edit().putBoolean("mint_reduce_motion", enabled).apply()
+                            },
+                            onSoundPreview = { cue ->
+                                MintPetSound.play(context, petSoundsEnabled, cue, selectedPetId)
+                            },
+                            hiddenStoriesCount = blockedMintClips.size,
+                            localReportsCount = reportedMintClips.size,
+                            privateReactionsCount = reactedMintClips.size,
+                            onRestoreHiddenStories = {
+                                blockedMintClips = emptySet()
+                                preferences.edit().remove("mint_hidden_clips").apply()
+                            },
+                            showProfileAdvanced = showProfileAdvanced,
+                            onToggleAdvanced = { showProfileAdvanced = !showProfileAdvanced },
+                            profileName = profileName,
+                            onNameChange = { profileName = it },
+                            learnerAgeBand = learnerAgeBand,
+                            onAgeBandChange = { band ->
+                                learnerAgeBand = band
+                                learnerAge = MintExperiencePolicy.legacyAge(band)
+                                profileFeedback = ""
+                            },
+                            learningGoals = learningGoals,
+                            learningGoal = learningGoal,
+                            onLearningGoalChange = { goal ->
+                                learningGoal = goal
+                                profileFeedback = ""
+                            },
+                            chosenDifficulty = chosenDifficulty,
+                            onDifficultyChange = { difficulty ->
+                                chosenDifficulty = difficulty
+                                profileFeedback = ""
+                            },
+                            learningPaths = learningPaths.map { it.id to it.title },
+                            chosenPath = chosenPath,
+                            onPathChange = { pathId ->
+                                chosenPath = pathId
+                                profileFeedback = ""
+                            },
+                            dailyGoal = dailyGoal,
+                            onDailyGoalChange = { minutes -> dailyGoal = minutes },
+                            profileFeedback = profileFeedback,
+                            onSaveProfile = {
+                                preferences.edit().putString("profile_name", profileName).putString("learner_age", learnerAge)
+                                    .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty)
+                                    .putString("learning_path", chosenPath).putInt("daily_goal", dailyGoal).apply()
+                                profileFeedback = "Saved! Your recommendations are updated."
+                            },
+                            onRetakePlacement = {
+                                placementIndex = 0
+                                placementSelected = ""
+                                placementAnswers = emptyList()
+                                showPlacement = true
                             }
-                        }
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text("English Mint Free", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
-                                Text("Core games, speaking and progress stay free.", color = secondaryTextColor)
-                                OutlinedButton(onClick = { page = "Membership" }) { Text("Compare Free, Plus and Pro →") }
-                            }
-                        }
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("📴 Offline & low-data guide", style = MaterialTheme.typography.titleMedium,
-                                    color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                Text("Text-based learning continues without a connection. This list describes features available in this build, not a downloaded media library.",
-                                    color = secondaryTextColor)
-                                MintOfflineGuide.features.forEach { item ->
-                                    Text("${if (item.offline) "✓ Offline text" else "ⓘ Availability varies"} · ${item.title}",
-                                        color = primaryTextColor, fontWeight = FontWeight.SemiBold)
-                                    Text(item.fallback, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                                }
-                                Text("Accessibility: use device text-size controls, turn on Reduce animations below, and use typed responses whenever voice isn't available.",
-                                    color = secondaryTextColor)
-                            }
-                        }
-                        Text("Appearance", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("system" to "System", "light" to "Light", "dark" to "Dark", "night" to "Night").forEach { (mode, label) ->
-                                FilterChip(
-                                    selected = themePreference == mode,
-                                    onClick = {
-                                        themePreference = mode
-                                        preferences.edit().putString("mint_theme_mode", mode).apply()
-                                    },
-                                    label = { Text(label) }
-                                )
-                            }
-                        }
-                        Text("Scheduled Night: 8 PM–6 AM device time. Light and Dark overrides remain available.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            Text("Eye comfort: softer hero colors", color = primaryTextColor, modifier = Modifier.weight(1f))
-                            Switch(checked = eyeComfort, onCheckedChange = {
-                                eyeComfort = it
-                                preferences.edit().putBoolean("mint_eye_comfort", it).apply()
-                            })
-                        }
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            Text("Reduce animations", color = primaryTextColor, modifier = Modifier.weight(1f))
-                            Switch(checked = reduceMotion, onCheckedChange = {
-                                reduceMotion = it
-                                preferences.edit().putBoolean("mint_reduce_motion", it).apply()
-                            })
-                        }
-                        Text("Respect device brightness, rest breaks and accessibility settings. Dark mode does not prevent eye damage.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Text("Safety and community", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Only moderated studio-authored offline reels are available. Public comments, strangers, friend requests, direct messages, uploads and sharing are disabled.", color = secondaryTextColor)
-                        Text("Hidden stories: ${blockedMintClips.size} • Local reports: ${reportedMintClips.size} • Private reactions: ${reactedMintClips.size}", color = primaryTextColor)
-                        OutlinedButton(onClick = {
-                            blockedMintClips = emptySet()
-                            preferences.edit().remove("mint_hidden_clips").apply()
-                        }) { Text("Restore locally hidden studio stories") }
-                        Text("Local reports have not been submitted to moderators; no public social account has been created.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        TextButton(onClick = { showProfileAdvanced = !showProfileAdvanced }) { Text(if (showProfileAdvanced) "Close learner details" else "Edit learner details") }
-                        if (showProfileAdvanced) {
-                        Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
-                        OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                        Text("Age group", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            MintExperiencePolicy.ageBands.forEach { band ->
-                                FilterChip(selected = learnerAgeBand == band, onClick = {
-                                    learnerAgeBand = band
-                                    learnerAge = MintExperiencePolicy.legacyAge(band)
-                                    profileFeedback = ""
-                                }, label = { Text(band) })
-                            }
-                        }
-                        Text("Learning purpose", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        learningGoals.forEach { goal ->
-                            FilterChip(selected = learningGoal == goal, onClick = { learningGoal = goal; profileFeedback = "" }, label = { Text(goal) })
-                        }
-                        Text("Challenge difficulty", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("Easy", "Medium", "Hard").forEach { d ->
-                                FilterChip(selected = chosenDifficulty == d, onClick = { chosenDifficulty = d; profileFeedback = "" }, label = { Text(d) })
-                            }
-                        }
-                        Text("Learning pathway", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        learningPaths.forEach { path ->
-                            FilterChip(selected = chosenPath == path.id, onClick = { chosenPath = path.id; profileFeedback = "" }, label = { Text(path.title) })
-                        }
-                        Text("Daily goal", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf(5, 10, 15).forEach { minutes ->
-                                FilterChip(selected = dailyGoal == minutes, onClick = { dailyGoal = minutes }, label = { Text("$minutes min") })
-                            }
-                        }
-                        Button(onClick = {
-                            preferences.edit().putString("profile_name", profileName).putString("learner_age", learnerAge)
-                                .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty)
-                                .putString("learning_path", chosenPath).putInt("daily_goal", dailyGoal).apply()
-                            profileFeedback = "Saved! Your recommendations are updated."
-                        }, modifier = Modifier.fillMaxWidth()) { Text("Save profile changes") }
-                        if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
-                        OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
-                        }
+                        )
                         }
                     }
                     "Review" -> {
@@ -2087,6 +2133,35 @@ fun PremiumSpeakUp() {
                         )
                         val progressLevel = MintRewards.level(xp)
                         val coins = MintRewards.cosmeticCoins(mintRewardLedger)
+                        Surface(shape = RoundedCornerShape(25.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.fillMaxWidth().padding(20.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text("🌱  Your Learning Journey",
+                                    color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                    style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
+                                Text("${completedIds.size} of ${lessons.size} lessons completed",
+                                    color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                    style=MaterialTheme.typography.titleMedium)
+                                LinearProgressIndicator(
+                                    progress={completedIds.size.toFloat()/lessons.size.coerceAtLeast(1)},
+                                    modifier=Modifier.fillMaxWidth().height(8.dp))
+                                Row(Modifier.fillMaxWidth(),
+                                    horizontalArrangement=Arrangement.SpaceBetween) {
+                                    Text("✨ $xp XP",color=MaterialTheme.colorScheme.onPrimaryContainer,
+                                        fontWeight=FontWeight.Bold)
+                                    Text("🎤 $speakingAttempts speaking attempts",
+                                        color=MaterialTheme.colorScheme.onPrimaryContainer)
+                                }
+                            }
+                        }
+                        TextButton(onClick = { showReviewDetails = !showReviewDetails },
+                            modifier = Modifier.fillMaxWidth()) {
+                            Text(if(showReviewDetails) "Hide detailed learning report ↑"
+                                else "View detailed progress and achievements ↓")
+                        }
+                        if(showReviewDetails) {
                         Text("My Growth", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
                         Spacer(Modifier.height(16.dp))
                         FeatureCard("✓  ${completedIds.size} of ${lessons.size} lessons completed", "Each new lesson earns 50 XP.", { page = "Learn" })
@@ -2150,9 +2225,12 @@ fun PremiumSpeakUp() {
                             }
                         }
                         Spacer(Modifier.height(14.dp))
+                        }
                         val reviewable = lessons.indices.filter { it.toString() in completedIds }
                         val now = System.currentTimeMillis()
                         val dueLessons = reviewable.filter { (revisionSchedule[it.toString()] ?: 0L) <= now }
+                        Text("Quick revision",style=MaterialTheme.typography.titleLarge,
+                            fontWeight=FontWeight.Bold,color=primaryTextColor)
                         Text("Due for review: ${dueLessons.size} of ${reviewable.size} completed lessons", color = accentTextColor, fontWeight = FontWeight.Bold)
                         if (reviewable.isEmpty()) {
                             Text("Finish a lesson to unlock revision questions.", color = secondaryTextColor)
@@ -2226,14 +2304,6 @@ fun PremiumSpeakUp() {
             if (!showPathSetup && !showPlacement) {
             NavigationBar(containerColor = surfaceColor, tonalElevation = 6.dp) {
                 MintUiNavigation.tabs.forEach { tab ->
-                    val symbol = when (tab) {
-                        "Today" -> "⌂"
-                        "Speak" -> "♩"
-                        "Feed" -> "▷"
-                        "Games" -> "♧"
-                        "Review" -> "▥"
-                        else -> "◉"
-                    }
                     val isActive = MintUiNavigation.mainTab(page) == tab
                     val iconColor by animateColorAsState(
                         targetValue = if (isActive) accentTextColor else secondaryTextColor,
@@ -2241,8 +2311,8 @@ fun PremiumSpeakUp() {
                     )
                     NavigationBarItem(
                         selected = isActive,
-                        onClick = { page = tab },
-                        icon = { Text(symbol, modifier = Modifier.semantics { contentDescription = "$tab navigation" }, color = iconColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
+                        onClick = { storyOpenedFromGames = MintUiNavigation.clipsReturnToGamesAfterTabTap(tab); page = tab },
+                        icon = { MintBottomTabIcon(tab, iconColor) },
                         label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
                         colors = NavigationBarItemDefaults.colors(

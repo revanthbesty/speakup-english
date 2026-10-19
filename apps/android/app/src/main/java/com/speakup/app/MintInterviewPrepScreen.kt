@@ -13,14 +13,13 @@ internal fun MintInterviewPrepScreen(onVerified: (String) -> Unit = {}) {
     var checked by remember { mutableStateOf(false) }
     val item=MintInterviewPrep.items[index]
     Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-        Text("Interview Preparation · offline pilot",style=MaterialTheme.typography.titleLarge)
+        MintScreenHeading("Interview Preparation", "Practise confident answers with private, offline activities.", "PROFESSIONAL ENGLISH")
         Text("Four original practice questions, not a certified interview or hiring score.")
         Text("Question ${index+1} of ${MintInterviewPrep.items.size}")
         Text(item.prompt,style=MaterialTheme.typography.titleMedium)
         item.choices.forEachIndexed { i,answer ->
-            OutlinedButton(onClick={choice=i;checked=false},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
-                Text("${if(choice==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
-            }
+            MintAnswerChoice(label = "${i+1}. $answer", selected = choice == i,
+                onClick = { choice = i; checked = false })
         }
         Button(onClick={checked=true;if(choice==item.best)onVerified(item.id)},enabled=choice>=0,modifier=Modifier.fillMaxWidth()) {Text("Check reply")}
         if(checked) {

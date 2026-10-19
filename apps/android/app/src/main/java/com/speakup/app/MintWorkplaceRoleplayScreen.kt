@@ -14,7 +14,7 @@ internal fun MintWorkplaceRoleplayScreen(onVerified: (String) -> Unit = {}) {
     var checked by remember { mutableStateOf(false) }
     val story = MintWorkplaceRoleplays.samples[scenario]
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("Workplace conversation practice", style = MaterialTheme.typography.titleLarge)
+        MintScreenHeading("Workplace Conversations", "Practise realistic, private roleplay conversations.", "PROFESSIONAL ENGLISH")
         Text("Private, offline practice. No live AI, scores or certificates.")
         MintWorkplaceRoleplays.samples.forEachIndexed { index, sample ->
             OutlinedButton(onClick = {
@@ -26,9 +26,8 @@ internal fun MintWorkplaceRoleplayScreen(onVerified: (String) -> Unit = {}) {
             Text("Turn ${step + 1} of ${story.turns.size}")
             Text("${turn.speaker}: ${turn.prompt}")
             turn.options.forEachIndexed { i, option ->
-                OutlinedButton(onClick = { choice = i; checked = false }, modifier = Modifier.fillMaxWidth()) {
-                    Text("${i + 1}. $option", modifier = Modifier.fillMaxWidth())
-                }
+                MintAnswerChoice(label = "${i + 1}. $option", selected = choice == i,
+                    onClick = { choice = i; checked = false })
             }
             if (checked) {
                 Text(if (choice == turn.answer) "Correct." else "Try another reply.")

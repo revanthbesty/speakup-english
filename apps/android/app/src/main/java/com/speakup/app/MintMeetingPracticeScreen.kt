@@ -15,7 +15,7 @@ internal fun MintMeetingPracticeScreen(onVerified: (String) -> Unit = {}) {
  val items=MintMeetingPractice.items.filter { it.category==category }
  val item=items[index]
  Column(verticalArrangement=Arrangement.spacedBy(10.dp)) {
-  Text("Meetings & Presentations · offline pilot",style=MaterialTheme.typography.titleLarge)
+  MintScreenHeading("Meetings & Presentations", "Build workplace communication confidence.", "PROFESSIONAL ENGLISH")
   Text("Original communication practice, not a certified presentation score.")
   Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
    listOf("Meeting","Presentation").forEach { name ->
@@ -25,9 +25,8 @@ internal fun MintMeetingPracticeScreen(onVerified: (String) -> Unit = {}) {
   Text("Question ${index+1} of ${items.size} · $category")
   Text(item.situation,style=MaterialTheme.typography.titleMedium)
   item.options.forEachIndexed { i,answer ->
-   OutlinedButton(onClick={choice=i;checked=false},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
-    Text("${if(choice==i) "●" else "○"} ${i+1}. $answer",modifier=Modifier.fillMaxWidth())
-   }
+   MintAnswerChoice(label = "${i+1}. $answer", selected = choice == i,
+                onClick = { choice = i; checked = false })
   }
   Button(onClick={checked=true;if(choice==item.correct)onVerified(item.id)},enabled=choice>=0,modifier=Modifier.fillMaxWidth()){Text("Check reply")}
   if(checked){Text(if(choice==item.correct)"Suitable response!" else "Consider a clearer response.");Text(item.explanation)}
