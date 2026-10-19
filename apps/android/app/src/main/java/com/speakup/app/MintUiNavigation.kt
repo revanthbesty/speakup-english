@@ -14,7 +14,7 @@ internal object MintUiNavigation {
     }
 
     fun mainTab(route: String): String = when (route) {
-        "Learn", "Review", "Professional" -> "Today"
+        "Learn", "Review", "Professional", "AILifePilot", "FamilyPilot", "CreatorLab" -> "Today"
         "FiveWord" -> "Feed"
         "Privacy", "Membership", "Help" -> "Profile"
         else -> route.takeIf { it in tabs } ?: "Today"
