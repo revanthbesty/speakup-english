@@ -1078,7 +1078,7 @@ fun PremiumSpeakUp() {
                             primaryTextColor = primaryTextColor,
                             secondaryTextColor = secondaryTextColor,
                             softSurfaceColor = softSurfaceColor,
-                            onFeatured = { gameMode = "Mint Quests"; showGameFilters = false },
+                            onFeatured = { gameMode = MintFeaturedGame.mode; showGameFilters = false },
                             onGrammar = {
                                 gameMode = "Grammar"; showGameFilters = false
                                 grammarChecked = false; grammarChoice = ""; grammarSetComplete = false
