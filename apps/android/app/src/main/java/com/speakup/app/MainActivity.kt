@@ -562,22 +562,8 @@ fun PremiumSpeakUp() {
                         MintHomeCompanionCard(selectedPetId, motionReduced)
                         MintverseGarden(completedLessons = completedIds.size.coerceIn(0, lessons.size),
                             reducedMotion = motionReduced)
-                        val petAdventure = MintPetLearningEngine.suggest(
-                            MintPetLearningSnapshot(
-                                completedLessons = completedIds.size.coerceIn(0, lessons.size),
-                                recentIncorrectAttempts = 0,
-                                recentCorrectAttempts = 0
-                            )
-                        )
-                        MintSectionCard("Mintverse mini-adventure") {
-                            Text(petAdventure.message, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            Text(petAdventure.adventure.title,
-                                style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            Text(petAdventure.adventure.description,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer)
-                            MintPrimaryAction("Explore Games", onClick = { page = "Games" })
-                        }
+                        MintHomeAdventureCard(completedIds.size.coerceIn(0, lessons.size),
+                            onExploreGames = { page = "Games" })
                         Text(if (profileName.isBlank()) "Good to see you! 👋" else "Hi, $profileName! 👋",
                             color = primaryTextColor, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                         Text(MintExperiencePolicy.selectedJourney(chosenPath), color = secondaryTextColor)
