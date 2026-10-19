@@ -1072,83 +1072,22 @@ fun PremiumSpeakUp() {
                     "Games" -> {
                         // Sprint 3: keep activity screens focused on a single challenge.
                         if (gameMode == "Mint Quests") {
-                        Surface(shape=RoundedCornerShape(26.dp),modifier=Modifier.fillMaxWidth(),
-                            color=MaterialTheme.colorScheme.primaryContainer) {
-                            Row(Modifier.fillMaxWidth().padding(18.dp),
-                                verticalAlignment=Alignment.CenterVertically,
-                                horizontalArrangement=Arrangement.spacedBy(14.dp)) {
-                                Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(6.dp)) {
-                                    Text("Games Hub",style=MaterialTheme.typography.headlineMedium,
-                                        fontWeight=FontWeight.ExtraBold,color=MaterialTheme.colorScheme.onPrimaryContainer)
-                                    Text("Learn English through quick challenges.",
-                                        style=MaterialTheme.typography.bodyMedium,
-                                        color=MaterialTheme.colorScheme.onPrimaryContainer)
-                                }
-                                Text("🎮",style=MaterialTheme.typography.displayMedium)
-                            }
-                        }
-                        if (!showGameFilters && gameMode == "Mint Quests") {
-                            Surface(color = softSurfaceColor, shape = RoundedCornerShape(22.dp), modifier = Modifier.fillMaxWidth()) {
-                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Text("🌟  Today's featured game", color = primaryTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                                    Text("Mint Quests", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                                    Text("A quick challenge from your existing game collection.", color = secondaryTextColor)
-                                    Button(
-                                        onClick = { gameMode = "Mint Quests"; showGameFilters = false },
-                                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                                    ) { Text("Play featured game →") }
-                                }
-                            }
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Surface(onClick = {
+                        MintGamesHubEntry(
+                            showFilters = showGameFilters,
+                            darkAppearance = darkAppearance,
+                            primaryTextColor = primaryTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            softSurfaceColor = softSurfaceColor,
+                            onFeatured = { gameMode = "Mint Quests"; showGameFilters = false },
+                            onGrammar = {
                                 gameMode = "Grammar"; showGameFilters = false
                                 grammarChecked = false; grammarChoice = ""; grammarSetComplete = false
                                 grammarSetNewXp = 0; grammarFirstTryCorrect = 0; grammarWrongCount = 0
                                 grammarHadError = false; grammarMissedNotes = emptyList()
-                            }, shape=RoundedCornerShape(22.dp),
-                                color=if(darkAppearance)Color(0xFF28354D) else Color(0xFFF0E7FF),
-                                modifier=Modifier.weight(1f)) {
-                                Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(7.dp)) {
-                                    Text("📖",style=MaterialTheme.typography.headlineMedium)
-                                    Text("Grammar",fontWeight=FontWeight.Bold,color=primaryTextColor)
-                                    Text("Quick practice",style=MaterialTheme.typography.bodySmall,color=secondaryTextColor)
-                                }
-                            }
-                            Surface(onClick = { storyOpenedFromGames = true; page = "Feed" },
-                                shape=RoundedCornerShape(22.dp),
-                                color=if(darkAppearance)Color(0xFF203D4B) else Color(0xFFE3F5FF),
-                                modifier=Modifier.weight(1f)) {
-                                Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(7.dp)) {
-                                    Text("📚",style=MaterialTheme.typography.headlineMedium)
-                                    Text("Stories",fontWeight=FontWeight.Bold,color=primaryTextColor)
-                                    Text("Watch and read",style=MaterialTheme.typography.bodySmall,color=secondaryTextColor)
-                                }
-                            }
-                        }
-                        Text("Pick your next adventure", style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        listOf(
-                            listOf(Triple("🧩", "Word Builder", "Build vocabulary"), Triple("💡", "Riddles", "Think and solve")),
-                            listOf(Triple("🎧", "Listening", "Listen and learn"), Triple("📖", "Reading", "Discover stories"))
-                        ).forEach { pair ->
-                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                pair.forEach { (symbol, mode, description) ->
-                                    Surface(
-                                        onClick = { gameMode = mode; showGameFilters = false },
-                                        shape = RoundedCornerShape(22.dp),
-                                        color = if (darkAppearance) Color(0xFF26364C) else Color(0xFFE9F7F3),
-                                        modifier = Modifier.weight(1f).heightIn(min = 110.dp)
-                                    ) {
-                                        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                            Text(symbol, style = MaterialTheme.typography.headlineMedium)
-                                            Text(mode, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                                            Text(description, style = MaterialTheme.typography.bodySmall, color = secondaryTextColor)
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                            },
+                            onStories = { storyOpenedFromGames = true; page = "Feed" },
+                            onChooseMode = { mode -> gameMode = mode; showGameFilters = false }
+                        )
                         TextButton(onClick = { showGameFilters = !showGameFilters }) { Text(if (showGameFilters) "Hide all game categories ↑" else "Browse all games & levels →") }
                         if (showGameFilters) {
                         Text("Recommended for $learningGoal • $chosenDifficulty", color = accentTextColor, fontWeight = FontWeight.Bold)
