@@ -276,7 +276,11 @@ fun PremiumSpeakUp() {
             page == "FiveWord" -> page = "Feed"
             page == "Feed" && storyOpenedFromGames -> { page = "Games"; storyOpenedFromGames = false }
             page == "Help" || page == "Privacy" || page == "Membership" -> page = "Profile"
-            else -> page = "Today"
+            page == "Games" -> page = "Today"
+            page == "Feed" -> page = "Today"
+            page == "Speak" -> page = "Today"
+            page in listOf("AILifePilot", "FamilyPilot", "CreatorLab", "Professional", "Learn", "Review") -> page = "Today"
+            else -> page = MintUiNavigation.mainTab(page).takeIf { it != page } ?: "Today"
         }
     }
 
