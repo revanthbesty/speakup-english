@@ -23,6 +23,19 @@ class MintUiNavigationTest {
         assertEquals("Feed", MintUiNavigation.mainTab("FiveWord"))
     }
 
+    @Test fun backDestinationsPreserveParentFlow() {
+        assertEquals("Today", MintUiNavigation.backDestination("Today"))
+        assertEquals("Games", MintUiNavigation.backDestination("Games", gameActive = true))
+        assertEquals("Today", MintUiNavigation.backDestination("Games"))
+        assertEquals("Feed", MintUiNavigation.backDestination("FiveWord"))
+        assertEquals("Games", MintUiNavigation.backDestination("Feed", storyFromGames = true))
+        assertEquals("Today", MintUiNavigation.backDestination("Feed"))
+        assertEquals("Profile", MintUiNavigation.backDestination("Privacy"))
+        assertEquals("Profile", MintUiNavigation.backDestination("Help"))
+        assertEquals("Today", MintUiNavigation.backDestination("AILifePilot"))
+        assertEquals("Today", MintUiNavigation.backDestination("Professional"))
+    }
+
     @Test fun invalidSavedRoutesSafelyReturnHome() {
         assertEquals("Today", MintUiNavigation.restoredTab(null))
         assertEquals("Today", MintUiNavigation.restoredTab("NotARealRoute"))
