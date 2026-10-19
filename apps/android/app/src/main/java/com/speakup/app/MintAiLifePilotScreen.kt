@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import android.content.Context
@@ -13,11 +14,11 @@ import androidx.compose.ui.unit.dp
 /** Offline AI Life pilots. Only verified mission dates are saved on device; no transcript is uploaded. */
 @Composable
 internal fun MintAiLifePilotScreen(onBack:()->Unit) {
- var section by remember { mutableStateOf("Home") }
- var cityTurn by remember { mutableIntStateOf(0) }
- var cityChoice by remember { mutableIntStateOf(-1) }
- var storyId by remember { mutableStateOf("start") }
- var cityFeedback by remember { mutableStateOf(false) }
+ var section by rememberSaveable { mutableStateOf("Home") }
+ var cityTurn by rememberSaveable { mutableIntStateOf(0) }
+ var cityChoice by rememberSaveable { mutableIntStateOf(-1) }
+ var storyId by rememberSaveable { mutableStateOf("start") }
+ var cityFeedback by rememberSaveable { mutableStateOf(false) }
  val context = LocalContext.current
  val missionPreferences = remember(context) {
   context.getSharedPreferences("speakup_learning", Context.MODE_PRIVATE)
