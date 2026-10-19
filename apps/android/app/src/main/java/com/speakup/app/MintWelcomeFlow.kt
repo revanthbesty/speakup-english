@@ -161,7 +161,7 @@ internal fun MintWelcomeFlow(
         }
         MintPrimaryAction(if (step == 0) "Let\'s begin →" else if (step == 4) "Start my adventure →" else "Continue →",
             onClick = { if (step == 4) onFinish(false) else step++ })
-        if(step==3) {
+        if(step==4) {
             Text("You can change your goal later in Profile.", style=MaterialTheme.typography.bodySmall, color=subtle)
             TextButton(onClick={onFinish(true)},modifier=Modifier.fillMaxWidth()) {
                 Text("Take the optional level check",color=purple)
