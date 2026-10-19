@@ -53,3 +53,14 @@ This sprint applies foundation/navigation changes; it does not implement the ful
 - Shared progress and empty/error/offline information components added; use them as later UI features are migrated, without claiming all screens already consume them.
 - Screenshot reference is a conceptual UI board; exact final imagery and screen-level device parity are **not yet verified**.
 - Visual acceptance remains **OPEN**, including typography/illustration parity and 320dp/200% font/TalkBack screenshots. CI success is not device acceptance.
+
+## Device-test feedback — 19 October 2026
+Tester reported **8 of 10** guided Sprint 1 scenarios completed with **no problems reported**: Launch, Onboarding, Home, Navigation, Back button, Answer selection, Text and screen sizes, Saved progress. This is user-reported functional acceptance, not independently reproduced automated or screenshot evidence.
+
+**Not yet tested:** Feedback (incorrect/correct answers, explanations, Check → Continue) and Themes (Light, Dark, Follow System). Do not mark either as passed.
+
+**Open visual gates:** approved concept-board illustration parity, screenshot comparisons, distinct small-device breakpoints, 200% font scale, TalkBack traversal, contrast, full gesture/3-button and landscape matrix. No evidence for these specific variants was provided by the device-test summary.
+
+**GitHub verification at feedback intake:** PR #94 head `f32617de78fcba88200bf056ca051c216abeffe0`; CI, Android debug APK and release-gates completed successfully for that commit. PR remains draft and unmerged.
+
+**Triage outcome:** No reproducible device defect was identified by the 8 completed checks; no speculative runtime fix is warranted. Complete the two remaining scenarios and visual/accessibility matrix before Sprint 1 sign-off.
