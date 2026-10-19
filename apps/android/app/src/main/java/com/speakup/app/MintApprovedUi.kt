@@ -12,6 +12,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 
 /** Shared UI primitives from the approved English Mint mint/teal/purple direction.
  * These preserve the parent screen's existing navigation and activity behavior.
@@ -20,6 +22,12 @@ internal object MintDesign {
     val Mint = Color(0xFF10B981)
     val Purple = Color(0xFF8B5CF6)
     val Teal = Color(0xFF06B6D4)
+    val Navy = Color(0xFF111827)
+    val OffWhite = Color(0xFFF8FAFC)
+    val Pink = Color(0xFFEC4899)
+    val Amber = Color(0xFFF59E0B)
+    val MinimumTouchTarget = 48.dp
+    val CardRadius = 24.dp
 }
 
 @Composable
@@ -73,5 +81,66 @@ internal fun MintPrimaryAction(label: String, onClick: () -> Unit, enabled: Bool
         colors = ButtonDefaults.buttonColors(containerColor = MintDesign.Mint,
             contentColor = Color(0xFF063A2B))) {
         Text(label, fontWeight = FontWeight.Bold)
+    }
+}
+
+/** Sprint 1 primitives shared by all subsequent UI sprints. */
+@Composable
+internal fun MintSecondaryAction(label: String, onClick: () -> Unit, enabled: Boolean = true) {
+    OutlinedButton(
+        onClick = onClick, enabled = enabled,
+        modifier = Modifier.fillMaxWidth().heightIn(min = MintDesign.MinimumTouchTarget),
+        shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) { Text(label, fontWeight = FontWeight.SemiBold) }
+}
+
+@Composable
+internal fun MintLearningProgress(completed: Int, total: Int, label: String = "Learning progress") {
+    val safeTotal = total.coerceAtLeast(1)
+    val safeCompleted = completed.coerceIn(0, safeTotal)
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("$label · $safeCompleted of $safeTotal",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        LinearProgressIndicator(
+            progress = { safeCompleted.toFloat() / safeTotal },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 8.dp).semantics {
+                progressBarRangeInfo = ProgressBarRangeInfo(
+                    safeCompleted.toFloat(), 0f..safeTotal.toFloat()
+                )
+            },
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    }
+}
+
+@Composable
+internal fun MintStatusMessage(
+    title: String,
+    detail: String,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+    isError: Boolean = false
+) {
+    Surface(
+        shape = RoundedCornerShape(MintDesign.CardRadius),
+        color = if (isError) MaterialTheme.colorScheme.errorContainer
+                else MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Column(Modifier.fillMaxWidth().padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (isError) MaterialTheme.colorScheme.onErrorContainer
+                        else MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(detail, style = MaterialTheme.typography.bodyMedium,
+                color = if (isError) MaterialTheme.colorScheme.onErrorContainer
+                        else MaterialTheme.colorScheme.onSurfaceVariant)
+            if (actionLabel != null && onAction != null) {
+                MintSecondaryAction(actionLabel, onClick = onAction)
+            }
+        }
     }
 }
