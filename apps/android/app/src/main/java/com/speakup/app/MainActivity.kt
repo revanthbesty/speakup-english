@@ -1076,6 +1076,10 @@ fun PremiumSpeakUp() {
                                     Text("🌟  Today's featured game", color = primaryTextColor, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
                                     Text("Mint Quests", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                                     Text("A quick challenge from your existing game collection.", color = secondaryTextColor)
+                                    Button(
+                                        onClick = { gameMode = "Mint Quests"; showGameFilters = false },
+                                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                    ) { Text("Play featured game →") }
                                 }
                             }
                         }
