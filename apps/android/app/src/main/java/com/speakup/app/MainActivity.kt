@@ -2144,11 +2144,12 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
-                        MintPetProfileCard(selectedId = selectedPetId, reducedMotion = motionReduced,
-                            onSelect = { id ->
+                        MintSectionCard("My Mint Pet") {
+                            MintPetPicker(selectedId = selectedPetId, onSelect = { id ->
                                 selectedPetId = id
                                 preferences.edit().putString("mint_pet_id", id).apply()
-                            })
+                            }, reducedMotion = motionReduced)
+                        }
 
                         Surface(color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
