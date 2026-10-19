@@ -1548,51 +1548,50 @@ fun PremiumSpeakUp() {
                             )
                         } else if (gameMode == "Vocabulary") {
                             val card = vocabularyCards[vocabularyIndex]
-                            Text("Vocabulary ${vocabularyIndex + 1} of ${vocabularyCards.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
-                            Text(card.word, style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                            Text("What does this word mean?", color = secondaryTextColor)
-                            Spacer(Modifier.height(8.dp))
-                            card.choices.forEach { choice ->
-                                OutlinedButton(onClick = { vocabularyChoice = choice; vocabularyChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (vocabularyChoice == choice) "✓ " else "") + choice)
-                                }
-                            }
-                            if (vocabularyChecked) {
-                                val correct = vocabularyChoice == card.meaning
-                                Text(if (correct) "Correct! ${card.example}" else "Not quite. Try another meaning.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
-                                MintPetAnswerReaction(checked = vocabularyChecked, correct = correct, reducedMotion = motionReduced)
-                            }
-                            Button(onClick = {
-                                vocabularyChecked = true
-                                latestActivityXp = if (vocabularyChoice == card.meaning && vocabularyIndex.toString() !in vocabularyMastered) 10 else 0
-                                val id = vocabularyIndex.toString()
-                                if (vocabularyChoice == card.meaning && id !in vocabularyMastered) {
-                                    vocabularyMastered = vocabularyMastered + id
-                                    xp += 10
-                                    preferences.edit().putStringSet("vocabulary_mastered", vocabularyMastered).putInt("total_xp", xp).apply()
-                                }
-                            }, enabled = vocabularyChoice.isNotBlank()) { Text("Check meaning") }
-                            Text("Words mastered: ${vocabularyMastered.size} / ${vocabularyCards.size} • +10 XP for each new word", color = accentTextColor)
-                            if (vocabularyChecked && vocabularyChoice == card.meaning) {
-                                MintActivityCompletion(
-                                    activity = "Vocabulary",
-                                    newXp = latestActivityXp,
-                                    reducedMotion = motionReduced,
-                                    nextLabel = "Next word →",
-                                    onNext = {
-                                        vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
-                                        vocabularyChoice = ""
-                                        vocabularyChecked = false
-                                        latestActivityXp = 0
-                                    },
-                                    onDashboard = { page = "Today" }
-                                )
-                            }
-                            OutlinedButton(onClick = {
-                                vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
-                                vocabularyChoice = ""
-                                vocabularyChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next word →") }
+                            MintVocabularyScreen(
+                                index = vocabularyIndex,
+                                total = vocabularyCards.size,
+                                word = card.word,
+                                choices = card.choices,
+                                meaning = card.meaning,
+                                example = card.example,
+                                selectedChoice = vocabularyChoice,
+                                checked = vocabularyChecked,
+                                masteredCount = vocabularyMastered.size,
+                                latestActivityXp = latestActivityXp,
+                                reducedMotion = motionReduced,
+                                accentTextColor = accentTextColor,
+                                primaryTextColor = primaryTextColor,
+                                secondaryTextColor = secondaryTextColor,
+                                onSelectChoice = { choice ->
+                                    vocabularyChoice = choice
+                                    vocabularyChecked = false
+                                },
+                                onCheck = {
+                                    vocabularyChecked = true
+                                    latestActivityXp = if (vocabularyChoice == card.meaning &&
+                                        vocabularyIndex.toString() !in vocabularyMastered) 10 else 0
+                                    val id = vocabularyIndex.toString()
+                                    if (vocabularyChoice == card.meaning && id !in vocabularyMastered) {
+                                        vocabularyMastered = vocabularyMastered + id
+                                        xp += 10
+                                        preferences.edit().putStringSet("vocabulary_mastered", vocabularyMastered)
+                                            .putInt("total_xp", xp).apply()
+                                    }
+                                },
+                                onCompletionNext = {
+                                    vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
+                                    vocabularyChoice = ""
+                                    vocabularyChecked = false
+                                    latestActivityXp = 0
+                                },
+                                onSkipNext = {
+                                    vocabularyIndex = (vocabularyIndex + 1) % vocabularyCards.size
+                                    vocabularyChoice = ""
+                                    vocabularyChecked = false
+                                },
+                                onDashboard = { page = "Today" }
+                            )
                         } else if (gameMode == "Grammar Formats") {
                             MintGrammarFormatsScreen()
                         } else if (gameMode == "Grammar") {
