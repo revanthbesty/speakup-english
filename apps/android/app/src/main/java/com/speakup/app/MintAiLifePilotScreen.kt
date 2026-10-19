@@ -1,5 +1,6 @@
 package com.speakup.app
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,6 +29,10 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
  }
  var showClearMissionPrompt by remember { mutableStateOf(false) }
  val today = LocalDate.now().toString()
+ // Handle nested AI Life pages before the activity-level Back handler navigates Home.
+ BackHandler(enabled = section != "Home" && !showClearMissionPrompt) {
+  section = "Home"
+ }
 
  if(showClearMissionPrompt) {
   AlertDialog(
