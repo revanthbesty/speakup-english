@@ -2248,7 +2248,13 @@ fun PremiumSpeakUp() {
                             color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                         if (petSoundsEnabled) {
                             MintSecondaryAction("Preview pet welcome sound", onClick = {
-                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.GREETING)
+                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.GREETING, selectedPetId)
+                            })
+                            MintSecondaryAction("Preview encouragement sound", onClick = {
+                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.ENCOURAGEMENT, selectedPetId)
+                            })
+                            MintSecondaryAction("Preview achievement sound", onClick = {
+                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.ACHIEVEMENT, selectedPetId)
                             })
                         }
                         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
