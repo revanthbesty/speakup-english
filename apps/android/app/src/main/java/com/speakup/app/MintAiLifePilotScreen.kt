@@ -46,8 +46,7 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
  }
  Column(Modifier.fillMaxWidth(),verticalArrangement=Arrangement.spacedBy(10.dp)) {
   TextButton(onClick={if(section=="Home")onBack() else section="Home"}) {Text("← "+if(section=="Home")"Home" else "AI Life")}
-  Text("AI Life · offline pilot",style=MaterialTheme.typography.headlineSmall)
-  Text("Private, original scripted learning. No local LLM installed, no paid AI, no camera capture or public family groups.")
+  MintScreenHeading("AI Life", "Practice everyday English in your own world.", "EXPLORE • OFFLINE")
   when(section) {
    "Home" -> {
     Text("Today's verified mission: ${MintLifeMissionLedger.completedMissionCount(missionEvidence,today)} of 1 original café conversation",style=MaterialTheme.typography.bodyMedium)
@@ -58,11 +57,16 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
      TextButton(onClick={showClearMissionPrompt=true}){Text("Delete AI Life daily mission history")}
     }
 
-    Button(onClick={section="City";cityTurn=0;cityChoice=-1;cityFeedback=false},modifier=Modifier.fillMaxWidth()){Text("Virtual City · café dialogue")}
-    OutlinedButton(onClick={section="Story";storyId="start"},modifier=Modifier.fillMaxWidth()){Text("Branching story · library")}
-    OutlinedButton(onClick={section="Words"},modifier=Modifier.fillMaxWidth()){Text("Camera Words · manual fallback")}
-    OutlinedButton(onClick={section="Buddy"},modifier=Modifier.fillMaxWidth()){Text("Mint Buddy · offline text practice")}
-    Text("Speaking Passport recording, learner history, daily plans and child collaboration need further privacy and device integration.",style=MaterialTheme.typography.bodySmall)
+    MintSectionCard("Choose your activity") {
+     MintPrimaryAction("☕ Virtual City · café dialogue", onClick={
+      section="City";cityTurn=0;cityChoice=-1;cityFeedback=false
+     })
+     OutlinedButton(onClick={section="Story";storyId="start"},modifier=Modifier.fillMaxWidth()){Text("📚 Branching story")}
+     OutlinedButton(onClick={section="Words"},modifier=Modifier.fillMaxWidth()){Text("🔤 Practice everyday words")}
+     OutlinedButton(onClick={section="Buddy"},modifier=Modifier.fillMaxWidth()){Text("💬 Mint Buddy")}
+    }
+    Text("All activities on this screen are scripted, private offline previews. No generative AI model or camera is active.",
+     style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
    }
    "Buddy" -> { MintBuddyOfflineScreen() }
    "City" -> {
@@ -71,7 +75,7 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
      Text("Café · turn ${cityTurn+1}/3")
      Text(turn.prompt,style=MaterialTheme.typography.titleMedium)
      turn.options.forEachIndexed { i,answer ->
-      OutlinedButton(onClick={cityChoice=i;cityFeedback=false},modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {Text("${i+1}. $answer")}
+      MintAnswerChoice("${i+1}. $answer", selected=cityChoice==i, onClick={cityChoice=i;cityFeedback=false})
      }
      if(cityFeedback){Text(if(cityChoice==turn.best)"Good response!" else "Try another answer.");Text(turn.explanation)}
      Button(onClick={
