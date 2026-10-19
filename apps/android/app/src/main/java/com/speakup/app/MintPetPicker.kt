@@ -109,6 +109,19 @@ internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifie
         drawCircle(Color.White, radius * .19f, Offset(center.x+radius*.38f, center.y-radius*.08f))
         drawCircle(Color(0xFF111827), radius*.09f, Offset(center.x-radius*.38f,center.y-radius*.08f))
         drawCircle(Color(0xFF111827), radius*.09f, Offset(center.x+radius*.38f,center.y-radius*.08f))
+        // Expressive features are tied to the answer state and remain static when motion is reduced.
+        if (celebrate) {
+            drawCircle(Color(0xFFFFD166), radius * .16f,
+                Offset(center.x + radius * .78f, center.y + radius * .52f))
+            drawCircle(Color(0xFFFFD166), radius * .10f,
+                Offset(center.x - radius * .85f, center.y - radius * .48f))
+        }
+        if (encourage && !celebrate) {
+            drawCircle(Color(0xFFFFB4C8), radius * .15f,
+                Offset(center.x - radius * .72f, center.y + radius * .36f))
+            drawCircle(Color(0xFFFFB4C8), radius * .15f,
+                Offset(center.x + radius * .72f, center.y + radius * .36f))
+        }
         drawArc(Color.White, 25f, 130f, false,
             topLeft=Offset(center.x-radius*.28f,center.y+radius*.06f),
             size=androidx.compose.ui.geometry.Size(radius*.56f,radius*.52f),
