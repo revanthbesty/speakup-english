@@ -1503,48 +1503,49 @@ fun PremiumSpeakUp() {
                         }, modifier = Modifier.fillMaxWidth()) { Text("Next puzzle →") }
                         } else if (gameMode == "Riddles") {
                             val riddle = riddles[riddleIndex]
-                            Text("Riddle ${riddleIndex + 1} of ${riddles.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
-                            Text(riddle.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
-                            riddle.options.forEach { option ->
-                                OutlinedButton(onClick = { riddleChoice = option; riddleChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (riddleChoice == option) "✓ " else "") + option)
-                                }
-                            }
-                            if (riddleChecked) {
-                                Text(if (riddleChoice == riddle.answer) "Correct! ${riddle.explanation}" else "Try again. Think about the clue.", color = if (riddleChoice == riddle.answer) Color(0xFF177B57) else Color(0xFF9D5417))
-                                MintPetAnswerReaction(checked = riddleChecked, correct = riddleChoice == riddle.answer, reducedMotion = motionReduced)
-                            }
-                            Button(onClick = {
-                                riddleChecked = true
-                                latestActivityXp = if (riddleChoice == riddle.answer && riddleIndex.toString() !in riddleAwards) 10 else 0
-                                val id = riddleIndex.toString()
-                                if (riddleChoice == riddle.answer && id !in riddleAwards) {
-                                    riddleAwards = riddleAwards + id
-                                    xp += 10
-                                    preferences.edit().putStringSet("riddle_awards", riddleAwards).putInt("total_xp", xp).apply()
-                                }
-                            }, enabled = riddleChoice.isNotBlank()) { Text("Check answer") }
-                            Text("Riddles mastered: ${riddleAwards.size} / ${riddles.size} • +10 XP per new correct riddle", color = accentTextColor)
-                            if (riddleChecked && riddleChoice == riddle.answer) {
-                                MintActivityCompletion(
-                                    activity = "Riddles",
-                                    newXp = latestActivityXp,
-                                    reducedMotion = motionReduced,
-                                    nextLabel = "Next riddle →",
-                                    onNext = {
-                                        riddleIndex = (riddleIndex + 1) % riddles.size
-                                        riddleChoice = ""
-                                        riddleChecked = false
-                                        latestActivityXp = 0
-                                    },
-                                    onDashboard = { page = "Today" }
-                                )
-                            }
-                            OutlinedButton(onClick = {
-                                riddleIndex = (riddleIndex + 1) % riddles.size
-                                riddleChoice = ""
-                                riddleChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next riddle →") }
+                            MintRiddlesScreen(
+                                index = riddleIndex,
+                                total = riddles.size,
+                                question = riddle.question,
+                                options = riddle.options,
+                                answer = riddle.answer,
+                                explanation = riddle.explanation,
+                                selectedOption = riddleChoice,
+                                checked = riddleChecked,
+                                awardsCount = riddleAwards.size,
+                                latestActivityXp = latestActivityXp,
+                                reducedMotion = motionReduced,
+                                accentTextColor = accentTextColor,
+                                primaryTextColor = primaryTextColor,
+                                onSelectOption = { option ->
+                                    riddleChoice = option
+                                    riddleChecked = false
+                                },
+                                onCheck = {
+                                    riddleChecked = true
+                                    latestActivityXp = if (riddleChoice == riddle.answer &&
+                                        riddleIndex.toString() !in riddleAwards) 10 else 0
+                                    val id = riddleIndex.toString()
+                                    if (riddleChoice == riddle.answer && id !in riddleAwards) {
+                                        riddleAwards = riddleAwards + id
+                                        xp += 10
+                                        preferences.edit().putStringSet("riddle_awards", riddleAwards)
+                                            .putInt("total_xp", xp).apply()
+                                    }
+                                },
+                                onCompletionNext = {
+                                    riddleIndex = (riddleIndex + 1) % riddles.size
+                                    riddleChoice = ""
+                                    riddleChecked = false
+                                    latestActivityXp = 0
+                                },
+                                onSkipNext = {
+                                    riddleIndex = (riddleIndex + 1) % riddles.size
+                                    riddleChoice = ""
+                                    riddleChecked = false
+                                },
+                                onDashboard = { page = "Today" }
+                            )
                         } else if (gameMode == "Vocabulary") {
                             val card = vocabularyCards[vocabularyIndex]
                             Text("Vocabulary ${vocabularyIndex + 1} of ${vocabularyCards.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
