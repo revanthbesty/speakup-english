@@ -78,13 +78,32 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
    "City" -> {
     if(cityTurn<MintLifeVirtualCity.cafe.size) {
      val turn=MintLifeVirtualCity.cafe[cityTurn]
-     Text("Café · turn ${cityTurn+1}/3")
-     Text(turn.prompt,style=MaterialTheme.typography.titleMedium)
+     Text("Café conversation · ${cityTurn+1} of ${MintLifeVirtualCity.cafe.size}",
+      style=MaterialTheme.typography.labelLarge)
+     LinearProgressIndicator(
+      progress={cityTurn.toFloat()/MintLifeVirtualCity.cafe.size.coerceAtLeast(1)},
+      modifier=Modifier.fillMaxWidth()
+     )
+     Text(turn.prompt,style=MaterialTheme.typography.titleLarge)
+     val answerCorrect=cityFeedback && cityChoice==turn.best
      turn.options.forEachIndexed { i,answer ->
-      MintAnswerChoice("${i+1}. $answer", selected=cityChoice==i, onClick={cityChoice=i;cityFeedback=false})
+      MintAnswerChoice("${i+1}. $answer", selected=cityChoice==i,
+       enabled=!answerCorrect, onClick={cityChoice=i;cityFeedback=false})
      }
-     if(cityFeedback){Text(if(cityChoice==turn.best)"Good response!" else "Try another answer.");Text(turn.explanation)}
-     Button(onClick={
+     if(cityFeedback) {
+      Surface(shape=androidx.compose.foundation.shape.RoundedCornerShape(18.dp),
+       color=if(answerCorrect) MaterialTheme.colorScheme.primaryContainer
+             else MaterialTheme.colorScheme.errorContainer) {
+       Column(Modifier.fillMaxWidth().padding(16.dp),
+        verticalArrangement=Arrangement.spacedBy(6.dp)) {
+        Text(if(answerCorrect)"Correct — well done!" else "Not quite — try again",
+         style=MaterialTheme.typography.titleMedium)
+        Text(turn.explanation,style=MaterialTheme.typography.bodyMedium)
+       }
+      }
+     }
+     MintPrimaryAction(if(cityFeedback && cityChoice==turn.best) "Continue →" else "Check response",
+      enabled=cityChoice>=0, onClick={
       if(cityFeedback && cityChoice==turn.best) {
        val newTurn = MintLifeVirtualCity.advance(cityTurn,cityChoice)
        if(newTurn==MintLifeVirtualCity.cafe.size && cityTurn==MintLifeVirtualCity.cafe.lastIndex) {
@@ -100,9 +119,7 @@ internal fun MintAiLifePilotScreen(onBack:()->Unit) {
        cityChoice=-1
        cityFeedback=false
       } else cityFeedback=true
-     },enabled=cityChoice>=0){
-      Text(if(cityFeedback&&cityChoice==turn.best)"Continue" else "Check response")
-     }
+     })
     } else {
      Text("You completed all three café turns.")
      Text(if(MintLifeMissionLedger.completedToday(missionEvidence,today,MintLifeMissionLedger.cafeMissionId))
