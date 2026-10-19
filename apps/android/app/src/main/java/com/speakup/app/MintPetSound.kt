@@ -2,7 +2,11 @@ package com.speakup.app
 
 import android.content.Context
 import android.media.AudioManager
-import android.media.ToneGenerator
+import android.media.AudioAttributes
+import android.media.AudioFormat
+import android.media.AudioTrack
+import kotlin.math.PI
+import kotlin.math.sin
 
 /** Opt-in, offline preview cues for future Mint Pets; never play over quiet mode. */
 internal object MintPetSound {
@@ -13,20 +17,43 @@ internal object MintPetSound {
         val audio = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager ?: return
         if (audio.ringerMode != AudioManager.RINGER_MODE_NORMAL) return
         if (audio.getStreamVolume(AudioManager.STREAM_MUSIC) == 0) return
-        val tone = when (cue) {
-            Cue.GREETING -> ToneGenerator.TONE_PROP_ACK
-            Cue.ENCOURAGEMENT -> ToneGenerator.TONE_PROP_PROMPT
-            Cue.ACHIEVEMENT -> ToneGenerator.TONE_PROP_BEEP2
-        }
-        // Short foreground UI cue only; no automatic looping or audio focus theft.
-        val player = runCatching { ToneGenerator(AudioManager.STREAM_MUSIC, 35) }.getOrNull()
-            ?: return
-        try {
-            player.startTone(tone, 120)
-        } finally {
-            // ToneGenerator owns its playback; the cue is intentionally short.
-            player.stopTone()
-            player.release()
-        }
+        // A soft two-note chime, generated locally; never blocks the UI thread.
+        Thread {
+            val notes = when (cue) {
+                Cue.GREETING -> doubleArrayOf(523.25, 659.25)
+                Cue.ENCOURAGEMENT -> doubleArrayOf(440.0, 523.25)
+                Cue.ACHIEVEMENT -> doubleArrayOf(659.25, 880.0)
+            }
+            val rate = 22050
+            val samplesPerNote = rate / 10
+            val samples = ShortArray(samplesPerNote * notes.size)
+            for (i in samples.indices) {
+                val noteIndex = i / samplesPerNote
+                val t = (i % samplesPerNote).toDouble() / rate
+                val fade = (1.0 - (i % samplesPerNote).toDouble() / samplesPerNote)
+                samples[i] = (sin(2.0 * PI * notes[noteIndex] * t) * fade * 4200).toInt().toShort()
+            }
+            runCatching {
+                val track = AudioTrack.Builder()
+                    .setAudioAttributes(AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build())
+                    .setAudioFormat(AudioFormat.Builder()
+                        .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                        .setSampleRate(rate)
+                        .setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build())
+                    .setBufferSizeInBytes(samples.size * 2)
+                    .setTransferMode(AudioTrack.MODE_STATIC)
+                    .build()
+                try {
+                    track.write(samples, 0, samples.size)
+                    track.play()
+                    Thread.sleep(250)
+                } finally {
+                    track.stop()
+                    track.release()
+                }
+            }
+        }.start()
     }
 }
