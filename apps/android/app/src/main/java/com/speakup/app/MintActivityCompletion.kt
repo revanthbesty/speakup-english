@@ -50,7 +50,7 @@ internal fun MintActivityCompletion(
             if (selectedPet != null) {
                 Row(verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    MintPetPortrait(selectedPet, reducedMotion)
+                    MintPetPortrait(selectedPet, reducedMotion, celebrate = fresh)
                     Column(Modifier.weight(1f)) {
                         Text(selectedPet.name + " says:",
                             style = MaterialTheme.typography.labelMedium,
