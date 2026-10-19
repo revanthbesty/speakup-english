@@ -2144,31 +2144,11 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
-                        var editingMintPet by remember { mutableStateOf(false) }
-                        MintSectionCard("My Mint Pet") {
-                            val currentPet = MintPetCatalog.find(selectedPetId)
-                            if (!editingMintPet) {
-                                Row(verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    if (currentPet != null) MintPetPortrait(currentPet, motionReduced)
-                                    Column(Modifier.weight(1f)) {
-                                        Text(currentPet?.name ?: "No companion selected",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold)
-                                        Text(currentPet?.personality ?: "You can add a companion whenever you like.",
-                                            style = MaterialTheme.typography.bodySmall)
-                                    }
-                                }
-                                MintSecondaryAction("Change companion", onClick = { editingMintPet = true })
-                            } else {
-                                MintPetPicker(selectedId = selectedPetId, onSelect = { id ->
-                                    selectedPetId = id
-                                    preferences.edit().putString("mint_pet_id", id).apply()
-                                    editingMintPet = false
-                                }, reducedMotion = motionReduced)
-                                MintSecondaryAction("Cancel", onClick = { editingMintPet = false })
-                            }
-                        }
+                        MintPetProfileCard(selectedId = selectedPetId, reducedMotion = motionReduced,
+                            onSelect = { id ->
+                                selectedPetId = id
+                                preferences.edit().putString("mint_pet_id", id).apply()
+                            })
 
                         Surface(color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
