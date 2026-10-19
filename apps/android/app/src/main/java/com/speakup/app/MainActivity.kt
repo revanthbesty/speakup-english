@@ -188,6 +188,7 @@ fun PremiumSpeakUp() {
     val followSystemDark = isSystemInDarkTheme()
     var themePreference by remember { mutableStateOf(preferences.getString("mint_theme_mode", if (preferences.getBoolean("dark_appearance", false)) "dark" else "system") ?: "system") }
     var reduceMotion by remember { mutableStateOf(preferences.getBoolean("mint_reduce_motion", false)) }
+    var petSoundsEnabled by remember { mutableStateOf(preferences.getBoolean("mint_pet_sounds_enabled", false)) }
     var eyeComfort by remember { mutableStateOf(preferences.getBoolean("mint_eye_comfort", false)) }
     val accessibilityScale = android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
     val motionReduced = MintExperiencePolicy.reducedMotion(reduceMotion, accessibilityScale == 0f)
@@ -2189,6 +2190,20 @@ fun PremiumSpeakUp() {
                             Switch(checked = eyeComfort, onCheckedChange = {
                                 eyeComfort = it
                                 preferences.edit().putBoolean("mint_eye_comfort", it).apply()
+                            })
+                        }
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                            Text("Pet sound effects (optional)", color = primaryTextColor, modifier = Modifier.weight(1f))
+                            Switch(checked = petSoundsEnabled, onCheckedChange = {
+                                petSoundsEnabled = it
+                                preferences.edit().putBoolean("mint_pet_sounds_enabled", it).apply()
+                            })
+                        }
+                        Text("Short offline chimes. Off by default; respects silent mode. Background music is not enabled yet.",
+                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        if (petSoundsEnabled) {
+                            MintSecondaryAction("Preview pet welcome sound", onClick = {
+                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.GREETING)
                             })
                         }
                         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
