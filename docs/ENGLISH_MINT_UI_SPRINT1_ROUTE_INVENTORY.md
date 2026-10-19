@@ -71,3 +71,9 @@ Apply tasteful, consistent animation to **all screens** where user feedback bene
 Use one shared motion language: micro-feedback about 150–300ms and screen transitions about 250–450ms; respect Android animator scale and the existing reduced-motion preference. Provide immediate static equivalents, readable text and screen-reader labels when motion is disabled. Never award XP twice or animate fabricated awards. Reward celebrations must consume existing verified progression/reward events.
 
 Implemented foundation: `MintAchievementCelebration` in `MintApprovedUi.kt` accepts caller-controlled visibility, verified award copy and `reduceMotion`. Wiring to the reward engine and screen-by-screen coverage remains pending; do not claim every screen is animated yet.
+
+## Mintverse living-world foundation — 19 October 2026
+- New `MintverseGarden.kt` presents an original Compose Canvas plant illustration with growth determined by the **existing completed lesson count**. Stages are mapped to completion thresholds 0, 1, 3, 7, 14; no invented XP, badge issuance or server data.
+- Home (`MainActivity.kt`, Today destination) now renders `MintverseGarden` using persisted `completedIds` and the existing `motionReduced` preference. Growth animates 420ms when permitted and immediately updates when reduced motion is enabled.
+- Visible text explains the stage and total earned progress. Offline, deterministic display-only behavior; no new permissions or paid integrations.
+- Not implemented by these commits: 3D world, character companion, constellation unlocks, storyline, all-screen motion, screenshot fidelity verification. These require separate development and testing.
