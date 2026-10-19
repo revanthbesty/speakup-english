@@ -77,25 +77,16 @@ internal fun MintProfessionalHub(
         TextButton(onClick = { if (section == "Hub") onBack() else section = "Hub" }) { Text("← " + if (section == "Hub") "Home" else "Professional English") }
         when (section) {
             "Hub" -> {
-                Surface(shape=RoundedCornerShape(25.dp),
-                    color=MaterialTheme.colorScheme.primaryContainer) {
-                    Row(Modifier.fillMaxWidth().padding(18.dp),
-                        verticalAlignment=androidx.compose.ui.Alignment.CenterVertically,
-                        horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                        Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)) {
-                            Text("Professional English",style=MaterialTheme.typography.headlineSmall,
-                                fontWeight=FontWeight.ExtraBold,color=MaterialTheme.colorScheme.onPrimaryContainer)
-                            Text("Confident conversations at work, one short practice at a time.",
-                                color=MaterialTheme.colorScheme.onPrimaryContainer)
-                        }
-                        Text("💼",style=MaterialTheme.typography.displayLarge)
-                    }
-                }
+                MintScreenHeading(
+                    "Professional English",
+                    "Confident conversations at work, one short practice at a time.",
+                    "LEARN • PROFESSIONAL"
+                )
                 Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.primaryContainer) {
                     Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         Text("Your next step", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                         Text("Start with an existing lesson or rehearse a conversation.", color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Button(onClick = onLessons, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Continue learning →") }
+                        MintPrimaryAction("Continue learning →", onClick = onLessons)
                     }
                 }
                 OutlinedButton(onClick = { section = "Industries" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Explore career topics →") }
