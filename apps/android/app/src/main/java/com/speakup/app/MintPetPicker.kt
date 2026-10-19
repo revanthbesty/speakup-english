@@ -41,6 +41,15 @@ internal object MintPetCatalog {
 
 /** Pose profiles keep the six companions distinctive even before final vector assets arrive. */
 internal object MintPetMotion {
+    fun encouragementRotation(id: String): Float = when (id) {
+        "mint_fox" -> 7f
+        "buddy_panda" -> -4f
+        "spark_cat" -> -9f
+        "wise_owl" -> 5f
+        "joy_rabbit" -> -7f
+        "tiny_dragon" -> 11f
+        else -> 0f
+    }
     fun celebrationRotation(id: String): Float = when (id) {
         "mint_fox" -> -11f
         "buddy_panda" -> 5f
@@ -53,9 +62,10 @@ internal object MintPetMotion {
 }
 /** Original simple geometric character previews; final illustrated art is a separate acceptance gate. */
 @Composable
-internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifier: Modifier = Modifier, celebrate: Boolean = false) {
+internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifier: Modifier = Modifier, celebrate: Boolean = false,
+                             encourage: Boolean = false) {
     val pose = remember(pet.id) { Animatable(0f) }
-    LaunchedEffect(pet.id, celebrate, reducedMotion) {
+    LaunchedEffect(pet.id, celebrate, encourage, reducedMotion) {
         pose.snapTo(0f)
         if (celebrate && !reducedMotion) {
             pose.animateTo(1f, animationSpec = keyframes {
@@ -65,12 +75,21 @@ internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifie
                 0.55f at 390
                 1f at 520
             })
+        } else if (encourage && !reducedMotion) {
+            pose.animateTo(1f, animationSpec = keyframes {
+                durationMillis = 440
+                0.25f at 110
+                1f at 230
+                0.45f at 330
+                1f at 440
+            })
         }
     }
     val growth = animateFloatAsState(1f, tween(if (reducedMotion) 0 else 300), label = "pet-portrait")
     Canvas(modifier.size(74.dp).graphicsLayer {
-        rotationZ = MintPetMotion.celebrationRotation(pet.id) * pose.value
-        translationY = -7.dp.toPx() * pose.value
+        rotationZ = (if (encourage && !celebrate) MintPetMotion.encouragementRotation(pet.id)
+                     else MintPetMotion.celebrationRotation(pet.id)) * pose.value
+        translationY = (if (encourage && !celebrate) 3.dp.toPx() else -7.dp.toPx()) * pose.value
         scaleX = 1f + .06f * pose.value
         scaleY = 1f + .06f * pose.value
     }.semantics { contentDescription = pet.name + " companion illustration" }) {
