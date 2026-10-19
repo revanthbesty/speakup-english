@@ -1770,7 +1770,7 @@ fun PremiumSpeakUp() {
                                     }, label = { Text("Pack ${pack + 1}") })
                                 }
                             }
-                            LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + 1f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
+                            LinearProgressIndicator(progress = { (grammarIndex - grammarSet * grammarSetSize + if (grammarChecked && grammarChoice == grammarQuestions[grammarIndex].correct) 1f else 0f) / (grammarSetEndExclusive - grammarSet * grammarSetSize) }, modifier = Modifier.fillMaxWidth())
                             val question = grammarQuestions[grammarIndex]
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 val savedKey = MintGrammarHub.bookmarkId(grammarIndex)
@@ -1875,7 +1875,7 @@ fun PremiumSpeakUp() {
                                     }
                                 }
                             }
-                            Button(onClick = {
+                            if (!(grammarChecked && grammarChoice == question.correct)) Button(onClick = {
                                 if (!grammarChecked && grammarChoice != question.correct && !grammarHadError) {
                                     grammarHadError = true
                                     grammarWrongCount += 1
@@ -1897,7 +1897,7 @@ fun PremiumSpeakUp() {
                                 }
                             }, enabled = grammarChoice.isNotBlank() && !(grammarChecked && grammarChoice == question.correct)) { Text("Check grammar") }
                             Text("🌸 ${grammarMastered.size} of ${grammarQuestions.size} grammar blooms growing", color = accentTextColor)
-                            OutlinedButton(onClick = {
+                            if (grammarChecked && grammarChoice == question.correct) MintPrimaryAction(label = if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Continue →", onClick = {
                                 if (!grammarHadError) grammarFirstTryCorrect += 1
                                 if (grammarIndex + 1 >= grammarSetEndExclusive) {
                                     grammarBloomEarned = grammarSetNewXp > 0
@@ -1906,7 +1906,7 @@ fun PremiumSpeakUp() {
                                 grammarChoice = ""
                                 grammarChecked = false
                                 grammarHadError = false
-                            }, enabled = grammarChecked && grammarChoice == question.correct, modifier = Modifier.fillMaxWidth()) { Text(if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Next grammar question →") }
+                            })
                             }
                         } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
