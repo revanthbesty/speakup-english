@@ -1,5 +1,10 @@
 package com.speakup.app
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -208,6 +213,44 @@ internal fun MintFeedbackBanner(title: String, explanation: String, correct: Boo
             Text(explanation, style = MaterialTheme.typography.bodyMedium,
                 color = if (correct) MaterialTheme.colorScheme.onPrimaryContainer
                         else MaterialTheme.colorScheme.onErrorContainer)
+        }
+    }
+}
+
+/** Reward presentation only. XP and award eligibility must come from the existing reward engine. */
+@Composable
+internal fun MintAchievementCelebration(
+    visible: Boolean,
+    title: String,
+    message: String,
+    reduceMotion: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier.fillMaxWidth(),
+        enter = if (reduceMotion) fadeIn(animationSpec = androidx.compose.animation.core.snap())
+                else fadeIn(animationSpec = androidx.compose.animation.core.tween(280)) +
+                     expandVertically(animationSpec = androidx.compose.animation.core.tween(320)),
+        exit = if (reduceMotion) fadeOut(animationSpec = androidx.compose.animation.core.snap())
+               else fadeOut(animationSpec = androidx.compose.animation.core.tween(180)) +
+                    shrinkVertically(animationSpec = androidx.compose.animation.core.tween(200))
+    ) {
+        Surface(shape = RoundedCornerShape(MintDesign.CardRadius),
+            color = MaterialTheme.colorScheme.primaryContainer) {
+            Row(Modifier.fillMaxWidth().padding(18.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text("★", style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.primary)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(title, style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(message, style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer)
+                }
+            }
         }
     }
 }
