@@ -6,6 +6,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,6 +22,11 @@ internal fun MintActivityCompletion(
     onDashboard: () -> Unit,
     reducedMotion: Boolean = false
 ) {
+    val context = LocalContext.current
+    val petPreferences = remember(context) {
+        context.getSharedPreferences(MintIdentity.legacyPreferencesFile, android.content.Context.MODE_PRIVATE)
+    }
+    val selectedPet = MintPetCatalog.find(petPreferences.getString("mint_pet_id", null))
     val collectible = MintRewardUniverse.displayName(activity)
     val fresh = MintRewardUniverse.isNewReward(newXp)
     var revealed by remember(activity, newXp) { mutableStateOf(false) }
@@ -40,6 +47,20 @@ internal fun MintActivityCompletion(
                 style = MaterialTheme.typography.titleMedium)
             Text(if (fresh) "Your learning garden is growing." else "Review is always welcome. No duplicate reward.",
                 color = MaterialTheme.colorScheme.onPrimaryContainer)
+            if (selectedPet != null) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    MintPetPortrait(selectedPet, reducedMotion)
+                    Column(Modifier.weight(1f)) {
+                        Text(selectedPet.name + " says:",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text(if (fresh) "That was a real achievement! Our garden can grow."
+                             else "Welcome back! Practice is valuable, too.",
+                            color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    }
+                }
+            }
             MintPrimaryAction(nextLabel, onClick = onNext)
             OutlinedButton(onClick = onDashboard, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text("View My Mint Garden")
