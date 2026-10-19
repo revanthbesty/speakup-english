@@ -136,3 +136,9 @@ Privacy analytics optional local aggregate: companion selected, preference enabl
 - Added `MintPetLearningEngineTest.kt` unit coverage for catalog uniqueness, welcome/encouragement, selected skill and garden progression.
 - **Not yet wired:** real per-skill mistakes/correct answer counters, a selectable pet avatar, curated quest question banks, pet teaching dialogs, mission deep links, rewards integration or personalized adaptive lessons. Home passes zero for recent attempts until genuine source data is mapped. Avoid claiming intelligent adaptation is live.
 - Verify CI and Android APK at the exact PR head before sign-off. Continue Sprint 1 visual/device acceptance and leave the PR draft.
+
+## 13. Selected pet on actual learning-completion panels (19 October 2026)
+- `MintActivityCompletion.kt` now reads the saved `mint_pet_id` in the same legacy preferences file used by onboarding/Profile and displays that companion's existing portrait in the verified activity completion panel.
+- The message differentiates **new earned XP** from **review of previously completed content**; no XP or badge side effects were added. Without a selected pet, the previous completion flow renders unchanged.
+- Five existing `MintActivityCompletion` integrations in MainActivity benefit from this shared change. This is a static contextual companion reaction, not yet expressive pose animation or automatic sound. Reduced-motion input is passed to the portrait.
+- Remaining QA: test fresh award vs review, pet selection changes, no-pet display, app restart, audio coexistence, large font, and CI on exact commit.
