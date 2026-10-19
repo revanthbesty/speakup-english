@@ -25,6 +25,13 @@ class MintGamesRecommendationsTest {
         }
     }
 
+    @Test fun featuredActionTargetsPlayableGameNotHub() {
+        assertEquals("Word Builder", MintFeaturedGame.mode)
+        assertTrue(MintFeaturedGame.isPlayable(MintFeaturedGame.mode))
+        assertEquals(false, MintFeaturedGame.isPlayable(MintFeaturedGame.hubMode))
+        assertEquals(false, MintFeaturedGame.isPlayable("Unknown game"))
+    }
+
     @Test fun fallbackAndTravelGoalsStayDeterministic() {
         assertEquals(listOf("Vocabulary", "Situations", "Word Builder"),
             MintGamesRecommendations.forGoal("Unknown goal"))
