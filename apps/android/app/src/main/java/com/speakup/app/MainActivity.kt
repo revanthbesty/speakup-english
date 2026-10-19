@@ -2457,7 +2457,7 @@ fun PremiumSpeakUp() {
                     )
                     NavigationBarItem(
                         selected = isActive,
-                        onClick = { if (tab != "Feed") storyOpenedFromGames = false; page = tab },
+                        onClick = { storyOpenedFromGames = MintUiNavigation.clipsReturnToGamesAfterTabTap(tab); page = tab },
                         icon = { MintBottomTabIcon(tab, iconColor) },
                         label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
