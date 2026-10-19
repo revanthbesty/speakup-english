@@ -1956,6 +1956,7 @@ fun PremiumSpeakUp() {
                             if (scenarioChecked) {
                                 val correct = scenarioChoice == scenario.correct
                                 Text(if (correct) "Great response! ${scenario.explanation}" else "Try again. ${scenario.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = scenarioChecked, correct = correct, reducedMotion = motionReduced)
                             }
                             if (!(scenarioChecked && scenarioChoice == scenario.correct)) MintPrimaryAction("Check response", enabled = scenarioChoice.isNotBlank(), onClick = {
                                 scenarioChecked = true
