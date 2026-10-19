@@ -1907,6 +1907,7 @@ fun PremiumSpeakUp() {
                                         Text(if (correct) "Why this answer works" else "Why this answer needs another try",
                                             color = accentTextColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
                                         Text(question.explanation, color = primaryTextColor, style = MaterialTheme.typography.bodyLarge)
+                                        MintPetAnswerReaction(checked = grammarChecked, correct = correct, reducedMotion = motionReduced)
                                         if (!correct) Text("Choose another answer above, then check again.",
                                             color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                                     }
@@ -2006,6 +2007,7 @@ fun PremiumSpeakUp() {
                             if (listeningChecked) {
                                 val correct = listeningChoice == listening.correct
                                 Text(if (correct) "Correct! ${listening.explanation}" else "Try again. ${listening.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = listeningChecked, correct = correct, reducedMotion = motionReduced)
                             }
                             if (!(listeningChecked && listeningChoice == listening.correct)) MintPrimaryAction("Check answer", enabled = listeningChoice.isNotBlank(), onClick = {
                                 listeningChecked = true
@@ -2051,6 +2053,7 @@ fun PremiumSpeakUp() {
                             if (readingChecked) {
                                 val correct = readingChoice == passage.answer
                                 Text(if (correct) "Correct! ${passage.explanation}" else "Try again. Re-read the passage and find the clue.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = readingChecked, correct = correct, reducedMotion = motionReduced)
                             }
                             if (!(readingChecked && readingChoice == passage.answer)) MintPrimaryAction("Check answer", enabled = readingChoice.isNotBlank(), onClick = {
                                 readingChecked = true
