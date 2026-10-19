@@ -142,3 +142,9 @@ Privacy analytics optional local aggregate: companion selected, preference enabl
 - The message differentiates **new earned XP** from **review of previously completed content**; no XP or badge side effects were added. Without a selected pet, the previous completion flow renders unchanged.
 - Five existing `MintActivityCompletion` integrations in MainActivity benefit from this shared change. This is a static contextual companion reaction, not yet expressive pose animation or automatic sound. Reduced-motion input is passed to the portrait.
 - Remaining QA: test fresh award vs review, pet selection changes, no-pet display, app restart, audio coexistence, large font, and CI on exact commit.
+
+## 14. Distinct animated pet achievement reaction
+- Added a bounded, one-shot 520ms achievement pose to the shared `MintPetPortrait`, keyed by pet ID with varying rotation and gentle vertical movement. Each of six pets has its own motion angle; this is an **interim original geometric illustration**, not final approved character art.
+- `MintActivityCompletion` requests animation only when the existing verified-reward predicate `fresh` is true. Reviews remain static and receive supportive text, without re-awarding XP.
+- Existing `reducedMotion` flag bypasses animation and renders the legible pose statically. No continuous idle animation or sound autoplay has been added.
+- Remaining: design-accurate pet assets, correct/wrong answer contextual poses, event-driven sound integration, actual screenshot/device animation QA and full pet art signoff.
