@@ -1958,17 +1958,18 @@ fun PremiumSpeakUp() {
                                     Text(listening.phrase, modifier = Modifier.padding(16.dp), color = primaryTextColor)
                                 }
                             }
+                            LinearProgressIndicator(progress = { (listeningIndex + if (listeningChecked && listeningChoice == listening.correct) 1f else 0f) / listeningChecks.size.coerceAtLeast(1) },modifier = Modifier.fillMaxWidth())
                             Text(listening.question, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                             listening.options.forEach { choice ->
-                                OutlinedButton(onClick = { listeningChoice = choice; listeningChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (listeningChoice == choice) "✓ " else "") + choice)
-                                }
+                                MintAnswerChoice(choice, selected = listeningChoice == choice,
+                                    enabled = !(listeningChecked && listeningChoice == listening.correct),
+                                    onClick = { listeningChoice = choice; listeningChecked = false })
                             }
                             if (listeningChecked) {
                                 val correct = listeningChoice == listening.correct
                                 Text(if (correct) "Correct! ${listening.explanation}" else "Try again. ${listening.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
                             }
-                            Button(onClick = {
+                            if (!(listeningChecked && listeningChoice == listening.correct)) MintPrimaryAction("Check answer", enabled = listeningChoice.isNotBlank(), onClick = {
                                 listeningChecked = true
                                 latestActivityXp = if (listeningChoice == listening.correct && listeningIndex.toString() !in listeningMastered) 10 else 0
                                 val id = listeningIndex.toString()
@@ -1977,7 +1978,7 @@ fun PremiumSpeakUp() {
                                     xp += 10
                                     preferences.edit().putStringSet("listening_mastered", listeningMastered).putInt("total_xp", xp).apply()
                                 }
-                            }, enabled = listeningChoice.isNotBlank()) { Text("Check comprehension") }
+                            })
                             Text("Checks mastered: ${listeningMastered.size} / ${listeningChecks.size} • +10 XP for a first correct answer", color = accentTextColor)
                             if (listeningChecked && listeningChoice == listening.correct) {
                                 MintActivityCompletion(
@@ -1994,12 +1995,6 @@ fun PremiumSpeakUp() {
                                     onDashboard = { page = "Today" }
                                 )
                             }
-                            OutlinedButton(onClick = {
-                                listeningIndex = (listeningIndex + 1) % listeningChecks.size
-                                listeningChoice = ""
-                                listeningChecked = false
-                                showListeningTranscript = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next comprehension check →") }
                         } else if (gameMode == "Reading") {
                             val passage = readingPassages[readingIndex]
                             Text("Reading ${readingIndex + 1} of ${readingPassages.size} • ${passage.level}", color = accentTextColor, fontWeight = FontWeight.Bold)
@@ -2008,17 +2003,18 @@ fun PremiumSpeakUp() {
                                 Text(passage.passage, modifier = Modifier.padding(16.dp), color = primaryTextColor)
                             }
                             Spacer(Modifier.height(12.dp))
+                            LinearProgressIndicator(progress = { (readingIndex + if (readingChecked && readingChoice == passage.answer) 1f else 0f) / readingPassages.size.coerceAtLeast(1) },modifier = Modifier.fillMaxWidth())
                             Text(passage.question, style = MaterialTheme.typography.titleMedium, color = primaryTextColor)
                             passage.options.forEach { choice ->
-                                OutlinedButton(onClick = { readingChoice = choice; readingChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (readingChoice == choice) "✓ " else "") + choice)
-                                }
+                                MintAnswerChoice(choice, selected = readingChoice == choice,
+                                    enabled = !(readingChecked && readingChoice == passage.answer),
+                                    onClick = { readingChoice = choice; readingChecked = false })
                             }
                             if (readingChecked) {
                                 val correct = readingChoice == passage.answer
                                 Text(if (correct) "Correct! ${passage.explanation}" else "Try again. Re-read the passage and find the clue.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
                             }
-                            Button(onClick = {
+                            if (!(readingChecked && readingChoice == passage.answer)) MintPrimaryAction("Check answer", enabled = readingChoice.isNotBlank(), onClick = {
                                 readingChecked = true
                                 latestActivityXp = if (readingChoice == passage.answer && readingIndex.toString() !in readingMastered) 10 else 0
                                 val id = readingIndex.toString()
@@ -2027,7 +2023,7 @@ fun PremiumSpeakUp() {
                                     xp += 10
                                     preferences.edit().putStringSet("reading_mastered", readingMastered).putInt("total_xp", xp).apply()
                                 }
-                            }, enabled = readingChoice.isNotBlank()) { Text("Check reading answer") }
+                            })
                             Text("Passages mastered: ${readingMastered.size} / ${readingPassages.size} • +10 XP once per passage", color = accentTextColor)
                             if (readingChecked && readingChoice == passage.answer) {
                                 MintActivityCompletion(
@@ -2044,11 +2040,6 @@ fun PremiumSpeakUp() {
                                     onDashboard = { page = "Today" }
                                 )
                             }
-                            OutlinedButton(onClick = {
-                                readingIndex = (readingIndex + 1) % readingPassages.size
-                                readingChoice = ""
-                                readingChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next reading passage →") }
                         } else {
                             val availableDialogues = guidedDialogues.filter { it.level == chosenDifficulty }
                             val dialogue = availableDialogues[dialogueIndex % availableDialogues.size]
