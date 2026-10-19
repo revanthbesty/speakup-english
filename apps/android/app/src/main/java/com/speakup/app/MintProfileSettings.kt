@@ -207,7 +207,7 @@ private fun MintProfileLearnerEditor(
                         }
                         Text("Learning pathway", color = primaryTextColor, fontWeight = FontWeight.Bold)
                         learningPaths.forEach { (pathId, pathTitle) ->
-                            FilterChip(selected = chosenPath == path.id, onClick = { onPathChange(pathId) }, label = { Text(pathTitle) })
+                            FilterChip(selected = chosenPath == pathId, onClick = { onPathChange(pathId) }, label = { Text(pathTitle) })
                         }
                         Text("Daily goal", color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
