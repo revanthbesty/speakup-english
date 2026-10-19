@@ -1732,7 +1732,6 @@ fun PremiumSpeakUp() {
                             }
                             Text("Grammar Hub · ${MintGrammarHub.packCount(grammarQuestions.size)} practice packs · ${MintGrammarHub.savedCount(grammarBookmarks, grammarQuestions.size)} bookmarked questions",
                                 color = primaryTextColor, fontWeight = FontWeight.SemiBold)
-                            Text("Pilot packs are not verified topic classifications or Easy/Medium/Hard assessments.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("Show saved questions", color = primaryTextColor, modifier = Modifier.weight(1f))
                                 Switch(checked = grammarSavedOnly, onCheckedChange = { grammarSavedOnly = it })
@@ -1778,10 +1777,7 @@ fun PremiumSpeakUp() {
                                     preferences.edit().putStringSet("mint_grammar_bookmarks", grammarBookmarks).apply()
                                 }) { Text(if (savedKey in grammarBookmarks) "Remove ★" else "Save ☆") }
                             }
-                            TextButton(onClick = { grammarShowExplanation = !grammarShowExplanation }) {
-                                Text(if (grammarShowExplanation) "Hide grammar explanation" else "Read grammar explanation")
-                            }
-                            if (grammarShowExplanation) Text(question.explanation, color = secondaryTextColor)
+                            // Explanations appear with answer feedback, not before an attempt.
 
                             Text("Question ${grammarIndex - grammarSet * grammarSetSize + 1} of ${grammarSetEndExclusive - grammarSet * grammarSetSize}", color = accentTextColor, fontWeight = FontWeight.Bold)
                             if (grammarSetComplete) {
