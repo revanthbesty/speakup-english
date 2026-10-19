@@ -559,17 +559,7 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
-                        MintPetCatalog.find(selectedPetId)?.let { chosenPet ->
-                            MintSectionCard("Your companion • " + chosenPet.name) {
-                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                                    MintPetPortrait(chosenPet, motionReduced)
-                                    Spacer(Modifier.width(10.dp))
-                                    Text("We can learn together, one small step at a time.",
-                                        modifier = Modifier.weight(1f),
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer)
-                                }
-                            }
-                        }
+                        MintHomeCompanionCard(selectedPetId, motionReduced)
                         MintverseGarden(completedLessons = completedIds.size.coerceIn(0, lessons.size),
                             reducedMotion = motionReduced)
                         val petAdventure = MintPetLearningEngine.suggest(
