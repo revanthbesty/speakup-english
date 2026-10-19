@@ -36,6 +36,12 @@ class MintUiNavigationTest {
         assertEquals("Today", MintUiNavigation.backDestination("Professional"))
     }
 
+    @Test fun explicitTabNavigationClearsGamesOriginForClips() {
+        MintUiNavigation.tabs.forEach { tab ->
+            assertEquals(false, MintUiNavigation.clipsReturnToGamesAfterTabTap(tab))
+        }
+    }
+
     @Test fun invalidSavedRoutesSafelyReturnHome() {
         assertEquals("Today", MintUiNavigation.restoredTab(null))
         assertEquals("Today", MintUiNavigation.restoredTab("NotARealRoute"))
