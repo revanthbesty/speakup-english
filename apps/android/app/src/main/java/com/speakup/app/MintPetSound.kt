@@ -5,7 +5,6 @@ import android.media.AudioManager
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
-import android.media.AudioFocusRequest
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -21,15 +20,7 @@ internal object MintPetSound {
         // A soft two-note chime, generated locally; never blocks the UI thread.
         Thread {
             // Stable pitch families give every selected companion an identifiable sound.
-            val transpose = when (petId) {
-                "mint_fox" -> 1.0
-                "buddy_panda" -> .75
-                "spark_cat" -> 1.20
-                "wise_owl" -> .90
-                "joy_rabbit" -> 1.12
-                "tiny_dragon" -> 1.34
-                else -> 1.0
-            }
+            val transpose = MintPetSoundProfile.pitchRatio(petId)
             val notes = (when (cue) {
                 Cue.GREETING -> doubleArrayOf(523.25, 659.25)
                 Cue.ENCOURAGEMENT -> doubleArrayOf(440.0, 523.25)
