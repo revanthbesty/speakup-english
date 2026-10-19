@@ -2127,33 +2127,22 @@ fun PremiumSpeakUp() {
                             }, reducedMotion = motionReduced)
                         }
 
-                        Surface(color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
-                            Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                                Text("🌿",style=MaterialTheme.typography.displayMedium)
-                                Column {
-                                    Text("My learning space",color=MaterialTheme.colorScheme.onPrimaryContainer,
-                                        style=MaterialTheme.typography.headlineSmall,fontWeight=FontWeight.Bold)
-                                    Text("Your goals and achievements",color=MaterialTheme.colorScheme.onPrimaryContainer,
-                                        style=MaterialTheme.typography.bodyMedium)
-                                }
-                            }
-                        }
-                        Text(if (profileName.isBlank()) "Your learning space" else "Learning as $profileName", color = secondaryTextColor)
-                        Text("${MintExperiencePolicy.selectedJourney(chosenPath)} · $chosenDifficulty · $dailyGoal minutes per day", color = secondaryTextColor)
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Your progress", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                                Text("$xp XP earned · ${completedIds.size} of ${lessons.size} lessons completed", color = secondaryTextColor)
-                                LinearProgressIndicator(progress = { completedIds.size.toFloat() / lessons.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
-                                OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("View progress & achievements →") }
-                            }
-                        }
-                        OutlinedButton(onClick = { page = "Help" }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Help & guidance →") }
-                        Button(onClick = { showProfileSettings = !showProfileSettings }, modifier = Modifier.fillMaxWidth()) {
-                            Text(if (showProfileSettings) "Close settings" else "Edit profile and settings →")
-                        }
+                        MintProfileOverview(
+                            profileName = profileName,
+                            journey = MintExperiencePolicy.selectedJourney(chosenPath),
+                            difficulty = chosenDifficulty,
+                            dailyGoalMinutes = dailyGoal,
+                            xp = xp,
+                            completedLessons = completedIds.size,
+                            lessonCount = lessons.size,
+                            surfaceColor = surfaceColor,
+                            primaryTextColor = primaryTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            onReview = { page = "Review" },
+                            onHelp = { page = "Help" },
+                            settingsExpanded = showProfileSettings,
+                            onToggleSettings = { showProfileSettings = !showProfileSettings }
+                        )
                         if (showProfileSettings) {
                         Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
