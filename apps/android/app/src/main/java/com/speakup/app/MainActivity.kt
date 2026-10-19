@@ -577,15 +577,24 @@ fun PremiumSpeakUp() {
                             Text("Continue my learning →")
                         }
                         Spacer(Modifier.height(14.dp))
-                        Text("Explore", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("Games" to "Games", "Clips" to "Feed").forEach { (label, route) ->
-                                OutlinedButton(onClick = { page = route }, modifier = Modifier.weight(1f)) { Text(label) }
+                        Text("Explore your way", color = primaryTextColor, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        listOf(
+                            listOf(Triple("🎮", "Games", "Games"), Triple("🎬", "Clips", "Feed")),
+                            listOf(Triple("🎤", "Speak", "Speak"), Triple("🌟", "My progress", "Review"))
+                        ).forEach { pair ->
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                pair.forEach { (symbol, label, destination) ->
+                                    Surface(onClick = { page = destination }, modifier = Modifier.weight(1f).heightIn(min = 104.dp),
+                                        shape = RoundedCornerShape(22.dp), color = softSurfaceColor,
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
+                                        Column(Modifier.fillMaxWidth().padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text(symbol, style = MaterialTheme.typography.headlineMedium)
+                                            Text(label, color = primaryTextColor, style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
                             }
-                        }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            OutlinedButton(onClick = { page = "Speak" }, modifier = Modifier.weight(1f)) { Text("Speak") }
-                            OutlinedButton(onClick = { page = "Review" }, modifier = Modifier.weight(1f)) { Text("My progress") }
                         }
                         Spacer(Modifier.height(12.dp))
                         Surface(color = surfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
