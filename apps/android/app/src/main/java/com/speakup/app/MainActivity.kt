@@ -2074,144 +2074,86 @@ fun PremiumSpeakUp() {
                             onToggleSettings = { showProfileSettings = !showProfileSettings }
                         )
                         if (showProfileSettings) {
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text("🛡 Beta readiness", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                Text("Development build only · no production launch authorized.", color = secondaryTextColor)
-                                Text("${MintBetaReadiness.required.size} release safeguards must be verified separately. An APK build alone does not mean the app is ready to publish.",
-                                    color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                        MintProfileSettings(
+                            primaryTextColor = primaryTextColor,
+                            secondaryTextColor = secondaryTextColor,
+                            softSurfaceColor = softSurfaceColor,
+                            surfaceColor = surfaceColor,
+                            onOpenPrivacy = { page = "Privacy" },
+                            onOpenMembership = { page = "Membership" },
+                            themePreference = themePreference,
+                            onThemeChange = { mode ->
+                                themePreference = mode
+                                preferences.edit().putString("mint_theme_mode", mode).apply()
+                            },
+                            eyeComfort = eyeComfort,
+                            onEyeComfortChange = { enabled ->
+                                eyeComfort = enabled
+                                preferences.edit().putBoolean("mint_eye_comfort", enabled).apply()
+                            },
+                            petSoundsEnabled = petSoundsEnabled,
+                            onPetSoundsEnabledChange = { enabled ->
+                                petSoundsEnabled = enabled
+                                preferences.edit().putBoolean("mint_pet_sounds_enabled", enabled).apply()
+                            },
+                            reduceMotion = reduceMotion,
+                            onReduceMotionChange = { enabled ->
+                                reduceMotion = enabled
+                                preferences.edit().putBoolean("mint_reduce_motion", enabled).apply()
+                            },
+                            onSoundPreview = { cue ->
+                                MintPetSound.play(context, petSoundsEnabled, cue, selectedPetId)
+                            },
+                            hiddenStoriesCount = blockedMintClips.size,
+                            localReportsCount = reportedMintClips.size,
+                            privateReactionsCount = reactedMintClips.size,
+                            onRestoreHiddenStories = {
+                                blockedMintClips = emptySet()
+                                preferences.edit().remove("mint_hidden_clips").apply()
+                            },
+                            showProfileAdvanced = showProfileAdvanced,
+                            onToggleAdvanced = { showProfileAdvanced = !showProfileAdvanced },
+                            profileName = profileName,
+                            onNameChange = { profileName = it },
+                            learnerAgeBand = learnerAgeBand,
+                            onAgeBandChange = { band ->
+                                learnerAgeBand = band
+                                learnerAge = MintExperiencePolicy.legacyAge(band)
+                                profileFeedback = ""
+                            },
+                            learningGoals = learningGoals,
+                            learningGoal = learningGoal,
+                            onLearningGoalChange = { goal ->
+                                learningGoal = goal
+                                profileFeedback = ""
+                            },
+                            chosenDifficulty = chosenDifficulty,
+                            onDifficultyChange = { difficulty ->
+                                chosenDifficulty = difficulty
+                                profileFeedback = ""
+                            },
+                            learningPaths = learningPaths.map { it.id to it.title },
+                            chosenPath = chosenPath,
+                            onPathChange = { pathId ->
+                                chosenPath = pathId
+                                profileFeedback = ""
+                            },
+                            dailyGoal = dailyGoal,
+                            onDailyGoalChange = { minutes -> dailyGoal = minutes },
+                            profileFeedback = profileFeedback,
+                            onSaveProfile = {
+                                preferences.edit().putString("profile_name", profileName).putString("learner_age", learnerAge)
+                                    .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty)
+                                    .putString("learning_path", chosenPath).putInt("daily_goal", dailyGoal).apply()
+                                profileFeedback = "Saved! Your recommendations are updated."
+                            },
+                            onRetakePlacement = {
+                                placementIndex = 0
+                                placementSelected = ""
+                                placementAnswers = emptyList()
+                                showPlacement = true
                             }
-                        }
-                        Surface(color = surfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                            Column(Modifier.padding(14.dp)) {
-                                Text("Privacy & local data", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                Text("Export saved learning history or manage local feed interactions.", color = secondaryTextColor)
-                                OutlinedButton(onClick = { page = "Privacy" }) { Text("Open privacy controls →") }
-                            }
-                        }
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text("English Mint Free", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
-                                Text("Core games, speaking and progress stay free.", color = secondaryTextColor)
-                                OutlinedButton(onClick = { page = "Membership" }) { Text("Compare Free, Plus and Pro →") }
-                            }
-                        }
-                        Surface(color = softSurfaceColor, shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
-                            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("📴 Offline & low-data guide", style = MaterialTheme.typography.titleMedium,
-                                    color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                Text("Text-based learning continues without a connection. This list describes features available in this build, not a downloaded media library.",
-                                    color = secondaryTextColor)
-                                MintOfflineGuide.features.forEach { item ->
-                                    Text("${if (item.offline) "✓ Offline text" else "ⓘ Availability varies"} · ${item.title}",
-                                        color = primaryTextColor, fontWeight = FontWeight.SemiBold)
-                                    Text(item.fallback, color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                                }
-                                Text("Accessibility: use device text-size controls, turn on Reduce animations below, and use typed responses whenever voice isn't available.",
-                                    color = secondaryTextColor)
-                            }
-                        }
-                        Text("Appearance", style = MaterialTheme.typography.titleMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf("system" to "System", "light" to "Light", "dark" to "Dark", "night" to "Night").forEach { (mode, label) ->
-                                FilterChip(
-                                    selected = themePreference == mode,
-                                    onClick = {
-                                        themePreference = mode
-                                        preferences.edit().putString("mint_theme_mode", mode).apply()
-                                    },
-                                    label = { Text(label) }
-                                )
-                            }
-                        }
-                        Text("Scheduled Night: 8 PM–6 AM device time. Light and Dark overrides remain available.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            Text("Eye comfort: softer hero colors", color = primaryTextColor, modifier = Modifier.weight(1f))
-                            Switch(checked = eyeComfort, onCheckedChange = {
-                                eyeComfort = it
-                                preferences.edit().putBoolean("mint_eye_comfort", it).apply()
-                            })
-                        }
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            Text("Pet sound effects (optional)", color = primaryTextColor, modifier = Modifier.weight(1f))
-                            Switch(checked = petSoundsEnabled, onCheckedChange = {
-                                petSoundsEnabled = it
-                                preferences.edit().putBoolean("mint_pet_sounds_enabled", it).apply()
-                            })
-                        }
-                        Text("Short offline chimes. Off by default; respects silent mode. Background music is not enabled yet.",
-                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        if (petSoundsEnabled) {
-                            MintSecondaryAction("Preview pet welcome sound", onClick = {
-                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.GREETING, selectedPetId)
-                            })
-                            MintSecondaryAction("Preview encouragement sound", onClick = {
-                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.ENCOURAGEMENT, selectedPetId)
-                            })
-                            MintSecondaryAction("Preview achievement sound", onClick = {
-                                MintPetSound.play(context, petSoundsEnabled, MintPetSound.Cue.ACHIEVEMENT, selectedPetId)
-                            })
-                        }
-                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                            Text("Reduce animations", color = primaryTextColor, modifier = Modifier.weight(1f))
-                            Switch(checked = reduceMotion, onCheckedChange = {
-                                reduceMotion = it
-                                preferences.edit().putBoolean("mint_reduce_motion", it).apply()
-                            })
-                        }
-                        Text("Respect device brightness, rest breaks and accessibility settings. Dark mode does not prevent eye damage.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        Text("Safety and community", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
-                        Text("Only moderated studio-authored offline reels are available. Public comments, strangers, friend requests, direct messages, uploads and sharing are disabled.", color = secondaryTextColor)
-                        Text("Hidden stories: ${blockedMintClips.size} • Local reports: ${reportedMintClips.size} • Private reactions: ${reactedMintClips.size}", color = primaryTextColor)
-                        OutlinedButton(onClick = {
-                            blockedMintClips = emptySet()
-                            preferences.edit().remove("mint_hidden_clips").apply()
-                        }) { Text("Restore locally hidden studio stories") }
-                        Text("Local reports have not been submitted to moderators; no public social account has been created.", color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
-                        TextButton(onClick = { showProfileAdvanced = !showProfileAdvanced }) { Text(if (showProfileAdvanced) "Close learner details" else "Edit learner details") }
-                        if (showProfileAdvanced) {
-                        Text("Learner profile", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Text("Update who is learning and why. Your XP, achievements and lesson history will be retained.", color = secondaryTextColor)
-                        OutlinedTextField(value = profileName, onValueChange = { profileName = it.take(40) }, label = { Text("Name or nickname") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                        Text("Age group", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            MintExperiencePolicy.ageBands.forEach { band ->
-                                FilterChip(selected = learnerAgeBand == band, onClick = {
-                                    learnerAgeBand = band
-                                    learnerAge = MintExperiencePolicy.legacyAge(band)
-                                    profileFeedback = ""
-                                }, label = { Text(band) })
-                            }
-                        }
-                        Text("Learning purpose", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        learningGoals.forEach { goal ->
-                            FilterChip(selected = learningGoal == goal, onClick = { learningGoal = goal; profileFeedback = "" }, label = { Text(goal) })
-                        }
-                        Text("Challenge difficulty", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("Easy", "Medium", "Hard").forEach { d ->
-                                FilterChip(selected = chosenDifficulty == d, onClick = { chosenDifficulty = d; profileFeedback = "" }, label = { Text(d) })
-                            }
-                        }
-                        Text("Learning pathway", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        learningPaths.forEach { path ->
-                            FilterChip(selected = chosenPath == path.id, onClick = { chosenPath = path.id; profileFeedback = "" }, label = { Text(path.title) })
-                        }
-                        Text("Daily goal", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf(5, 10, 15).forEach { minutes ->
-                                FilterChip(selected = dailyGoal == minutes, onClick = { dailyGoal = minutes }, label = { Text("$minutes min") })
-                            }
-                        }
-                        Button(onClick = {
-                            preferences.edit().putString("profile_name", profileName).putString("learner_age", learnerAge)
-                                .putString("learning_goal", learningGoal).putString("learning_difficulty", chosenDifficulty)
-                                .putString("learning_path", chosenPath).putInt("daily_goal", dailyGoal).apply()
-                            profileFeedback = "Saved! Your recommendations are updated."
-                        }, modifier = Modifier.fillMaxWidth()) { Text("Save profile changes") }
-                        if (profileFeedback.isNotBlank()) Text(profileFeedback, color = Color(0xFF178D8D))
-                        OutlinedButton(onClick = { placementIndex = 0; placementSelected = ""; placementAnswers = emptyList(); showPlacement = true }, modifier = Modifier.fillMaxWidth()) { Text("Retake placement assessment") }
-                        }
+                        )
                         }
                     }
                     "Review" -> {
