@@ -58,7 +58,7 @@ internal fun MintPetAnswerReaction(
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MintPetPortrait(pet, reducedMotion, celebrate = correct)
+                MintPetPortrait(pet, reducedMotion, celebrate = correct, encourage = !correct)
                 Column(Modifier.weight(1f)) {
                     Text(pet.name, style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
