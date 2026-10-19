@@ -189,6 +189,7 @@ fun PremiumSpeakUp() {
     var themePreference by remember { mutableStateOf(preferences.getString("mint_theme_mode", if (preferences.getBoolean("dark_appearance", false)) "dark" else "system") ?: "system") }
     var reduceMotion by remember { mutableStateOf(preferences.getBoolean("mint_reduce_motion", false)) }
     var petSoundsEnabled by remember { mutableStateOf(preferences.getBoolean("mint_pet_sounds_enabled", false)) }
+    var selectedPetId by remember { mutableStateOf(MintPetCatalog.normalized(preferences.getString("mint_pet_id", null))) }
     var eyeComfort by remember { mutableStateOf(preferences.getBoolean("mint_eye_comfort", false)) }
     val accessibilityScale = android.provider.Settings.Global.getFloat(context.contentResolver, android.provider.Settings.Global.ANIMATOR_DURATION_SCALE, 1f)
     val motionReduced = MintExperiencePolicy.reducedMotion(reduceMotion, accessibilityScale == 0f)
@@ -470,7 +471,11 @@ fun PremiumSpeakUp() {
                         },
                         onGoal = { learningGoal = it },
                         onName = { profileName = it },
+                        selectedPetId = selectedPetId,
+                        onPetSelect = { selectedPetId = it },
+                        reducedMotion = motionReduced,
                         onFinish = { takePlacement ->
+                            preferences.edit().putString("mint_pet_id", selectedPetId).apply()
                             chosenPath = when (learningGoal) {
                                 "Start speaking" -> "speaking"
                                 "School & exams" -> "exams"
@@ -554,6 +559,17 @@ fun PremiumSpeakUp() {
                     }) { Text("Skip assessment for now") }
                 } else when (page) {
                     "Today" -> {
+                        MintPetCatalog.find(selectedPetId)?.let { chosenPet ->
+                            MintSectionCard("Your companion • " + chosenPet.name) {
+                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                    MintPetPortrait(chosenPet, motionReduced)
+                                    Spacer(Modifier.width(10.dp))
+                                    Text("We can learn together, one small step at a time.",
+                                        modifier = Modifier.weight(1f),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer)
+                                }
+                            }
+                        }
                         MintverseGarden(completedLessons = completedIds.size.coerceIn(0, lessons.size),
                             reducedMotion = motionReduced)
                         val petAdventure = MintPetLearningEngine.suggest(
@@ -2122,6 +2138,13 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Profile" -> {
+                        MintSectionCard("My Mint Pet") {
+                            MintPetPicker(selectedId = selectedPetId, onSelect = { id ->
+                                selectedPetId = id
+                                preferences.edit().putString("mint_pet_id", id).apply()
+                            }, reducedMotion = motionReduced)
+                        }
+
                         Surface(color = MaterialTheme.colorScheme.primaryContainer,
                             shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth()) {
                             Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically,
