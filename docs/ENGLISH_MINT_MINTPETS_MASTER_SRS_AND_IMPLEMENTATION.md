@@ -129,3 +129,10 @@ Privacy analytics optional local aggregate: companion selected, preference enabl
 - Implemented: `MintverseGarden.kt` display-only stage-driven garden integrated in Today/Home; `MintAchievementCelebration` reusable reduced-motion UI; `MintPetSound.kt` locally generated preview cue; `mint_pet_sounds_enabled` toggle and preview on Profile.
 - **Not implemented:** full roster assets, selectable onboarded pet, pet companion rendering, event reactions tied to lessons, original pet motifs, production music player/audio focus, customization, constellation and cross-app integration.
 - Draft PR #94; do not merge or deploy without explicit instruction. Exact newest commit CI and APK must be checked separately after edits.
+
+## 12. Incremental implementation — offline companion learning (19 October 2026)
+- Added `MintPetLearningEngine.kt` with five fixed offline adventure blueprints and a deterministic mood/skill suggestion mapper: vocabulary garden, grammar bridge, reading lantern, listening echo cave and speaking gateway.
+- Wired a **Mintverse mini-adventure invitation** into existing Home / Today, using the already stored completed lesson count. The action currently opens **Games**, not a special pet story mission. Keep that text honest.
+- Added `MintPetLearningEngineTest.kt` unit coverage for catalog uniqueness, welcome/encouragement, selected skill and garden progression.
+- **Not yet wired:** real per-skill mistakes/correct answer counters, a selectable pet avatar, curated quest question banks, pet teaching dialogs, mission deep links, rewards integration or personalized adaptive lessons. Home passes zero for recent attempts until genuine source data is mapped. Avoid claiming intelligent adaptation is live.
+- Verify CI and Android APK at the exact PR head before sign-off. Continue Sprint 1 visual/device acceptance and leave the PR draft.
