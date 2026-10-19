@@ -20,7 +20,7 @@ Baseline: `fix/english-mint-ux-rescue-consolidated` (PR #16), on top of Sprint 1
 | --- | --- | --- |
 | Learn | Home (Learn a phrase) | Android Back goes Home |
 | Review | Home (View progress) | Android Back goes Home |
-| Privacy | Profile > Edit profile and settings > Privacy | Android Back goes Home (nested stack improvement pending) |
+| Privacy | Profile > Edit profile and settings > Privacy | Android Back returns to Profile (current PR #94) |
 | Membership | Profile > Edit profile and settings > Compare | Android Back goes Home (nested stack improvement pending) |
 | Speaking Lessons | Speak > Speaking lessons | Switch back to Conversations |
 | Game modes | Games > Change game or difficulty | Select other mode or return to Games tab |
@@ -31,7 +31,7 @@ Selected main tab persists to existing `speakup_learning` preferences under the 
 - Brand palette aligned with conceptual UI Sprint 1 board: off-white `#F8FAFC`, deep night `#0F172A`, night card `#1E293B` and accessible mint variants.
 - Bottom labels and route ordering updated to Home, Games, Clips, Speak, Profile.
 - Main-tab active indicator recognizes Learn and Review as Home, Privacy and Membership as Profile.
-- Hardware Back from non-Home destinations returns Home. Further nested stack preservation is a known improvement.
+- Hardware Back returns Profile children to Profile, Clips entered from Games to Games, and advanced Home destinations to Home; nested Professional and AI Life flows have local Back handlers. Instrumented navigation verification remains pending.
 - Restores selected main tab across app recreation.
 - Existing prior UX fixes remain; no new LLM, social, billing or backends.
 
@@ -47,3 +47,9 @@ Selected main tab persists to existing `speakup_learning` preferences under the 
 
 ## Limitations
 This sprint applies foundation/navigation changes; it does not implement the full pixel-perfect board, new artwork/assets, full reusable design primitives, complete nested navigation stacks or instrumentation screenshots. Those remain open acceptance gaps. No production merge or payment activation is authorized.
+
+## Current Sprint 1 design-system extension (PR #94)
+- `MintApprovedUi.kt` defines brand mint/teal/purple/navy/off-white and semantic primary, selected-answer and secondary controls.
+- Shared progress and empty/error/offline information components added; use them as later UI features are migrated, without claiming all screens already consume them.
+- Screenshot reference is a conceptual UI board; exact final imagery and screen-level device parity are **not yet verified**.
+- Visual acceptance remains **OPEN**, including typography/illustration parity and 320dp/200% font/TalkBack screenshots. CI success is not device acceptance.
