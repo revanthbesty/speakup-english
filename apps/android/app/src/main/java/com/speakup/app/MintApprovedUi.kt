@@ -172,3 +172,42 @@ internal fun MintTextEntry(value: String, onValueChange: (String) -> Unit,
         shape = RoundedCornerShape(18.dp)
     )
 }
+
+/** Accessible, non-blocking loading state; no shimmer when reduced motion is requested. */
+@Composable
+internal fun MintLoadingState(message: String = "Loading your activity") {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(28.dp),
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = 3.dp
+        )
+        Text(message, style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface)
+    }
+}
+
+/** A reusable inline feedback banner; the caller supplies truthful outcomes. */
+@Composable
+internal fun MintFeedbackBanner(title: String, explanation: String, correct: Boolean) {
+    Surface(
+        shape = RoundedCornerShape(18.dp),
+        color = if (correct) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.errorContainer
+    ) {
+        Column(Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (correct) MaterialTheme.colorScheme.onPrimaryContainer
+                        else MaterialTheme.colorScheme.onErrorContainer)
+            Text(explanation, style = MaterialTheme.typography.bodyMedium,
+                color = if (correct) MaterialTheme.colorScheme.onPrimaryContainer
+                        else MaterialTheme.colorScheme.onErrorContainer)
+        }
+    }
+}
