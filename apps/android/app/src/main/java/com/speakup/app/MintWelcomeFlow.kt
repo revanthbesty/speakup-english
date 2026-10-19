@@ -141,7 +141,7 @@ internal fun MintWelcomeFlow(
                     }
                 }
             }
-        } else if(step==4) {
+        } else if(step==3) {
             MintPetPicker(selectedId = selectedPetId, onSelect = onPetSelect,
                 reducedMotion = reducedMotion)
         } else {
