@@ -148,3 +148,9 @@ Privacy analytics optional local aggregate: companion selected, preference enabl
 - `MintActivityCompletion` requests animation only when the existing verified-reward predicate `fresh` is true. Reviews remain static and receive supportive text, without re-awarding XP.
 - Existing `reducedMotion` flag bypasses animation and renders the legible pose statically. No continuous idle animation or sound autoplay has been added.
 - Remaining: design-accurate pet assets, correct/wrong answer contextual poses, event-driven sound integration, actual screenshot/device animation QA and full pet art signoff.
+
+## 14. Premium animation/sound sprint progress — 19 October 2026
+- Implemented this pass: six distinct **locally synthesized** pet pitch signatures for Greeting, Encouragement and Achievement in `MintPetSound.kt`. Existing Profile pet-sound opt-in now includes three manual previews for the saved pet. All tones remain disabled when the existing pet-sound toggle is off; existing silent mode and muted media checks are preserved. Added safer AudioTrack cleanup.
+- Preserved: existing six geometric Compose portraits, short checked-answer animations across Situations, Grammar, Vocabulary, Riddles, Reading and Listening, once-only XP logic, navigation and stored learner progress.
+- Not implemented: production-quality character art or separate sprite sets, audio-focus ownership and automatic sound synchronized to learning events, licensed ambient background music/player and separate music toggle, full all-screen pet integration, API 29/35 instrumentation/device video QA, physical screenshots versus approved boards. Those must not be represented as finished.
+- Verification requirement: use CI and APK from the **exact latest code HEAD**, plus manual Profile preview checks with each pet and silent/vibrate/volume-zero modes. No merge or deployment approved.
