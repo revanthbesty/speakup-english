@@ -1606,6 +1606,7 @@ fun PremiumSpeakUp() {
                             }
                             if (riddleChecked) {
                                 Text(if (riddleChoice == riddle.answer) "Correct! ${riddle.explanation}" else "Try again. Think about the clue.", color = if (riddleChoice == riddle.answer) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = riddleChecked, correct = riddleChoice == riddle.answer, reducedMotion = motionReduced)
                             }
                             Button(onClick = {
                                 riddleChecked = true
@@ -1652,6 +1653,7 @@ fun PremiumSpeakUp() {
                             if (vocabularyChecked) {
                                 val correct = vocabularyChoice == card.meaning
                                 Text(if (correct) "Correct! ${card.example}" else "Not quite. Try another meaning.", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
+                                MintPetAnswerReaction(checked = vocabularyChecked, correct = correct, reducedMotion = motionReduced)
                             }
                             Button(onClick = {
                                 vocabularyChecked = true
