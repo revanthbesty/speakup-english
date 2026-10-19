@@ -97,6 +97,77 @@ internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifie
         val center = Offset(size.width / 2, size.height * .54f)
         drawCircle(pet.color.copy(alpha = .2f), size.minDimension * .48f, center)
         drawCircle(pet.color, radius, center)
+        // Character-specific appendages; made from native shapes so they render offline.
+        when (pet.id) {
+            "mint_fox" -> {
+                val left = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(center.x-radius*.92f, center.y-radius*.48f)
+                    lineTo(center.x-radius*.78f, center.y-radius*1.52f)
+                    lineTo(center.x-radius*.16f, center.y-radius*.91f)
+                    close()
+                }
+                val right = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(center.x+radius*.92f, center.y-radius*.48f)
+                    lineTo(center.x+radius*.78f, center.y-radius*1.52f)
+                    lineTo(center.x+radius*.16f, center.y-radius*.91f)
+                    close()
+                }
+                drawPath(left, pet.color)
+                drawPath(right, pet.color)
+                drawCircle(Color.White.copy(alpha=.75f), radius*.24f,
+                    Offset(center.x, center.y+radius*.53f))
+            }
+            "buddy_panda" -> {
+                drawCircle(Color(0xFF334155), radius*.29f,
+                    Offset(center.x-radius*.48f,center.y-radius*.12f))
+                drawCircle(Color(0xFF334155), radius*.29f,
+                    Offset(center.x+radius*.48f,center.y-radius*.12f))
+                drawCircle(Color.White, radius*.16f,
+                    Offset(center.x-radius*.42f,center.y-radius*.12f))
+                drawCircle(Color.White, radius*.16f,
+                    Offset(center.x+radius*.42f,center.y-radius*.12f))
+            }
+            "spark_cat" -> {
+                drawCircle(Color(0xFFFDA4AF), radius*.14f,
+                    Offset(center.x,center.y+radius*.27f))
+                drawLine(Color.White, Offset(center.x-radius*.45f,center.y+radius*.37f),
+                    Offset(center.x-radius*1.1f,center.y+radius*.25f), 1.5.dp.toPx())
+                drawLine(Color.White, Offset(center.x+radius*.45f,center.y+radius*.37f),
+                    Offset(center.x+radius*1.1f,center.y+radius*.25f), 1.5.dp.toPx())
+            }
+            "wise_owl" -> {
+                drawCircle(Color(0xFFFFF7ED),radius*.38f,
+                    Offset(center.x-radius*.37f, center.y-radius*.08f))
+                drawCircle(Color(0xFFFFF7ED),radius*.38f,
+                    Offset(center.x+radius*.37f, center.y-radius*.08f))
+                val beak = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(center.x,center.y+radius*.2f)
+                    lineTo(center.x-radius*.17f,center.y+radius*.43f)
+                    lineTo(center.x+radius*.17f,center.y+radius*.43f)
+                    close()
+                }
+                drawPath(beak,Color(0xFFF59E0B))
+            }
+            "joy_rabbit" -> {
+                drawOval(pet.color,topLeft=Offset(center.x-radius*.65f,center.y-radius*2.03f),
+                    size=androidx.compose.ui.geometry.Size(radius*.44f,radius*1.24f))
+                drawOval(pet.color,topLeft=Offset(center.x+radius*.2f,center.y-radius*2.03f),
+                    size=androidx.compose.ui.geometry.Size(radius*.44f,radius*1.24f))
+                drawCircle(Color.White,radius*.16f,
+                    Offset(center.x,center.y+radius*.57f))
+            }
+            "tiny_dragon" -> {
+                val wing = androidx.compose.ui.graphics.Path().apply {
+                    moveTo(center.x-radius*.85f,center.y+radius*.23f)
+                    lineTo(center.x-radius*1.6f,center.y-radius*.52f)
+                    lineTo(center.x-radius*1.34f,center.y+radius*.56f)
+                    close()
+                }
+                drawPath(wing,pet.color.copy(alpha=.8f))
+                drawCircle(Color(0xFFFDE68A),radius*.12f,
+                    Offset(center.x,center.y+radius*.36f))
+            }
+        }
         val earOffset = when(pet.id) {
             "joy_rabbit" -> size.height * .31f
             "wise_owl" -> size.height * .12f
