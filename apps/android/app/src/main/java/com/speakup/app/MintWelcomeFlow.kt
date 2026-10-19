@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.dp
 internal fun MintWelcomeFlow(
     ageBand: String, goal: String, name: String,
     onAge: (String) -> Unit, onGoal: (String) -> Unit,
-    onName: (String) -> Unit, onFinish: (Boolean) -> Unit
+    onName: (String) -> Unit, onFinish: (Boolean) -> Unit,
+    selectedPetId: String, onPetSelect: (String) -> Unit, reducedMotion: Boolean
 ) {
     var step by rememberSaveable { mutableIntStateOf(0) }
     // Preserve the selected step across configuration changes; onFinish owns persistence.
@@ -41,9 +42,9 @@ internal fun MintWelcomeFlow(
             horizontalArrangement=Arrangement.SpaceBetween) {
             Text("YOUR ENGLISH ADVENTURE",style=MaterialTheme.typography.labelMedium,
                 color=mint,fontWeight=FontWeight.Bold)
-            Text("STEP ${step+1} OF 4",color=subtle,style=MaterialTheme.typography.labelMedium)
+            Text("STEP ${step+1} OF 5",color=subtle,style=MaterialTheme.typography.labelMedium)
         }
-        LinearProgressIndicator(progress={(step+1)/4f},modifier=Modifier.fillMaxWidth().height(7.dp),
+        LinearProgressIndicator(progress={(step+1)/5f},modifier=Modifier.fillMaxWidth().height(7.dp),
             color=mint,trackColor=MaterialTheme.colorScheme.surfaceVariant)
         if(step==0) {
             Box(
@@ -140,6 +141,9 @@ internal fun MintWelcomeFlow(
                     }
                 }
             }
+        } else if(step==4) {
+            MintPetPicker(selectedId = selectedPetId, onSelect = onPetSelect,
+                reducedMotion = reducedMotion)
         } else {
             Box(Modifier.fillMaxWidth().height(170.dp).background(
                 Brush.linearGradient(listOf(Color(0xFFBDF9E5),Color(0xFFE7DAFF))),
@@ -155,8 +159,8 @@ internal fun MintWelcomeFlow(
             Text("Optional: take a short level check, or head straight to Home.",
                 style=MaterialTheme.typography.bodySmall,color=subtle)
         }
-        MintPrimaryAction(if (step == 0) "Let\'s begin →" else if (step == 3) "Start my adventure →" else "Continue →",
-            onClick = { if (step == 3) onFinish(false) else step++ })
+        MintPrimaryAction(if (step == 0) "Let\'s begin →" else if (step == 4) "Start my adventure →" else "Continue →",
+            onClick = { if (step == 4) onFinish(false) else step++ })
         if(step==3) {
             Text("You can change your goal later in Profile.", style=MaterialTheme.typography.bodySmall, color=subtle)
             TextButton(onClick={onFinish(true)},modifier=Modifier.fillMaxWidth()) {
@@ -166,7 +170,7 @@ internal fun MintWelcomeFlow(
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,
                 verticalAlignment=Alignment.CenterVertically) {
                 TextButton(onClick={ if(step>0) step-- },enabled=step>0) {Text("← Back")}
-                TextButton(onClick={step=3}) {Text("Skip to my adventure")}
+                TextButton(onClick={step=4}) {Text("Skip to my adventure")}
             }
         }
     }
