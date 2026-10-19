@@ -193,10 +193,27 @@ internal fun MintPetPortrait(pet: MintPetOption, reducedMotion: Boolean, modifie
             drawCircle(Color(0xFFFFB4C8), radius * .15f,
                 Offset(center.x + radius * .72f, center.y + radius * .36f))
         }
-        drawArc(Color.White, 25f, 130f, false,
-            topLeft=Offset(center.x-radius*.28f,center.y+radius*.06f),
-            size=androidx.compose.ui.geometry.Size(radius*.56f,radius*.52f),
-            style=Stroke(width=2.dp.toPx()))
+        // Emotions change eye and mouth geometry, not only the pet's movement.
+        if (celebrate) {
+            drawArc(Color.White, 15f, 155f, false,
+                topLeft=Offset(center.x-radius*.35f,center.y+radius*.03f),
+                size=androidx.compose.ui.geometry.Size(radius*.7f,radius*.62f),
+                style=Stroke(width=2.5.dp.toPx()))
+            drawCircle(Color.White, radius*.045f,
+                Offset(center.x-radius*.43f,center.y-radius*.25f))
+            drawCircle(Color.White, radius*.045f,
+                Offset(center.x+radius*.43f,center.y-radius*.25f))
+        } else if (encourage) {
+            drawArc(Color.White, 40f, 100f, false,
+                topLeft=Offset(center.x-radius*.18f,center.y+radius*.23f),
+                size=androidx.compose.ui.geometry.Size(radius*.36f,radius*.19f),
+                style=Stroke(width=2.dp.toPx()))
+        } else {
+            drawArc(Color.White, 25f, 130f, false,
+                topLeft=Offset(center.x-radius*.28f,center.y+radius*.06f),
+                size=androidx.compose.ui.geometry.Size(radius*.56f,radius*.52f),
+                style=Stroke(width=2.dp.toPx()))
+        }
     }
 }
 
