@@ -1861,9 +1861,13 @@ fun PremiumSpeakUp() {
                                 val correct = grammarChoice == question.correct
                                 Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Text(if (correct) "✓ Correct!" else "Not quite — try another answer", color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                        Text("WHY?", color = accentTextColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                                        Text(question.explanation, color = primaryTextColor)
+                                        Text(if (correct) "✓ Correct! Well done." else "Not quite — let's learn why.",
+                                            color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                        Text(if (correct) "Why this answer works" else "Why this answer needs another try",
+                                            color = accentTextColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                        Text(question.explanation, color = primaryTextColor, style = MaterialTheme.typography.bodyLarge)
+                                        if (!correct) Text("Choose another answer above, then check again.",
+                                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
                                     }
                                 }
                             }
