@@ -144,3 +144,31 @@ internal fun MintStatusMessage(
         }
     }
 }
+
+/** Shared Sprint 1 selection and input controls; state remains owned by the caller. */
+@Composable
+internal fun MintChoiceChip(label: String, selected: Boolean, onClick: () -> Unit,
+                            enabled: Boolean = true) {
+    FilterChip(
+        selected = selected, onClick = onClick, enabled = enabled,
+        label = { Text(label) },
+        modifier = Modifier.heightIn(min = MintDesign.MinimumTouchTarget),
+        shape = RoundedCornerShape(16.dp),
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    )
+}
+
+@Composable
+internal fun MintTextEntry(value: String, onValueChange: (String) -> Unit,
+                           label: String, modifier: Modifier = Modifier,
+                           enabled: Boolean = true, singleLine: Boolean = true) {
+    OutlinedTextField(
+        value = value, onValueChange = onValueChange, enabled = enabled,
+        singleLine = singleLine, label = { Text(label) },
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp)
+    )
+}
