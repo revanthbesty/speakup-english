@@ -1911,17 +1911,18 @@ fun PremiumSpeakUp() {
                         } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
                             Text("Situation ${scenarioIndex + 1} of ${conversationScenarios.size}: ${scenario.situation}", color = accentTextColor, fontWeight = FontWeight.Bold)
+                            LinearProgressIndicator(progress = { (scenarioIndex + if (scenarioChecked && scenarioChoice == scenario.correct) 1f else 0f) / conversationScenarios.size.coerceAtLeast(1) }, modifier = Modifier.fillMaxWidth())
                             Text(scenario.prompt, style = MaterialTheme.typography.titleLarge, color = primaryTextColor)
                             scenario.options.forEach { choice ->
-                                OutlinedButton(onClick = { scenarioChoice = choice; scenarioChecked = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text((if (scenarioChoice == choice) "✓ " else "") + choice)
-                                }
+                                MintAnswerChoice(choice, selected = scenarioChoice == choice,
+                                    enabled = !(scenarioChecked && scenarioChoice == scenario.correct),
+                                    onClick = { scenarioChoice = choice; scenarioChecked = false })
                             }
                             if (scenarioChecked) {
                                 val correct = scenarioChoice == scenario.correct
                                 Text(if (correct) "Great response! ${scenario.explanation}" else "Try again. ${scenario.explanation}", color = if (correct) Color(0xFF177B57) else Color(0xFF9D5417))
                             }
-                            Button(onClick = {
+                            if (!(scenarioChecked && scenarioChoice == scenario.correct)) MintPrimaryAction("Check response", enabled = scenarioChoice.isNotBlank(), onClick = {
                                 scenarioChecked = true
                                 latestActivityXp = if (scenarioChoice == scenario.correct && scenarioIndex.toString() !in scenarioMastered) 10 else 0
                                 val id = scenarioIndex.toString()
@@ -1930,7 +1931,7 @@ fun PremiumSpeakUp() {
                                     xp += 10
                                     preferences.edit().putStringSet("scenario_mastered", scenarioMastered).putInt("total_xp", xp).apply()
                                 }
-                            }, enabled = scenarioChoice.isNotBlank()) { Text("Check response") }
+                            })
                             Text("Situations mastered: ${scenarioMastered.size} / ${conversationScenarios.size} • +10 XP for each new success", color = accentTextColor)
                             if (scenarioChecked && scenarioChoice == scenario.correct) {
                                 MintActivityCompletion(
@@ -1947,11 +1948,6 @@ fun PremiumSpeakUp() {
                                     onDashboard = { page = "Today" }
                                 )
                             }
-                            OutlinedButton(onClick = {
-                                scenarioIndex = (scenarioIndex + 1) % conversationScenarios.size
-                                scenarioChoice = ""
-                                scenarioChecked = false
-                            }, modifier = Modifier.fillMaxWidth()) { Text("Next situation →") }
                         } else if (gameMode == "Listening") {
                             val listening = listeningChecks[listeningIndex]
                             Text("Listening comprehension ${listeningIndex + 1} of ${listeningChecks.size}", color = accentTextColor, fontWeight = FontWeight.Bold)
