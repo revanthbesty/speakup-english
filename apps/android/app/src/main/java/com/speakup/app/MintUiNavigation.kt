@@ -30,6 +30,12 @@ internal object MintUiNavigation {
         else -> "Today"
     }
 
+    /** A tab tap is an explicit navigation request, not a return to the Games-launched clip. */
+    fun clipsReturnToGamesAfterTabTap(tab: String): Boolean {
+        require(tab in tabs) { "Unknown bottom tab: $tab" }
+        return false
+    }
+
     fun restoredTab(saved: String?): String =
         saved?.takeIf { it in tabs } ?: "Today"
 }
