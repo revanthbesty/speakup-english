@@ -1055,6 +1055,8 @@ fun PremiumSpeakUp() {
                         )
                     }
                     "Games" -> {
+                        // Sprint 3: keep activity screens focused on a single challenge.
+                        if (gameMode == "Mint Quests") {
                         Surface(shape=RoundedCornerShape(26.dp),modifier=Modifier.fillMaxWidth(),
                             color=MaterialTheme.colorScheme.primaryContainer) {
                             Row(Modifier.fillMaxWidth().padding(18.dp),
@@ -1150,6 +1152,14 @@ fun PremiumSpeakUp() {
                                 FilterChip(selected = gameMode == mode, onClick = { gameMode = mode }, label = { Text(mode) })
                             }
                         }
+                        }
+                        } else {
+                            TextButton(onClick = {
+                                gameMode = "Mint Quests"
+                                showGameFilters = false
+                            }, modifier = Modifier.heightIn(min = 48.dp)) {
+                                Text("← All games")
+                            }
                         }
                         if (gameMode == "Career & Exam") {
                             Text("💼 Career & Exam Practice", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = primaryTextColor)
