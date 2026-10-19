@@ -15,8 +15,12 @@ internal fun MintHelpScreen(onBack: () -> Unit, onGames: () -> Unit, onSpeak: ()
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onBack) { Text("← Profile") }
         MintScreenHeading("Help & guidance", "Simple answers for your learning journey.", "PROFILE • SUPPORT")
-        listOf("Getting started", "Using games", "Speaking privately", "Stories & offline", "Privacy & support").forEach { item ->
-            MintAnswerChoice(item, selected = topic == item, onClick = { topic = item })
+        Text("Choose a topic", style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold)
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf("Getting started", "Using games", "Speaking privately", "Stories & offline", "Privacy & support").forEach { item ->
+                MintChoiceChip(item, selected = topic == item, onClick = { topic = item })
+            }
         }
         Surface(shape = RoundedCornerShape(18.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -29,9 +33,9 @@ internal fun MintHelpScreen(onBack: () -> Unit, onGames: () -> Unit, onSpeak: ()
                     else -> "Progress is stored on this device. Use Profile → Privacy & local data to inspect or export local history. Live customer-support tickets are not available."
                 }, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 when (topic) {
-                    "Using games" -> Button(onClick = onGames) { Text("Open Games") }
-                    "Speaking privately" -> Button(onClick = onSpeak) { Text("Open Speak") }
-                    "Stories & offline" -> Button(onClick = onClips) { Text("Open Clips") }
+                    "Using games" -> MintPrimaryAction("Open Games", onClick = onGames)
+                    "Speaking privately" -> MintPrimaryAction("Open Speak", onClick = onSpeak)
+                    "Stories & offline" -> MintPrimaryAction("Open Clips", onClick = onClips)
                 }
             }
         }
