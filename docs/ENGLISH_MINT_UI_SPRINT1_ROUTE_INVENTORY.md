@@ -77,3 +77,10 @@ Implemented foundation: `MintAchievementCelebration` in `MintApprovedUi.kt` acce
 - Home (`MainActivity.kt`, Today destination) now renders `MintverseGarden` using persisted `completedIds` and the existing `motionReduced` preference. Growth animates 420ms when permitted and immediately updates when reduced motion is enabled.
 - Visible text explains the stage and total earned progress. Offline, deterministic display-only behavior; no new permissions or paid integrations.
 - Not implemented by these commits: 3D world, character companion, constellation unlocks, storyline, all-screen motion, screenshot fidelity verification. These require separate development and testing.
+
+## Mint Pets sound and music direction (requested by product owner, October 2026)
+- Distinct companion sound motifs for welcome, encouragement and verified achievements; optional ambient soundtrack/music **must be separately controllable**. Use own original/licensed audio; no automatic looping, autoplay on onboarding or payment dependency.
+- Offline opt-in cue synthesizer: `MintPetSound.kt` generates short two-note PCM chimes on a worker thread for the three cue types, no downloaded assets or paid audio API. Checks music stream volume and silent/vibrate mode.
+- Profile UI includes a persisted `mint_pet_sounds_enabled` switch (**off by default**) and audible greeting preview. The preview is the current tested-by-user entry point. Do not claim pet selection or automatic event playback is implemented.
+- **Still open:** onboarding choice of pet, original pet artwork, contextual reaction wiring, opt-in independently switchable background music, audio focus/ducking during microphone, TTS, reading and listening, volume slider, sound QA on physical devices, sound-accessibility settings and commercial music licensing review.
+- Success criteria: muted or disabled means silent; lesson audio, microphone speech, TalkBack and notification quiet hours take priority. Music never blocks learning or user control.
