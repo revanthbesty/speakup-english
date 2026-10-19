@@ -1760,97 +1760,59 @@ fun PremiumSpeakUp() {
                                 }
                                 }
                             } else {
-                            Surface(
-                                shape = RoundedCornerShape(26.dp),
-                                color = if (darkAppearance) Color(0xFF25334C) else Color(0xFFF0E7FF),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                    Text("✦  GRAMMAR CHALLENGE", color = if (darkAppearance) Color(0xFFB9A3FF) else Color(0xFF6D28D9),
-                                        style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                                    Text(question.prompt, style = MaterialTheme.typography.headlineSmall,
-                                        color = primaryTextColor, fontWeight = FontWeight.Bold)
-                                    Text("Choose the best answer", color = secondaryTextColor,
-                                        style = MaterialTheme.typography.bodyMedium)
-                                }
-                            }
-                            question.options.forEachIndexed { index, choice ->
-                                val selected = grammarChoice == choice
-                                Surface(
-                                    onClick = { if (!(grammarChecked && selected && choice == question.correct)) {
-                                        grammarChoice = choice; grammarChecked = false
-                                    } },
-                                    shape = RoundedCornerShape(20.dp),
-                                    color = if (selected) {
-                                        if (darkAppearance) Color(0xFF214F49) else Color(0xFFD4FAEA)
-                                    } else surfaceColor,
-                                    border = androidx.compose.foundation.BorderStroke(
-                                        if (selected) 2.dp else 1.dp,
-                                        if (selected) Color(0xFF10B981) else MaterialTheme.colorScheme.outline.copy(alpha = 0.45f)
-                                    ),
-                                    modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)
-                                        .semantics {
-                                            contentDescription = "Option ${index + 1} of ${question.options.size}: $choice. ${if (selected) "Selected" else "Not selected"}"
-                                        }
-                                ) {
-                                    Row(Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                        Text(('A' + index).toString() + ".", color = if (selected) Color(0xFF10B981) else secondaryTextColor,
-                                            fontWeight = FontWeight.ExtraBold)
-                                        Text(choice, color = primaryTextColor, modifier = Modifier.weight(1f),
-                                            style = MaterialTheme.typography.bodyLarge)
-                                        if (selected) Text("✓", color = Color(0xFF10B981), fontWeight = FontWeight.Bold)
+                            MintGrammarQuestionScreen(
+                                prompt = question.prompt,
+                                options = question.options,
+                                correctAnswer = question.correct,
+                                explanation = question.explanation,
+                                selectedChoice = grammarChoice,
+                                checked = grammarChecked,
+                                darkAppearance = darkAppearance,
+                                reducedMotion = motionReduced,
+                                primaryTextColor = primaryTextColor,
+                                secondaryTextColor = secondaryTextColor,
+                                accentTextColor = accentTextColor,
+                                softSurfaceColor = softSurfaceColor,
+                                surfaceColor = surfaceColor,
+                                masteredCount = grammarMastered.size,
+                                totalQuestions = grammarQuestions.size,
+                                isLastQuestionInSet = grammarIndex + 1 >= grammarSetEndExclusive,
+                                onSelectChoice = { choice ->
+                                    grammarChoice = choice
+                                    grammarChecked = false
+                                },
+                                onCheck = {
+                                    if (!grammarChecked && grammarChoice != question.correct && !grammarHadError) {
+                                        grammarHadError = true
+                                        grammarWrongCount += 1
+                                        grammarMissedNotes = grammarMissedNotes + "${question.prompt} — ${question.explanation}"
+                                        grammarRevisionMissed = grammarRevisionMissed + MintGrammarRevision.missedKey(grammarIndex)
+                                        preferences.edit().putStringSet("mint_grammar_revision_missed", grammarRevisionMissed).apply()
                                     }
-                                }
-                            }
-                            if (grammarChecked) {
-                                val correct = grammarChoice == question.correct
-                                Surface(color = softSurfaceColor, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
-                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Text(if (correct) "✓ Correct! Well done." else "Not quite — let's learn why.",
-                                            color = primaryTextColor, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                                        Text(if (correct) "Why this answer works" else "Why this answer needs another try",
-                                            color = accentTextColor, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
-                                        Text(question.explanation, color = primaryTextColor, style = MaterialTheme.typography.bodyLarge)
-                                        MintPetAnswerReaction(checked = grammarChecked, correct = correct, reducedMotion = motionReduced)
-                                        if (!correct) Text("Choose another answer above, then check again.",
-                                            color = secondaryTextColor, style = MaterialTheme.typography.bodySmall)
+                                    grammarChecked = true
+                                    val id = grammarIndex.toString()
+                                    if (grammarChoice == question.correct) {
+                                        grammarRevisionMissed = grammarRevisionMissed - MintGrammarRevision.missedKey(grammarIndex)
+                                        preferences.edit().putStringSet("mint_grammar_revision_missed", grammarRevisionMissed).apply()
                                     }
+                                    if (grammarChoice == question.correct && id !in grammarMastered) {
+                                        grammarMastered = grammarMastered + id
+                                        xp += 10
+                                        grammarSetNewXp += 10
+                                        preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
+                                    }
+                                },
+                                onContinue = {
+                                    if (!grammarHadError) grammarFirstTryCorrect += 1
+                                    if (grammarIndex + 1 >= grammarSetEndExclusive) {
+                                        grammarBloomEarned = grammarSetNewXp > 0
+                                        grammarSetComplete = true
+                                    } else grammarIndex += 1
+                                    grammarChoice = ""
+                                    grammarChecked = false
+                                    grammarHadError = false
                                 }
-                            }
-                            if (!(grammarChecked && grammarChoice == question.correct)) Button(onClick = {
-                                if (!grammarChecked && grammarChoice != question.correct && !grammarHadError) {
-                                    grammarHadError = true
-                                    grammarWrongCount += 1
-                                    grammarMissedNotes = grammarMissedNotes + "${question.prompt} — ${question.explanation}"
-                                    grammarRevisionMissed = grammarRevisionMissed + MintGrammarRevision.missedKey(grammarIndex)
-                                    preferences.edit().putStringSet("mint_grammar_revision_missed",grammarRevisionMissed).apply()
-                                }
-                                grammarChecked = true
-                                val id = grammarIndex.toString()
-                                if (grammarChoice == question.correct) {
-                                    grammarRevisionMissed = grammarRevisionMissed - MintGrammarRevision.missedKey(grammarIndex)
-                                    preferences.edit().putStringSet("mint_grammar_revision_missed",grammarRevisionMissed).apply()
-                                }
-                                if (grammarChoice == question.correct && id !in grammarMastered) {
-                                    grammarMastered = grammarMastered + id
-                                    xp += 10
-                                    grammarSetNewXp += 10
-                                    preferences.edit().putStringSet("grammar_mastered", grammarMastered).putInt("total_xp", xp).apply()
-                                }
-                            }, enabled = grammarChoice.isNotBlank() && !(grammarChecked && grammarChoice == question.correct)) { Text("Check grammar") }
-                            Text("🌸 ${grammarMastered.size} of ${grammarQuestions.size} grammar blooms growing", color = accentTextColor)
-                            if (grammarChecked && grammarChoice == question.correct) MintPrimaryAction(label = if (grammarIndex + 1 >= grammarSetEndExclusive) "Complete set →" else "Continue →", onClick = {
-                                if (!grammarHadError) grammarFirstTryCorrect += 1
-                                if (grammarIndex + 1 >= grammarSetEndExclusive) {
-                                    grammarBloomEarned = grammarSetNewXp > 0
-                                    grammarSetComplete = true
-                                } else grammarIndex += 1
-                                grammarChoice = ""
-                                grammarChecked = false
-                                grammarHadError = false
-                            })
+                            )
                             }
                         } else if (gameMode == "Situations") {
                             val scenario = conversationScenarios[scenarioIndex]
