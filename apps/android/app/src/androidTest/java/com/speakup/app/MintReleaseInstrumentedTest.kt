@@ -1,5 +1,7 @@
 package com.speakup.app
 
+import android.content.pm.PackageManager
+import android.Manifest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -61,6 +63,16 @@ class MintReleaseInstrumentedTest {
         assertEquals(5, labels.distinct().size)
         assertEquals(listOf("Home", "Games", "Clips", "Speak", "Profile"), labels)
         assertFalse(MintUiNavigation.clipsReturnToGamesAfterTabTap("Speak"))
+    }
+
+    @Test fun offlineFirstBuildDoesNotRequestInternetPermission() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val info = context.packageManager.getPackageInfo(
+            context.packageName, PackageManager.GET_PERMISSIONS
+        )
+        val declared = info.requestedPermissions?.toSet().orEmpty()
+        assertFalse("Offline MVP must not silently require Internet", Manifest.permission.INTERNET in declared)
+        assertTrue("Microphone requests remain explicitly declared", Manifest.permission.RECORD_AUDIO in declared)
     }
 
     @Test fun packageIdentityIsUnchanged() {
