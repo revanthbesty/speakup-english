@@ -1,5 +1,6 @@
 package com.speakup.app
 
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
@@ -14,6 +15,27 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class MintReleaseInstrumentedTest {
+    @Test fun mainActivityCanLaunchAndRecreateWithoutCrashing() {
+        ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                assertEquals("com.speakup.app", activity.packageName)
+                assertTrue(!activity.isFinishing)
+            }
+            scenario.recreate()
+            scenario.onActivity { activity ->
+                assertTrue(!activity.isFinishing)
+            }
+        }
+    }
+
+    @Test fun fiveTabNavigationContractRemainsAvailable() {
+        assertEquals(listOf("Today", "Games", "Feed", "Speak", "Profile"), MintUiNavigation.tabs)
+        assertEquals("Home", MintUiNavigation.label("Today"))
+        assertEquals("Clips", MintUiNavigation.label("Feed"))
+        assertEquals("Feed", MintUiNavigation.mainTab("FiveWord"))
+        assertEquals("Games", MintUiNavigation.backDestination("Feed", storyFromGames = true))
+    }
+
     @Test fun packageIdentityIsUnchanged() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.speakup.app", context.packageName)
