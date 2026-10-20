@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -297,7 +298,10 @@ fun PremiumSpeakUp() {
     var mintGameFeedback by remember { mutableStateOf("") }
     var mintGameXpAward by remember { mutableIntStateOf(0) }
     var mintSpeakingMission by remember { mutableStateOf("") }
-    var returnToClipsFromSpeaking by remember { mutableStateOf(false) }
+    var returnToClipsFromSpeaking by rememberSaveable { mutableStateOf(false) }
+    var speakingClipId by rememberSaveable { mutableStateOf<String?>(null) }
+    var speakingClipFrame by rememberSaveable { mutableIntStateOf(0) }
+    var speakingClipLevel by rememberSaveable { mutableStateOf(MintClipLevel.EASY.name) }
     var rwQuestIndex by remember { mutableIntStateOf(0) }
     var rwChoice by remember { mutableIntStateOf(-1) }
     var rwChecked by remember { mutableStateOf(false) }
@@ -1039,6 +1043,9 @@ fun PremiumSpeakUp() {
                             "4–7" -> 4; "8–12" -> 8; "13–17" -> 13; else -> 18
                         }
                         MintFeedScreen(
+                            restoredClipId = speakingClipId,
+                            restoredFrameIndex = speakingClipFrame,
+                            restoredLevel = MintClipLevel.entries.firstOrNull { it.name == speakingClipLevel } ?: MintClipLevel.EASY,
                             learnerAge = learnerMinimumAge,
                             reducedMotion = motionReduced,
                             blockedIds = blockedMintClips,
@@ -1069,7 +1076,10 @@ fun PremiumSpeakUp() {
                                 mintStoryCompletions = mintStoryCompletions + id
                                 preferences.edit().putStringSet("mint_story_completed", mintStoryCompletions).apply()
                             },
-                            onSpeakingPrompt = { prompt ->
+                            onSpeakingPrompt = { prompt, clipId, frame, level ->
+                                speakingClipId = clipId
+                                speakingClipFrame = frame
+                                speakingClipLevel = level.name
                                 returnToClipsFromSpeaking = true
                                 mintSpeakingMission = prompt
                                 speakingView = "Lessons"
