@@ -31,3 +31,8 @@ Core onboarding, Home, Games (authored and actually enabled), Grammar, Vocabular
 `MintV1ReleaseGate` is a pure Kotlin evidence checklist with JVM tests. It is **not wired to GitHub deployment environments, cryptographic attestation, or the Play Console**; it should not be represented as a server-side blocking control. Treat this document as an acceptance checklist, not proof that gates have passed.
 
 **Decision at kickoff: NO-GO.**
+
+## 20 October — Additional emulator regression coverage
+- Android API 29 and 35 emulator smoke-test workflow #3 passed on `4337a2e`. It checked Activity launch/recreation, package identity, legacy preferences accessibility, and pure navigation contracts. It did **not** exercise screen taps, restore data across signed APK versions, or constitute full visual sign-off.
+- Expanded instrumentation includes a temporary and cleaned-up `speakup_learning` preference probe across Activity recreation and five unique bottom-tab labels. These new tests require passing API 29/35 results at their final commit before they can be considered verified.
+- Further acceptance still requires real UI interactions, matched-signing installation over an existing build, varied viewport screenshots, accessibility and owner review.
