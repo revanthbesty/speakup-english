@@ -29,6 +29,15 @@ class MintClipsPlaybackTest {
         assertEquals(1, MintClipsPlayback.advanceFrame(1, 3, false))
     }
 
+    @Test fun speakingReturnResolvesStableClipIdAfterReordering() {
+        val before = listOf("clip-a", "clip-b", "clip-c")
+        val after = listOf("clip-c", "clip-a", "clip-b")
+        assertEquals(1, MintClipsPlayback.restoreIndex(before, "clip-b"))
+        assertEquals(2, MintClipsPlayback.restoreIndex(after, "clip-b"))
+        assertEquals(1, MintClipsPlayback.restoreIndex(after, "deleted-clip", 1))
+        assertEquals(0, MintClipsPlayback.restoreIndex(emptyList(), "clip-b", 8))
+    }
+
     @Test fun noAutoplayWhenMotionIsReducedOrDialogIsOpen() {
         assertTrue(MintClipsPlayback.mayAutoAdvance(true, false, false))
         assertFalse(MintClipsPlayback.mayAutoAdvance(true, true, false))
