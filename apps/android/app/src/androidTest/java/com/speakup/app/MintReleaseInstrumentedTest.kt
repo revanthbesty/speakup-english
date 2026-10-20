@@ -5,6 +5,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,6 +35,32 @@ class MintReleaseInstrumentedTest {
         assertEquals("Clips", MintUiNavigation.label("Feed"))
         assertEquals("Feed", MintUiNavigation.mainTab("FiveWord"))
         assertEquals("Games", MintUiNavigation.backDestination("Feed", storyFromGames = true))
+    }
+
+    @Test fun existingLearnerPreferencesSurviveActivityRecreation() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val prefs = context.getSharedPreferences("speakup_learning", 0)
+        val key = "mint_qa_recreation_probe"
+        val previous = prefs.getString(key, null)
+        val existed = prefs.contains(key)
+        try {
+            assertTrue(prefs.edit().putString(key, "survives-recreation").commit())
+            ActivityScenario.launch(MainActivity::class.java).use { scenario ->
+                scenario.recreate()
+            }
+            assertEquals("survives-recreation", prefs.getString(key, null))
+        } finally {
+            val editor = prefs.edit()
+            if (existed) editor.putString(key, previous) else editor.remove(key)
+            assertTrue(editor.commit())
+        }
+    }
+
+    @Test fun allBottomTabsResolveToUniqueUserFacingLabels() {
+        val labels = MintUiNavigation.tabs.map(MintUiNavigation::label)
+        assertEquals(5, labels.distinct().size)
+        assertEquals(listOf("Home", "Games", "Clips", "Speak", "Profile"), labels)
+        assertFalse(MintUiNavigation.clipsReturnToGamesAfterTabTap("Speak"))
     }
 
     @Test fun packageIdentityIsUnchanged() {
