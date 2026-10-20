@@ -5,6 +5,12 @@ internal object MintClipsPlayback {
     fun safeIndex(index: Int, count: Int): Int =
         if (count <= 0) 0 else index.coerceIn(0, count - 1)
 
+    /** Resolve by stable clip ID rather than assuming recommendations keep their order. */
+    fun restoreIndex(ids: List<String>, savedId: String?, fallbackIndex: Int = 0): Int {
+        val match = ids.indexOf(savedId)
+        return if (match >= 0) match else safeIndex(fallbackIndex, ids.size)
+    }
+
     fun next(index: Int, count: Int): Int = safeIndex(index + 1, count)
     fun previous(index: Int, count: Int): Int = safeIndex(index - 1, count)
 

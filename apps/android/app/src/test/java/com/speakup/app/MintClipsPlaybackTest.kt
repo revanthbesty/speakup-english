@@ -13,12 +13,29 @@ class MintClipsPlaybackTest {
         assertEquals(0, MintClipsPlayback.safeIndex(-5, 3))
     }
 
+    @Test fun restoredAndResetIndicesRemainBoundedForChangingCatalogs() {
+        assertEquals(0, MintClipsPlayback.safeIndex(200, 0))
+        assertEquals(0, MintClipsPlayback.safeIndex(-2, 5))
+        assertEquals(4, MintClipsPlayback.safeIndex(200, 5))
+        assertEquals(4, MintClipsPlayback.next(4, 5))
+        assertEquals(0, MintClipsPlayback.previous(0, 5))
+    }
+
     @Test fun progressAndFrameNavigationAreBounded() {
         assertEquals(0f, MintClipsPlayback.progress(0, 0), 0.0001f)
         assertEquals(0.5f, MintClipsPlayback.progress(1, 4), 0.0001f)
         assertEquals(1f, MintClipsPlayback.progress(20, 4), 0.0001f)
         assertEquals(2, MintClipsPlayback.advanceFrame(2, 3, true))
         assertEquals(1, MintClipsPlayback.advanceFrame(1, 3, false))
+    }
+
+    @Test fun speakingReturnResolvesStableClipIdAfterReordering() {
+        val before = listOf("clip-a", "clip-b", "clip-c")
+        val after = listOf("clip-c", "clip-a", "clip-b")
+        assertEquals(1, MintClipsPlayback.restoreIndex(before, "clip-b"))
+        assertEquals(2, MintClipsPlayback.restoreIndex(after, "clip-b"))
+        assertEquals(1, MintClipsPlayback.restoreIndex(after, "deleted-clip", 1))
+        assertEquals(0, MintClipsPlayback.restoreIndex(emptyList(), "clip-b", 8))
     }
 
     @Test fun noAutoplayWhenMotionIsReducedOrDialogIsOpen() {
