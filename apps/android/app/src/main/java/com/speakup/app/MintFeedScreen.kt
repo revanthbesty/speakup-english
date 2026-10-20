@@ -52,14 +52,14 @@ internal fun MintFeedScreen(
     var infoOpen by remember { mutableStateOf(false) }
     var showListening by remember { mutableStateOf(false) }
     var wordSheetOpen by remember { mutableStateOf(false) }
-    var speakMomentOpen by remember { mutableStateOf(false) }
-    var suggestedReplyVisible by remember { mutableStateOf(false) }
+    var speakMomentOpen by rememberSaveable { mutableStateOf(false) }
+    var suggestedReplyVisible by rememberSaveable { mutableStateOf(false) }
     val visibleClips = MintClipRecommendations.ordered(MintFeedCatalog.visible(learnerAge, level, blockedIds), completedChallengeIds, reactionIds)
     val currentIndex = MintClipsPlayback.safeIndex(clipIndex, visibleClips.size)
     val clip = visibleClips.getOrNull(currentIndex)
 
     fun reset(next: Int) {
-        clipIndex = next
+        clipIndex = MintClipsPlayback.safeIndex(next, visibleClips.size)
         frameIndex = 0
         playing = false
         choice = ""
