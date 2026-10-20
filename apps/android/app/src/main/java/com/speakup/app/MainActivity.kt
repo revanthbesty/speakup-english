@@ -297,6 +297,7 @@ fun PremiumSpeakUp() {
     var mintGameFeedback by remember { mutableStateOf("") }
     var mintGameXpAward by remember { mutableIntStateOf(0) }
     var mintSpeakingMission by remember { mutableStateOf("") }
+    var returnToClipsFromSpeaking by remember { mutableStateOf(false) }
     var rwQuestIndex by remember { mutableIntStateOf(0) }
     var rwChoice by remember { mutableIntStateOf(-1) }
     var rwChecked by remember { mutableStateOf(false) }
@@ -827,6 +828,14 @@ fun PremiumSpeakUp() {
                         }
                     }
                     "Speak" -> {
+                        if (returnToClipsFromSpeaking) {
+                            OutlinedButton(onClick = {
+                                returnToClipsFromSpeaking = false
+                                page = "Feed"
+                            }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                                Text("← Return to Clips")
+                            }
+                        }
                         Text("Speak with Mint Buddy", style = MaterialTheme.typography.headlineMedium, color = primaryTextColor, fontWeight = FontWeight.Bold)
                         Text("Try a short, private English conversation.", color = secondaryTextColor)
                         Surface(color = MaterialTheme.colorScheme.primaryContainer,
@@ -1061,6 +1070,7 @@ fun PremiumSpeakUp() {
                                 preferences.edit().putStringSet("mint_story_completed", mintStoryCompletions).apply()
                             },
                             onSpeakingPrompt = { prompt ->
+                                returnToClipsFromSpeaking = true
                                 mintSpeakingMission = prompt
                                 speakingView = "Lessons"
                                 practiceResponse = ""
@@ -2311,7 +2321,11 @@ fun PremiumSpeakUp() {
                     )
                     NavigationBarItem(
                         selected = isActive,
-                        onClick = { storyOpenedFromGames = MintUiNavigation.clipsReturnToGamesAfterTabTap(tab); page = tab },
+                        onClick = {
+                            storyOpenedFromGames = MintUiNavigation.clipsReturnToGamesAfterTabTap(tab)
+                            returnToClipsFromSpeaking = false
+                            page = tab
+                        },
                         icon = { MintBottomTabIcon(tab, iconColor) },
                         label = { Text(MintUiNavigation.label(tab), maxLines = 1, style = MaterialTheme.typography.labelSmall) },
                         alwaysShowLabel = true,
