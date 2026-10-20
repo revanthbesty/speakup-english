@@ -13,6 +13,14 @@ class MintClipsPlaybackTest {
         assertEquals(0, MintClipsPlayback.safeIndex(-5, 3))
     }
 
+    @Test fun restoredAndResetIndicesRemainBoundedForChangingCatalogs() {
+        assertEquals(0, MintClipsPlayback.safeIndex(200, 0))
+        assertEquals(0, MintClipsPlayback.safeIndex(-2, 5))
+        assertEquals(4, MintClipsPlayback.safeIndex(200, 5))
+        assertEquals(4, MintClipsPlayback.next(4, 5))
+        assertEquals(0, MintClipsPlayback.previous(0, 5))
+    }
+
     @Test fun progressAndFrameNavigationAreBounded() {
         assertEquals(0f, MintClipsPlayback.progress(0, 0), 0.0001f)
         assertEquals(0.5f, MintClipsPlayback.progress(1, 4), 0.0001f)
