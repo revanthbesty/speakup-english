@@ -38,11 +38,14 @@ internal fun MintFeedScreen(
     onChallengeCompleted: (String) -> Unit,
     savedWords: Set<String>,
     onToggleWord: (String) -> Unit,
-    onSpeakingPrompt: (String) -> Unit
+    restoredClipId: String? = null,
+    restoredFrameIndex: Int = 0,
+    restoredLevel: MintClipLevel = MintClipLevel.EASY,
+    onSpeakingPrompt: (String, String, Int, MintClipLevel) -> Unit
 ) {
-    var level by rememberSaveable { mutableStateOf(MintClipLevel.EASY) }
+    var level by rememberSaveable { mutableStateOf(restoredLevel) }
     var clipIndex by rememberSaveable { mutableIntStateOf(0) }
-    var frameIndex by rememberSaveable { mutableIntStateOf(0) }
+    var frameIndex by rememberSaveable { mutableIntStateOf(restoredFrameIndex) }
     var playing by remember { mutableStateOf(false) }
     var captionVisible by rememberSaveable { mutableStateOf(true) }
     var largeCaptions by rememberSaveable { mutableStateOf(false) }
@@ -55,10 +58,13 @@ internal fun MintFeedScreen(
     var speakMomentOpen by rememberSaveable { mutableStateOf(false) }
     var suggestedReplyVisible by rememberSaveable { mutableStateOf(false) }
     val visibleClips = MintClipRecommendations.ordered(MintFeedCatalog.visible(learnerAge, level, blockedIds), completedChallengeIds, reactionIds)
-    val currentIndex = MintClipsPlayback.safeIndex(clipIndex, visibleClips.size)
+    var restoredIdConsumed by rememberSaveable { mutableStateOf(false) }
+    val currentIndex = if (restoredIdConsumed) MintClipsPlayback.safeIndex(clipIndex, visibleClips.size)
+        else MintClipsPlayback.restoreIndex(visibleClips.map { it.id }, restoredClipId, clipIndex)
     val clip = visibleClips.getOrNull(currentIndex)
 
     fun reset(next: Int) {
+        restoredIdConsumed = true
         clipIndex = MintClipsPlayback.safeIndex(next, visibleClips.size)
         frameIndex = 0
         playing = false
@@ -242,7 +248,7 @@ internal fun MintFeedScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         speakMomentOpen = false
-                        onSpeakingPrompt("Explain what happened in '${clip.title}' using one or two English sentences.")
+                        onSpeakingPrompt("Explain what happened in '${clip.title}' using one or two English sentences.", clip.id, frameIndex, level)
                     }) { Text("Speak or type") }
                 },
                 dismissButton = {
